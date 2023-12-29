@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <InternalsVisibleTo Include="KlabTestFramework.Workflow.Lib.Tests" />
+    </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KlabTestFramework.Workflow.Lib.Contracts\KlabTestFramework.Workflow.Lib.Contracts.csproj" />
+  </ItemGroup>
+</Project>
