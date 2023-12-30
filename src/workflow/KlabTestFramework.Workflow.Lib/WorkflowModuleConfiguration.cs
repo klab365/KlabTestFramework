@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using KlabTestFramework.Workflow.Lib.Contracts;
+using KlabTestFramework.Workflow.Lib.Editor;
+using KlabTestFramework.Workflow.Lib.Editor.Persistence;
 
 namespace KlabTestFramework.Workflow.Lib;
 
@@ -20,6 +22,12 @@ public class WorkflowModuleConfiguration
     /// List of step types to register.
     /// </summary>
     public IEnumerable<StepType> StepTypes => _stepTypes;
+
+    /// <summary>
+    /// Default workflow repository type.
+    /// </summary>
+    /// <value></value>
+    public Func<IWorkflowRepository> DefaultWorkflowRepositoryFactory { get; set; } = () => new WorkflowJsonRepository();
 
     /// <summary>
     /// Add step type

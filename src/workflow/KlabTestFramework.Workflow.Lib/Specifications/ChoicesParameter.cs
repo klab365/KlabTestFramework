@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using KlabTestFramework.Workflow.Lib.Contracts;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications.Parameters.ParameterTypes;
-
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 /// <summary>
 /// Represents a parameter with a set of predefined choices.
 /// </summary>

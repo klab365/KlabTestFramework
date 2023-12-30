@@ -13,6 +13,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+workflow.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -594,3 +595,4 @@ FodyWeavers.xsd
 # Additional files built by Visual Studio
 
 # End of https://www.toptal.com/developers/gitignore/api/csharp,visualstudio,visualstudiocode
+

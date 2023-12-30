@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Contracts;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications.Steps.StepTypes;
+namespace KlabTestFramework.Workflow.Lib.BuildInSteps;
 
 /// <summary>
 /// Handler for the <see cref="WaitStep"/> step.

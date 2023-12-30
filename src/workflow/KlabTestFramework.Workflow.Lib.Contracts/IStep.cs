@@ -8,8 +8,14 @@ namespace KlabTestFramework.Workflow.Lib.Contracts;
 public interface IStep
 {
     /// <summary>
-    /// Gets the parameters associated with the step.
+    /// Initialize the step with the given parameter data.
     /// </summary>
-    /// <returns>An enumerable collection of <see cref="IParameter"/> objects.</returns>
-    IEnumerable<IParameter> GetParameters();
+    /// <param name="parameterData"></param>
+    void Init(IEnumerable<ParameterData> parameterData);
+
+    /// <summary>
+    /// Get the parameter data of the step.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerable<ParameterData>? GetParameterData();
 }

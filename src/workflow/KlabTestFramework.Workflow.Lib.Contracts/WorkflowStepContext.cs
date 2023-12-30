@@ -3,23 +3,15 @@ using System.Threading;
 
 namespace KlabTestFramework.Workflow.Lib.Contracts;
 
-public interface IWorkflowContext
-{
-    CancellationToken CancellationToken { get; }
-
-    void PublishMessage(string message);
-}
-
 /// <summary>
-/// Represents the context for a workflow step.
+/// Implementation of <see cref="IWorkflowContext"/>.
 /// </summary>
 public class WorkflowStepContext : IWorkflowContext
 {
-    /// <summary>
-    /// Gets the cancellation token for the workflow step.
-    /// </summary>
+    /// <inheritdoc/>
     public CancellationToken CancellationToken { get; }
 
+    /// <inheritdoc/>
     public void PublishMessage(string message)
     {
         Console.WriteLine(message);

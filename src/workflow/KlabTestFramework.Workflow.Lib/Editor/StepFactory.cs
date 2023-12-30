@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using KlabTestFramework.Workflow.Lib.Contracts;
+using KlabTestFramework.Workflow.Lib.Specifications;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications.Steps;
+namespace KlabTestFramework.Workflow.Lib.Editor;
 
 /// <summary>
 /// Implementation of <see cref="IStepFactory"/>
 /// </summary>
 public class StepFactory : IStepFactory
 {
-    private static readonly ConcurrentDictionary<Type, StepHandlerWrapperBase> StepHandlers = new();
     private readonly IEnumerable<StepSpecification> _stepSpecifications;
 
     public StepFactory(IEnumerable<StepSpecification> stepSpecifications)
@@ -29,24 +28,16 @@ public class StepFactory : IStepFactory
         return step;
     }
 
-    /// <inheritdoc/>
-    public StepHandlerWrapperBase CreateStepHandler<TStep>(TStep step) where TStep : class, IStep
+    public IStep CreateStep(StepData stepData)
     {
-        StepHandlerWrapperBase stepHandler = StepHandlers.GetOrAdd(step.GetType(), requestType =>
+        StepSpecification stepSpecification = _stepSpecifications.Single(s => s.StepType.Name == stepData.Type);
+        IStep step = stepSpecification.Factory();
+        if (stepData.Parameters != null)
         {
-            StepSpecification stepSpecification = _stepSpecifications.Single(s => s.StepType == requestType);
-            Type wrapperType = typeof(StepHandlerWrapper<>).MakeGenericType(stepSpecification.StepType);
-            object? wrapper = stepSpecification.HandlerFactory();
-            if (wrapper == null)
-            {
-                throw new InvalidOperationException($"Could not create instance of {wrapperType}");
-            }
+            step.Init(stepData.Parameters);
+        }
 
-            StepHandlerWrapperBase stepHandler = (StepHandlerWrapperBase)wrapper;
-            return stepHandler;
-        });
-
-        return stepHandler;
+        return step;
     }
 }
 
