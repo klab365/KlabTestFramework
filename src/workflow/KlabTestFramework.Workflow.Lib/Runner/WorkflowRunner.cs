@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using KlabTestFramework.Workflow.Lib.Contracts;
+using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Lib.Specifications.Steps;
 using Microsoft.Extensions.Logging;
 
 namespace KlabTestFramework.Workflow.Lib;
@@ -28,6 +30,11 @@ public sealed class WorkflowRunner : IWorkflowRunner
 
     public async Task<WorkflowResult> RunAsync(Specifications.Workflow workflow)
     {
+        if (HaveStepsErrors(workflow))
+        {
+            return new WorkflowResult { Success = false };
+        }
+
         WorkflowStepContext context = new();
         WorkflowStatusChanged?.Invoke(this, new() { Status = WorkflowStatus.Running });
         foreach (StepContainer stepContainer in workflow.Steps)
@@ -49,6 +56,23 @@ public sealed class WorkflowRunner : IWorkflowRunner
         }
         WorkflowStatusChanged?.Invoke(this, new() { Status = WorkflowStatus.Completed });
         return new WorkflowResult { Success = true };
+    }
+
+    private bool HaveStepsErrors(Specifications.Workflow workflow)
+    {
+        bool hasErrors = false;
+        foreach (StepContainer stepContainer in workflow.Steps)
+        {
+            foreach (IParameter parameter in stepContainer.Step.GetParameters())
+            {
+                if (!parameter.IsValid())
+                {
+                    _logger.LogError("Parameter {Name} is invalid", parameter.DisplayName);
+                    hasErrors = true;
+                }
+            }
+        }
+        return hasErrors;
     }
 
     private async Task HandleStep<TStep>(TStep step, WorkflowStepContext context) where TStep : class, IStep

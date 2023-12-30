@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using KlabTestFramework.Workflow.Lib.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace KlabTestFramework.Workflow.Lib;
+namespace KlabTestFramework.Workflow.Lib.Specifications.Steps;
 
 /// <summary>
 /// Implementation of <see cref="IStepFactory"/>

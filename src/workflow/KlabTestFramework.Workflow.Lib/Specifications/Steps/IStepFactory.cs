@@ -1,6 +1,6 @@
 ﻿using KlabTestFramework.Workflow.Lib.Contracts;
 
-namespace KlabTestFramework.Workflow.Lib;
+namespace KlabTestFramework.Workflow.Lib.Specifications.Steps;
 
 /// <summary>
 /// Represents a factory for creating step handlers and steps.

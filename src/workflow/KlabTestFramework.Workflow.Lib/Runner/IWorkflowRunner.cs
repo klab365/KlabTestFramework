@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib;
+namespace KlabTestFramework.Workflow.Lib.Runner;
 
 /// <summary>
 /// Represents a workflow runner that executes a workflow.

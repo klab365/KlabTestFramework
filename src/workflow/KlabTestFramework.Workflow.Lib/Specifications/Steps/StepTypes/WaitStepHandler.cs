@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Contracts;
 
-namespace KlabTestFramework.Workflow.Lib.Types;
+namespace KlabTestFramework.Workflow.Lib.Specifications.Steps.StepTypes;
 
 /// <summary>
 /// Handler for the <see cref="WaitStep"/> step.
@@ -13,12 +13,13 @@ public class WaitStepHandler : IStepHandler<WaitStep>
     /// <inheritdoc/>
     public async Task<Result> HandleAsync(WaitStep step, IWorkflowContext context)
     {
-        TimeSpan remainingTime = step.Time;
-        Console.WriteLine($"Waiting for {step.Time}");
+        TimeSpan remainingTime = step.Time.Value;
+        Console.WriteLine($"Wait Unit is '{step.SelectedTimeUnit.Value!.Unit}'");
+        Console.WriteLine($"Waiting for {step.Time.Value} {step.SelectedTimeUnit.Value!.Unit}");
         PublishRemainingTime(context, remainingTime);
         while (!context.CancellationToken.IsCancellationRequested)
         {
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await Task.Delay(TimeSpan.FromSeconds(1), context.CancellationToken);
             remainingTime -= TimeSpan.FromSeconds(1);
             PublishRemainingTime(context, remainingTime);
             if (remainingTime <= TimeSpan.Zero)
@@ -36,16 +37,3 @@ public class WaitStepHandler : IStepHandler<WaitStep>
         context.PublishMessage($"{remainingTime.TotalSeconds} sec");
     }
 }
-
-
-/// <summary>
-/// Represents a step that waits for a specified amount of time.
-/// </summary>
-public class WaitStep : IStep
-{
-    /// <summary>
-    /// Gets or sets the time to wait.
-    /// </summary>
-    public TimeSpan Time { get; set; } = TimeSpan.Zero;
-}
-
