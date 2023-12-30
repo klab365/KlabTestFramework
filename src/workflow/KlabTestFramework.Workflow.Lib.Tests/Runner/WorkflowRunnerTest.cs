@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using FluentAssertions;
 using KlabTestFramework.Workflow.Lib.Contracts;
-using KlabTestFramework.Workflow.Lib.Specifications.Steps;
-using KlabTestFramework.Workflow.Lib.Specifications.Tests;
+using KlabTestFramework.Workflow.Lib.Editor;
+using KlabTestFramework.Workflow.Lib.Tests;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -12,13 +14,13 @@ public class WorkflowRunnerTests
 {
     private readonly WorkflowRunner _sut;
     private readonly Mock<ILogger<WorkflowRunner>> _loggerMock;
-    private readonly Mock<IStepFactory> _stepFactoryMock;
+    private readonly Mock<IEnumerable<StepSpecification>> _stepSpecificationsMock;
 
     public WorkflowRunnerTests()
     {
-        _stepFactoryMock = new();
+        _stepSpecificationsMock = new();
         _loggerMock = new();
-        _sut = new(_loggerMock.Object, _stepFactoryMock.Object);
+        _sut = new(_loggerMock.Object, _stepSpecificationsMock.Object);
     }
 
     [Fact]
@@ -26,12 +28,13 @@ public class WorkflowRunnerTests
     {
         // Arrange
         int invocationCounter = 0;
-        _stepFactoryMock.Setup(m => m.CreateStep<MockStep>()).Returns(new MockStep());
-        Mock<StepHandlerWrapperBase> stepHandlerMock = new();
-        _stepFactoryMock.Setup(m => m.CreateStepHandler(It.IsAny<IStep>())).Returns(stepHandlerMock.Object);
-        Specifications.Workflow workflow = new(_stepFactoryMock.Object);
-        workflow.AddStep<MockStep>();
-        workflow.AddStep<MockStep>();
+        Mock<IStepHandler<MockStep>> stepHandlerMock = new();
+        Mock<IServiceProvider> serviceProviderMock = new();
+        serviceProviderMock.Setup(s => s.GetService(typeof(IStepHandler<MockStep>))).Returns(stepHandlerMock.Object);
+        serviceProviderMock.Setup(s => s.GetService(typeof(StepHandlerWrapper<MockStep>))).Returns(new StepHandlerWrapper<MockStep>(serviceProviderMock.Object));
+        StepSpecification stepSpecification = StepSpecification.Create(typeof(MockStep), () => new MockStep(), () => new StepHandlerWrapper<MockStep>(serviceProviderMock.Object));
+        _stepSpecificationsMock.Setup(s => s.GetEnumerator()).Returns(new List<StepSpecification> { stepSpecification }.GetEnumerator());
+        Specifications.Workflow workflow = new([new MockStep(), new MockStep()]);
         _sut.StepStatusChanged += (_, _) => invocationCounter++;
 
         // Act
@@ -46,7 +49,7 @@ public class WorkflowRunnerTests
     {
         // Arrange
         int invocationCounter = 0;
-        Specifications.Workflow workflow = new(_stepFactoryMock.Object);
+        Specifications.Workflow workflow = new(Array.Empty<IStep>());
         _sut.StepStatusChanged += (_, _) => invocationCounter++;
 
         // Act

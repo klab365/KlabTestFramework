@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Runner;
 
@@ -51,9 +50,9 @@ public enum WorkflowStatus
 public class WorkflowStepStatusEventArgs : EventArgs
 {
     /// <summary>
-    /// Gets or sets the step container associated with the event.
+    /// Get or sets the id of the workflow step.
     /// </summary>
-    public StepContainer? StepContainer { get; set; }
+    public Guid StepId { get; set; }
 
     /// <summary>
     /// Gets or sets the status of the workflow step.

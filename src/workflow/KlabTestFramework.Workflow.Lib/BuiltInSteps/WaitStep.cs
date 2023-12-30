@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using KlabTestFramework.Workflow.Lib.Contracts;
-using KlabTestFramework.Workflow.Lib.Specifications.Parameters;
-using KlabTestFramework.Workflow.Lib.Specifications.Parameters.ParameterTypes;
+using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications.Steps.StepTypes;
+namespace KlabTestFramework.Workflow.Lib.BuildInSteps;
 
 /// <summary>
 /// Represents a step that waits for a specified amount of time.
@@ -44,6 +45,31 @@ public class WaitStep : IStep
     {
         yield return Time;
         yield return SelectedTimeUnit;
+    }
+
+    public IEnumerable<ParameterData>? GetParameterData()
+    {
+        List<ParameterData> parameterData = new()
+        {
+            new ParameterData(){Name = nameof(Time), Value = Time.Value!.ToString()}
+        };
+
+        return parameterData;
+    }
+
+    public void Init(IEnumerable<ParameterData> parameterData)
+    {
+        ParameterData? timeParameterData = parameterData.SingleOrDefault(p => p.Name == nameof(Time));
+        if (timeParameterData is not null)
+        {
+            Time.SetValue(TimeSpan.Parse(timeParameterData.Value!, CultureInfo.InvariantCulture));
+        }
+
+        ParameterData? selectedTimeUnitParameterData = parameterData.SingleOrDefault(p => p.Name == nameof(SelectedTimeUnit));
+        if (selectedTimeUnitParameterData is not null)
+        {
+            SelectedTimeUnit.SetValue(TimeUnit.All.Single(t => t.Unit == selectedTimeUnitParameterData.Value));
+        }
     }
 }
 

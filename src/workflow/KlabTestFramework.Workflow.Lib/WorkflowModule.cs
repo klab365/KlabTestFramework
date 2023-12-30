@@ -1,11 +1,9 @@
 ﻿using System;
+using KlabTestFramework.Workflow.Lib.BuildInSteps;
 using KlabTestFramework.Workflow.Lib.Contracts;
+using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
-using KlabTestFramework.Workflow.Lib.Specifications.Parameters;
-using KlabTestFramework.Workflow.Lib.Specifications.Parameters.ParameterTypes;
-using KlabTestFramework.Workflow.Lib.Specifications.Steps;
-using KlabTestFramework.Workflow.Lib.Specifications.Steps.StepTypes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -30,27 +28,41 @@ public static class WorkflowModule
         WorkflowModuleConfiguration configuration = new();
         configurationCallback?.Invoke(configuration);
 
-        services.AddSingleton<IWorkflowFactory, WorkflowFactoy>();
-        services.AddTransient<Specifications.Workflow>();
-        services.AddSingleton<IWorkflowRunner, WorkflowRunner>();
-        services.AddSteps(configuration);
-        services.AddParameters(configuration);
+        services.AddWorkflowEditor(configuration);
+        services.AddWorkflowRunner();
+        services.AddWorkflowspecification(configuration);
         return services;
     }
 
-    private static IServiceCollection AddSteps(this IServiceCollection services, WorkflowModuleConfiguration configuration)
+    private static void AddWorkflowEditor(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
-        services.AddSingleton<IStepFactory, StepFactory>();
-        RegisterSteps(services, configuration);
-        return services;
+        services.AddTransient(typeof(IWorkflowRepository), _ => configuration.DefaultWorkflowRepositoryFactory());
+        services.AddTransient<IWorkflowEditor, WorkflowEditor>();
+        services.AddTransient<IWorkflowReadEditor, WorkflowEditor>();
     }
 
-    private static IServiceCollection AddParameters(this IServiceCollection services, WorkflowModuleConfiguration configuration)
+    private static void AddWorkflowRunner(this IServiceCollection services)
+    {
+        services.AddTransient<IWorkflowRunner, WorkflowRunner>();
+    }
+
+    private static void AddWorkflowspecification(this IServiceCollection services, WorkflowModuleConfiguration configuration)
+    {
+        services.AddSteps(configuration);
+        services.AddParameters();
+    }
+
+    private static void AddSteps(this IServiceCollection services, WorkflowModuleConfiguration configuration)
+    {
+        services.AddTransient<IStepFactory, StepFactory>();
+        RegisterSteps(services, configuration);
+    }
+
+    private static void AddParameters(this IServiceCollection services)
     {
         services.AddTransient<IParameterFactory, ParameterFactory>();
         services.AddTransient(typeof(SingleValueParameter<>));
         services.AddTransient(typeof(ChoicesParameter<>));
-        return services;
     }
 
     private static void RegisterSteps(IServiceCollection services, WorkflowModuleConfiguration configuration)

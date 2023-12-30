@@ -1,7 +1,6 @@
 ﻿using System;
-using KlabTestFramework.Workflow.Lib.Specifications.Parameters.ParameterTypes;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications.Parameters;
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Represents a factory for creating parameters used in the workflow.

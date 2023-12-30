@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using KlabTestFramework.Workflow.Lib.Contracts;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications.Parameters.ParameterTypes;
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Represents a single value parameter that implements the <see cref="IParameter{TValue}"/> interface.
@@ -76,5 +76,10 @@ public class SingleValueParameter<TValue> : IParameter<TValue>
         }
 
         return true;
+    }
+
+    internal string GetStringRepresentation()
+    {
+        throw new NotImplementedException();
     }
 }

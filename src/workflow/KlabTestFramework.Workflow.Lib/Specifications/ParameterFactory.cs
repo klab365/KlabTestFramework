@@ -1,9 +1,7 @@
 ﻿using System;
-using KlabTestFramework.Workflow.Lib.Specifications.Parameters.ParameterTypes;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications.Parameters;
-
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 /// <summary>
 /// Implementation of the <see cref="IParameterFactory"/> interface.
 /// </summary>
