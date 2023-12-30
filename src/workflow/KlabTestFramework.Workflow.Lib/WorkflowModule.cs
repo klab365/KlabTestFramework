@@ -1,6 +1,11 @@
 ﻿using System;
 using KlabTestFramework.Workflow.Lib.Contracts;
-using KlabTestFramework.Workflow.Lib.Types;
+using KlabTestFramework.Workflow.Lib.Runner;
+using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Lib.Specifications.Parameters;
+using KlabTestFramework.Workflow.Lib.Specifications.Parameters.ParameterTypes;
+using KlabTestFramework.Workflow.Lib.Specifications.Steps;
+using KlabTestFramework.Workflow.Lib.Specifications.Steps.StepTypes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -25,16 +30,26 @@ public static class WorkflowModule
         WorkflowModuleConfiguration configuration = new();
         configurationCallback?.Invoke(configuration);
 
-        services.AddSingleton<IStepFactory, StepFactory>();
-        services.AddSingleton<IWorkflowRunner, WorkflowRunner>();
+        services.AddSingleton<IWorkflowFactory, WorkflowFactoy>();
         services.AddTransient<Specifications.Workflow>();
+        services.AddSingleton<IWorkflowRunner, WorkflowRunner>();
         services.AddSteps(configuration);
+        services.AddParameters(configuration);
         return services;
     }
 
     private static IServiceCollection AddSteps(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
+        services.AddSingleton<IStepFactory, StepFactory>();
         RegisterSteps(services, configuration);
+        return services;
+    }
+
+    private static IServiceCollection AddParameters(this IServiceCollection services, WorkflowModuleConfiguration configuration)
+    {
+        services.AddTransient<IParameterFactory, ParameterFactory>();
+        services.AddTransient(typeof(SingleValueParameter<>));
+        services.AddTransient(typeof(ChoicesParameter<>));
         return services;
     }
 

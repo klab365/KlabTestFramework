@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using KlabTestFramework.Workflow.Lib.Contracts;
+using KlabTestFramework.Workflow.Lib.Specifications.Steps;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 

@@ -1,10 +1,12 @@
 ﻿using System.Threading.Tasks;
 using FluentAssertions;
 using KlabTestFramework.Workflow.Lib.Contracts;
+using KlabTestFramework.Workflow.Lib.Specifications.Steps;
+using KlabTestFramework.Workflow.Lib.Specifications.Tests;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace KlabTestFramework.Workflow.Lib.Tests;
+namespace KlabTestFramework.Workflow.Lib.Runner.Tests;
 
 public class WorkflowRunnerTests
 {

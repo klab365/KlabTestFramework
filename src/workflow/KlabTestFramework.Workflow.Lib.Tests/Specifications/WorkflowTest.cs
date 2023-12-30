@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using KlabTestFramework.Workflow.Lib.Contracts;
+using KlabTestFramework.Workflow.Lib.Specifications.Steps;
 using Moq;
 
-namespace KlabTestFramework.Workflow.Lib.Tests;
+namespace KlabTestFramework.Workflow.Lib.Specifications.Tests;
 
 public class WorkflowTests
 {
-    private readonly Specifications.Workflow _sut;
+    private readonly Workflow _sut;
     private readonly Mock<IStepFactory> _stepFactoryMock;
 
     public WorkflowTests()
@@ -67,4 +69,8 @@ public class WorkflowTests
 internal sealed class MockStep : IStep
 {
     // Implement the required members of IStep interface
+    public IEnumerable<IParameter> GetParameters()
+    {
+        yield break;
+    }
 }
