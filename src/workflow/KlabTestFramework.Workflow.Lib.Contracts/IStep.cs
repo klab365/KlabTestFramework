@@ -18,4 +18,10 @@ public interface IStep
     /// </summary>
     /// <returns></returns>
     IEnumerable<ParameterData>? GetParameterData();
+
+    /// <summary>
+    /// Get the parameters of the step.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerable<IParameter> GetParameters();
 }
