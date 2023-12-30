@@ -69,6 +69,7 @@ public class WorkflowEditor : IWorkflowEditor
         WorkflowData data = await _repository.GetWorkflowAsync(path);
         IStep[] steps = data.Steps.Select(s => _stepFactory.CreateStep(s)).ToArray();
         Specifications.Workflow workflow = new(steps);
+
         return workflow;
     }
 

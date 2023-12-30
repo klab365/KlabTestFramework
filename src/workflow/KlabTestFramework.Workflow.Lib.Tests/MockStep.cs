@@ -11,6 +11,11 @@ public class MockStep : IStep
         throw new NotImplementedException();
     }
 
+    public IEnumerable<IParameter> GetParameters()
+    {
+        throw new NotImplementedException();
+    }
+
     public void Init(IEnumerable<ParameterData> parameterData)
     {
         throw new NotImplementedException();
