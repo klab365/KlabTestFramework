@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\workflow\KlabTestFramework.Workflow.Lib\KlabTestFramework.Workflow.Lib.csproj" />
-    <ProjectReference Include="..\..\..\src\workflow\KlabTestFramework.Workflow.Lib.Contracts\KlabTestFramework.Workflow.Lib.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using KlabTestFramework.Workflow.Lib.Contracts;
+
 using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Editor.Persistence;
 
@@ -12,16 +12,21 @@ namespace KlabTestFramework.Workflow.Lib;
 public class WorkflowModuleConfiguration
 {
     private readonly List<StepType> _stepTypes = new();
+    private readonly List<ParameterType> _parameterTypes = new();
 
     /// <summary>
     /// Gets or sets a value indicating whether to register default steps.
     /// </summary>
     public bool ShouldRegisterDefaultSteps { get; set; } = true;
 
+    public bool ShouldRegisterDefaultParameters { get; set; } = true;
+
     /// <summary>
     /// List of step types to register.
     /// </summary>
     public IEnumerable<StepType> StepTypes => _stepTypes;
+
+    public IEnumerable<ParameterType> ParameterTypes => _parameterTypes;
 
     /// <summary>
     /// Default workflow repository type.
@@ -49,6 +54,16 @@ public class WorkflowModuleConfiguration
 
         _stepTypes.Add(new(typeof(TStep), typeof(TStepHandler)));
     }
+
+    public void AddParameterType<TParameter>() where TParameter : IParameterType
+    {
+        if (!typeof(TParameter).IsAssignableTo(typeof(IParameterType)))
+        {
+            throw new ArgumentException($"Type {typeof(TParameter).Name} is not assignable to {nameof(IParameterType)}");
+        }
+
+        _parameterTypes.Add(new(typeof(TParameter)));
+    }
 }
 
 
@@ -58,3 +73,5 @@ public class WorkflowModuleConfiguration
 /// <param name="Step">The type of the step.</param>
 /// <param name="Handler">The type of the handler for the step.</param>
 public record StepType(Type Step, Type Handler);
+
+public record ParameterType(Type Parameter);

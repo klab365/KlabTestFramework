@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
-using KlabTestFramework.Workflow.Lib.Contracts;
+
 
 namespace KlabTestFramework.Workflow.Lib.BuildInSteps;
 
@@ -13,9 +13,7 @@ public class WaitStepHandler : IStepHandler<WaitStep>
     /// <inheritdoc/>
     public async Task<Result> HandleAsync(WaitStep step, IWorkflowContext context)
     {
-        TimeSpan remainingTime = step.Time.Value;
-        Console.WriteLine($"Wait Unit is '{step.SelectedTimeUnit.Value!.Unit}'");
-        Console.WriteLine($"Waiting for {step.Time.Value} {step.SelectedTimeUnit.Value!.Unit}");
+        TimeSpan remainingTime = step.Time.Content.Value;
         PublishRemainingTime(context, remainingTime);
         while (!context.CancellationToken.IsCancellationRequested)
         {

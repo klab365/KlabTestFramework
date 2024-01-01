@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace KlabTestFramework.Workflow.Lib.Contracts;
+namespace KlabTestFramework.Workflow.Lib;
 
 /// <summary>
 /// Implementation of <see cref="IWorkflowContext"/>.

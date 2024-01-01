@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
-using KlabTestFramework.Workflow.Lib.Contracts;
+
 using KlabTestFramework.Workflow.Lib.Editor;
+using KlabTestFramework.Workflow.Lib.Specifications;
 using KlabTestFramework.Workflow.Lib.Tests;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -34,7 +35,7 @@ public class WorkflowRunnerTests
         serviceProviderMock.Setup(s => s.GetService(typeof(StepHandlerWrapper<MockStep>))).Returns(new StepHandlerWrapper<MockStep>(serviceProviderMock.Object));
         StepSpecification stepSpecification = StepSpecification.Create(typeof(MockStep), () => new MockStep(), () => new StepHandlerWrapper<MockStep>(serviceProviderMock.Object));
         _stepSpecificationsMock.Setup(s => s.GetEnumerator()).Returns(new List<StepSpecification> { stepSpecification }.GetEnumerator());
-        Specifications.Workflow workflow = new([new MockStep(), new MockStep()]);
+        Specifications.Workflow workflow = new([new MockStep(), new MockStep()], Array.Empty<IVariable>());
         _sut.StepStatusChanged += (_, _) => invocationCounter++;
 
         // Act
@@ -49,7 +50,7 @@ public class WorkflowRunnerTests
     {
         // Arrange
         int invocationCounter = 0;
-        Specifications.Workflow workflow = new(Array.Empty<IStep>());
+        Specifications.Workflow workflow = new(Array.Empty<IStep>(), Array.Empty<IVariable>());
         _sut.StepStatusChanged += (_, _) => invocationCounter++;
 
         // Act

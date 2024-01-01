@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using KlabTestFramework.Workflow.Lib.Contracts;
+
 using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;

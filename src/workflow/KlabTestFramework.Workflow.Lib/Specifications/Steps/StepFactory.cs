@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using KlabTestFramework.Workflow.Lib.Contracts;
 using KlabTestFramework.Workflow.Lib.Specifications;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,7 +35,6 @@ public class StepFactory : IStepFactory
         {
             step.Init(stepData.Parameters);
         }
-
         return step;
     }
 }

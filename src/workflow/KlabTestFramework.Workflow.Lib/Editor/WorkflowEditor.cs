@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
-using KlabTestFramework.Workflow.Lib.Contracts;
+
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Editor;
@@ -13,23 +13,25 @@ namespace KlabTestFramework.Workflow.Lib.Editor;
 /// </summary>
 public class WorkflowEditor : IWorkflowEditor
 {
+    private readonly List<IVariable> _variables = new();
     private readonly List<StepIndexContainer> _steps = new();
     private readonly IWorkflowRepository _repository;
     private readonly IStepFactory _stepFactory;
+    private readonly IParameterFactory _parameterFactory;
     private readonly List<Action<WorkflowData>> _metaDataConfigureCallbacks = new();
-    private bool _canWorkflowBuilt;
 
-    public WorkflowEditor(IWorkflowRepository repository, IStepFactory stepFactory)
+    public WorkflowEditor(IWorkflowRepository repository, IStepFactory stepFactory, IParameterFactory parameterFactory)
     {
         _repository = repository;
         _stepFactory = stepFactory;
+        _parameterFactory = parameterFactory;
     }
 
     public void CreateNewWorkflow()
     {
-        _canWorkflowBuilt = true;
         _metaDataConfigureCallbacks.Clear();
         _steps.Clear();
+        _variables.Clear();
     }
 
     /// <inheritdoc/>
@@ -38,6 +40,14 @@ public class WorkflowEditor : IWorkflowEditor
         IStep step = _stepFactory.CreateStep<TStep>();
         configureCallback?.Invoke((TStep)step);
         _steps.Add(new StepIndexContainer(step) { Index = _steps.Count });
+    }
+
+    public void AddVariable<TParameter>(string name, Action<TParameter>? configureCallback = default!) where TParameter : IParameterType
+    {
+        TParameter variable = _parameterFactory.CreateParameterType<TParameter>();
+        configureCallback?.Invoke(variable);
+        Variable<TParameter> defaultVariable = new(name, variable);
+        _variables.Add(defaultVariable);
     }
 
     /// <inheritdoc/>
@@ -49,17 +59,12 @@ public class WorkflowEditor : IWorkflowEditor
     /// <inheritdoc/>
     public Result<Specifications.Workflow> BuildWorkflow()
     {
-        if (!_canWorkflowBuilt)
-        {
-            return new Error(1, "Workflow cannot be built", $"Have you called {nameof(CreateNewWorkflow)}?");
-        }
-
-        Specifications.Workflow workflow = new(_steps.Select(s => s.Step).ToArray());
+        IStep[] steps = _steps.Select(s => s.Step).ToArray();
+        Specifications.Workflow workflow = new(steps, _variables.ToArray());
         foreach (Action<WorkflowData> callback in _metaDataConfigureCallbacks)
         {
             callback(workflow.Metadata);
         }
-        _canWorkflowBuilt = false;
         return workflow;
     }
 
@@ -68,7 +73,7 @@ public class WorkflowEditor : IWorkflowEditor
     {
         WorkflowData data = await _repository.GetWorkflowAsync(path);
         IStep[] steps = data.Steps.Select(s => _stepFactory.CreateStep(s)).ToArray();
-        Specifications.Workflow workflow = new(steps);
+        Specifications.Workflow workflow = new(steps, Array.Empty<IVariable>());
 
         return workflow;
     }
@@ -84,6 +89,7 @@ public class WorkflowEditor : IWorkflowEditor
     private WorkflowData GetWorkflowDataFromWorkflow(Specifications.Workflow workflow)
     {
         WorkflowData data = workflow.Metadata;
+        data.Variables = _variables.Select(v => v.ToData()).ToList();
         data.Steps = GetStepData();
         return data;
     }
@@ -94,10 +100,22 @@ public class WorkflowEditor : IWorkflowEditor
         foreach (IStep step in _steps.Select(s => s.Step))
         {
             StepData singleStepData = new() { Type = step.GetType().Name, };
-            IEnumerable<ParameterData>? parameters = step.GetParameterData();
+            IEnumerable<ParameterContainer>? parameters = step.GetParameters();
             if (parameters is not null)
             {
-                singleStepData.Parameters = parameters.ToList();
+                List<ParameterData> parameterData = new();
+                foreach (ParameterContainer parameter in parameters)
+                {
+                    ParameterData newParameterData = new()
+                    {
+                        Name = parameter.Key,
+                        IsVariable = parameter.Value.IsVariable ? true : null,
+                        Value = parameter.Value.ToData()
+                    };
+
+                    parameterData.Add(newParameterData);
+                }
+                singleStepData.Parameters = parameterData;
             }
 
             stepData.Add(singleStepData);
