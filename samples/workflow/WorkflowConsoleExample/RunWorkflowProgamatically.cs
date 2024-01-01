@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using KlabTestFramework.Workflow.Lib.BuildInSteps;
+using KlabTestFramework.Workflow.Lib.BuiltIn;
 using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;

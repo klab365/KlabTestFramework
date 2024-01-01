@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Editor.Persistence;
+using KlabTestFramework.Workflow.Lib.Runner;
+using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib;
 
@@ -12,7 +14,7 @@ namespace KlabTestFramework.Workflow.Lib;
 public class WorkflowModuleConfiguration
 {
     private readonly List<StepType> _stepTypes = new();
-    private readonly List<ParameterType> _parameterTypes = new();
+    private readonly List<ParameterValueType> _parameterTypes = new();
 
     /// <summary>
     /// Gets or sets a value indicating whether to register default steps.
@@ -26,13 +28,28 @@ public class WorkflowModuleConfiguration
     /// </summary>
     public IEnumerable<StepType> StepTypes => _stepTypes;
 
-    public IEnumerable<ParameterType> ParameterTypes => _parameterTypes;
+    public IEnumerable<ParameterValueType> ParameterTypes => _parameterTypes;
 
     /// <summary>
     /// Default workflow repository type.
     /// </summary>
     /// <value></value>
     public Func<IWorkflowRepository> DefaultWorkflowRepositoryFactory { get; set; } = () => new WorkflowJsonRepository();
+
+    /// <summary>
+    /// Type for the workflow context.
+    /// </summary>
+    /// <returns></returns>
+    public Type WorkflowContextType { get; private set; } = typeof(DefaultWorkflowContext);
+
+    /// <summary>
+    /// Configure the workflow context type.
+    /// </summary>
+    /// <typeparam name="TWorkflowContext"></typeparam>
+    public void ConfigureWorkflowContext<TWorkflowContext>() where TWorkflowContext : IWorkflowContext
+    {
+        WorkflowContextType = typeof(TWorkflowContext);
+    }
 
     /// <summary>
     /// Add step type
@@ -74,4 +91,9 @@ public class WorkflowModuleConfiguration
 /// <param name="Handler">The type of the handler for the step.</param>
 public record StepType(Type Step, Type Handler);
 
-public record ParameterType(Type Parameter);
+/// <summary>
+/// Represents a parameter type in the workflow module configuration.
+/// </summary>
+/// <param name="Parameter"></param>
+/// <returns></returns>
+public record ParameterValueType(Type Parameter);

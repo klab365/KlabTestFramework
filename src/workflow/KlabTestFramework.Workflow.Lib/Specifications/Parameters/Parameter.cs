@@ -1,77 +1,87 @@
 ﻿namespace KlabTestFramework.Workflow.Lib.Specifications;
 
-
-public abstract class Parameter : IParameter
+/// <summary>
+/// Represents a parameter in the workflow specification. A parameter can be inside a step or in the variables
+/// </summary>
+public class Parameter<TParameter> : IParameter where TParameter : IParameterType
 {
-    /// <summary>
-    /// Gets the display name of the parameter.
-    /// </summary>
-    public string DisplayName { get; }
+    /// <inheritdoc/>
+    public string Name { get; private set; }
 
-    /// <summary>
-    /// Gets the unit of the parameter.
-    /// </summary>
-    public string Unit { get; }
+    /// <inheritdoc/>
+    public string Unit { get; private set; }
 
-    /// <summary>
-    /// Gets the variable name of the parameter.
-    /// </summary>
-    public string VariableName { get; set; } = string.Empty;
+    /// <inheritdoc/>
+    public string VariableName { get; private set; } = string.Empty;
 
-    /// <summary>
-    /// Gets the value type of the parameter.
-    /// </summary>
-    public bool IsVariable { get; private set; }
+    /// <inheritdoc/>
+    public ParameterValueType ParameterType { get; private set; }
 
-    protected Parameter(string displayName, string unit)
-    {
-        DisplayName = displayName;
-        Unit = unit;
-    }
-
-    public void ChangetToVariable(string variableName)
-    {
-        VariableName = variableName;
-        IsVariable = true;
-    }
-
-    public void ChangeToValue()
-    {
-        IsVariable = false;
-        VariableName = string.Empty;
-    }
-
-    /// <summary>
-    /// Abstract method to get the content of the parameter as string.
-    /// </summary>
-    /// <returns></returns>
-    public abstract string ContentAsString();
-
-    public string ToData()
-    {
-        string value = IsVariable ? VariableName : ContentAsString();
-        return value;
-    }
-}
-
-public class Parameter<TParameter> : Parameter where TParameter : IParameterType
-{
     /// <summary>
     /// Content of the parameter.
     /// </summary>
     public TParameter Content { get; }
 
-    public Parameter(string displayName, string unit, TParameter content) : base(displayName, unit)
+    public Parameter(string name, string unit, TParameter content)
     {
+        Name = name;
+        Unit = unit;
         Content = content;
+    }
+
+    /// <inheritdoc/>
+    public void ChangetToVariable(string variableName)
+    {
+        ParameterType = ParameterValueType.Variable;
+        VariableName = variableName;
+    }
+
+    /// <inheritdoc/>
+    public void ChangeToValue()
+    {
+        ParameterType = ParameterValueType.Value;
+        VariableName = string.Empty;
     }
 
     /// <summary>
     /// Content of the parameter as string
     /// </summary>
     /// <returns></returns>
-    public override string ContentAsString()
+    public string ContentAsString()
     {
-        return Content.AsString();
+        string value = IsVariable() ? VariableName : Content.AsString();
+        return value;
+    }
+
+    /// <inheritdoc/>
+    public bool IsValid()
+    {
+        return Content.IsValid();
+    }
+
+    /// <inheritdoc/>
+    public ParameterData ToData()
+    {
+        ParameterData data = new()
+        {
+            Name = Name,
+            Type = ParameterType,
+            Value = ContentAsString()
+        };
+
+        return data;
+    }
+
+    /// <inheritdoc/>
+    public void FromData(ParameterData data)
+    {
+        Name = data.Name;
+        ParameterType = data.Type;
+        Content.FromString(data.Value);
+    }
+
+    private bool IsVariable()
+    {
+        return ParameterType == ParameterValueType.Variable;
     }
 }

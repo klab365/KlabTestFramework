@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
@@ -7,7 +6,7 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 /// <summary>
 /// Represents a workflow that consists of multiple steps.
 /// </summary>
-public class Workflow
+public class Workflow : IWorkflow
 {
     private readonly List<StepContainer> _steps = new();
 
@@ -22,7 +21,7 @@ public class Workflow
 
     public IReadOnlyList<IVariable> Variables => _variables.AsReadOnly();
 
-    public Workflow(IStep[] steps, IVariable[] variables)
+    public Workflow(StepContainer[] steps, IVariable[] variables)
     {
         AddSteps(steps);
         AddVariables(variables);
@@ -33,27 +32,18 @@ public class Workflow
         _variables.AddRange(variables);
     }
 
-    private void AddSteps(IStep[] steps)
+    private void AddSteps(StepContainer[] steps)
     {
-        foreach (IStep step in steps)
-        {
-            _steps.Add(new StepContainer() { Step = step });
-        }
+        _steps.AddRange(steps);
     }
-}
 
-/// <summary>
-/// Represents a container for a step in a workflow.
-/// </summary>
-public class StepContainer
-{
-    /// <summary>
-    /// Gets or sets the unique identifier of the step container.
-    /// </summary>
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public WorkflowData ToData()
+    {
+        throw new System.NotImplementedException();
+    }
 
-    /// <summary>
-    /// Gets or sets the step associated with the container.
-    /// </summary>
-    public required IStep Step { get; set; }
+    public void FromData(WorkflowData data)
+    {
+        throw new System.NotImplementedException();
+    }
 }

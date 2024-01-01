@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib.BuildInSteps;
+namespace KlabTestFramework.Workflow.Lib.Validator;
 
 /// <summary>
 /// Represents an interface for validating workflows.
@@ -13,5 +13,5 @@ public interface IWorkflowValidator
     /// </summary>
     /// <param name="workflow">The workflow to validate.</param>
     /// <returns>A task that represents the asynchronous validation operation.</returns>
-    Task<Result<WorkflowValidatorResult>> ValidateAsync(Specifications.Workflow workflow);
+    Task<WorkflowValidatorResult> ValidateAsync(IWorkflow workflow);
 }

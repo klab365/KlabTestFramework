@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Lib.Specifications;
 
 
-namespace KlabTestFramework.Workflow.Lib.BuildInSteps;
+namespace KlabTestFramework.Workflow.Lib.Validator;
 
 /// <summary>
 /// Implementation of <see cref="IWorkflowValidator"/>.
@@ -18,14 +18,14 @@ public class WorkflowValidator : IWorkflowValidator
     }
 
     /// <inheritdoc/>
-    public async Task<Result<WorkflowValidatorResult>> ValidateAsync(Specifications.Workflow workflow)
+    public async Task<WorkflowValidatorResult> ValidateAsync(IWorkflow workflow)
     {
         WorkflowValidatorResult result = new();
-        foreach (Specifications.StepContainer step in workflow.Steps)
+        foreach (StepContainer step in workflow.Steps)
         {
             foreach (IStepValidatorHandler stepValidatorHandler in _stepValidatorHandlers)
             {
-                IEnumerable<WorkflowStepValidateResult> stepValidations = await stepValidatorHandler.ValidateAsync(step.Id, step.Step);
+                IEnumerable<WorkflowStepErrorValidation> stepValidations = await stepValidatorHandler.ValidateAsync(step.Id, step.Step);
                 result.AddErrors(stepValidations);
             }
         }

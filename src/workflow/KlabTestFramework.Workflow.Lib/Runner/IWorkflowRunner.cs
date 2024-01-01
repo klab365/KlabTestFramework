@@ -26,10 +26,7 @@ public interface IWorkflowRunner
     Task<WorkflowResult> RunAsync(Specifications.Workflow workflow);
 }
 
-public record WorkflowResult
-{
-    public bool Success { get; set; }
-}
+public record WorkflowResult(bool Success);
 
 public class WorkflowStatusEventArgs : EventArgs
 {

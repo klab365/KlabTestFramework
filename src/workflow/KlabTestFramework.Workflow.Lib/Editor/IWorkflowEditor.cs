@@ -20,9 +20,15 @@ public interface IWorkflowEditor : IWorkflowReadEditor
     Task<Result> SaveWorkflowAsync(string path, Specifications.Workflow workflow);
 
     /// <summary>
-    /// Signalize that the workflow is ready to be built.
+    /// Start to create a new workflow
     /// </summary>
     void CreateNewWorkflow();
+
+    /// <summary>
+    /// Edit a existing workflow
+    /// </summary>
+    /// <param name="workflow"></param>
+    void EditWorkflow(IWorkflow workflow);
 
     /// <summary>
     /// Adds a step to last position in the workflow.
@@ -31,7 +37,13 @@ public interface IWorkflowEditor : IWorkflowReadEditor
     /// <param name="configureCallback">An optional callback to configure the step.</param>
     void AddStep<TStep>(Action<TStep>? configureCallback = default) where TStep : IStep;
 
-    void AddVariable<TParameter>(string name, Action<TParameter>? configureCallback = default!) where TParameter : IParameterType;
+    /// <summary>
+    /// Add variable to the workflow.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="configureCallback"></param>
+    /// <typeparam name="TParameter"></typeparam>
+    void AddVariable<TParameter>(string name, string unit, VariableType variableType, Action<TParameter>? configureCallback = default!) where TParameter : IParameterType;
 
     /// <summary>
     /// Configure the metadata of the workflow.

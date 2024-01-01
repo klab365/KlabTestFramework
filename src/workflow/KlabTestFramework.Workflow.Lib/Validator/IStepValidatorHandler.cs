@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib;
+namespace KlabTestFramework.Workflow.Lib.Validator;
 
 /// <summary>
 /// Represents a handler for validating workflow steps.
@@ -16,7 +16,7 @@ public interface IStepValidatorHandler
     /// <param name="id">The ID of the workflow.</param>
     /// <param name="step">The step to validate.</param>
     /// <returns>A collection of validation results for the step.</returns>
-    Task<IEnumerable<WorkflowStepValidateResult>> ValidateAsync(Guid id, IStep step);
+    Task<IEnumerable<WorkflowStepErrorValidation>> ValidateAsync(Guid id, IStep step);
 }
 
 /// <summary>
@@ -25,4 +25,4 @@ public interface IStepValidatorHandler
 /// <param name="Id">The unique identifier of the validation result.</param>
 /// <param name="Step">The workflow step being validated.</param>
 /// <param name="Result">The validation result.</param>
-public record WorkflowStepValidateResult(Guid Id, IStep Step, Result Result);
+public record WorkflowStepErrorValidation(Guid Id, IStep Step, string ErrorMessage);
