@@ -1,6 +1,6 @@
 ﻿using System;
 using KlabTestFramework.Workflow.Lib.BuildInSteps;
-using KlabTestFramework.Workflow.Lib.Contracts;
+
 using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
@@ -49,20 +49,13 @@ public static class WorkflowModule
     private static void AddWorkflowspecification(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
         services.AddSteps(configuration);
-        services.AddParameters();
+        services.AddParameters(configuration);
     }
 
     private static void AddSteps(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
         services.AddTransient<IStepFactory, StepFactory>();
         RegisterSteps(services, configuration);
-    }
-
-    private static void AddParameters(this IServiceCollection services)
-    {
-        services.AddTransient<IParameterFactory, ParameterFactory>();
-        services.AddTransient(typeof(SingleValueParameter<>));
-        services.AddTransient(typeof(ChoicesParameter<>));
     }
 
     private static void RegisterSteps(IServiceCollection services, WorkflowModuleConfiguration configuration)
@@ -93,6 +86,37 @@ public static class WorkflowModule
                 () => (StepHandlerWrapperBase)provider.GetRequiredService(genericStepHandlerWrapperType)
             );
             return stepSpecification;
+        });
+    }
+
+    private static void AddParameters(this IServiceCollection services, WorkflowModuleConfiguration configuration)
+    {
+        services.AddTransient<IParameterFactory, ParameterFactory>();
+        services.AddTransient(typeof(Parameter<>));
+
+        if (configuration.ShouldRegisterDefaultParameters)
+        {
+            configuration.AddParameterType<IntParameter>();
+            configuration.AddParameterType<TimeParameter>();
+        }
+
+        foreach (ParameterType parameterType in configuration.ParameterTypes)
+        {
+            services.RegisterParameter(parameterType.Parameter);
+        }
+    }
+
+    private static void RegisterParameter(this IServiceCollection services, Type parameterType)
+    {
+        services.AddTransient(parameterType);
+        services.AddTransient(provider =>
+        {
+            ParameterDependencySpecification parameterSpecicifation = new(
+                parameterType,
+                () => (IParameterType)provider.GetRequiredService(parameterType)
+            );
+
+            return parameterSpecicifation;
         });
     }
 }

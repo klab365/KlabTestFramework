@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace KlabTestFramework.Workflow.Lib.Contracts;
+namespace KlabTestFramework.Workflow.Lib;
 
 /// <summary>
 /// Represents the context for a workflow step.

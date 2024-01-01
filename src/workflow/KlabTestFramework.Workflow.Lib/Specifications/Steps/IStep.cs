@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib.Contracts;
+namespace KlabTestFramework.Workflow.Lib;
 
 /// <summary>
 /// Represents a step in a workflow.
@@ -14,14 +15,16 @@ public interface IStep
     void Init(IEnumerable<ParameterData> parameterData);
 
     /// <summary>
-    /// Get the parameter data of the step.
-    /// </summary>
-    /// <returns></returns>
-    IEnumerable<ParameterData>? GetParameterData();
-
-    /// <summary>
     /// Get the parameters of the step.
     /// </summary>
     /// <returns></returns>
-    IEnumerable<IParameter> GetParameters();
+    IEnumerable<ParameterContainer> GetParameters();
 }
+
+/// <summary>
+/// Type for the parameter
+/// </summary>
+/// <param name="Key"></param>
+/// <param name="Value"></param>
+/// <returns></returns>
+public record ParameterContainer(string Key, IParameter Value);

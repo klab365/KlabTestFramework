@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using KlabTestFramework.Workflow.Lib.Contracts;
+using KlabTestFramework.Workflow.Lib.Specifications;
+
 
 namespace KlabTestFramework.Workflow.Lib.Tests;
 
 public class MockStep : IStep
 {
-    public IEnumerable<ParameterData>? GetParameterData()
-    {
-        throw new NotImplementedException();
-    }
-
-    public IEnumerable<IParameter> GetParameters()
+    public IEnumerable<ParameterContainer> GetParameters()
     {
         throw new NotImplementedException();
     }

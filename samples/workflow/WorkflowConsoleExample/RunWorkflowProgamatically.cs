@@ -16,17 +16,8 @@ public class RunWorkflowProgamatically : IRunExample
         // create workflow programmatically
         Random random = new();
         IWorkflowEditor workflowEditor = services.GetRequiredService<IWorkflowEditor>();
-        workflowEditor.ConfigureMetadata(m =>
-        {
-            m.Description = "My first workflow";
-        });
-        for (int i = 0; i < 5; i++)
-        {
-            workflowEditor.AddStep<WaitStep>(s =>
-            {
-                s.Time.SetValue(TimeSpan.FromSeconds(random.Next(1, 4)));
-            });
-        }
+        workflowEditor.ConfigureMetadata(m => m.Description = "My first workflow");
+        workflowEditor.AddStep<WaitStep>(s => s.Time.ChangetToVariable("time"));
 
         // run workflow
         Stopwatch stopwatch = Stopwatch.StartNew();

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using KlabTestFramework.Workflow.Lib.Contracts;
+
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -11,6 +11,8 @@ public class Workflow
 {
     private readonly List<StepContainer> _steps = new();
 
+    private readonly List<IVariable> _variables = new();
+
     public WorkflowData Metadata { get; set; } = new();
 
     /// <summary>
@@ -18,7 +20,20 @@ public class Workflow
     /// </summary>
     public IReadOnlyList<StepContainer> Steps => _steps.AsReadOnly();
 
-    public Workflow(IStep[] steps)
+    public IReadOnlyList<IVariable> Variables => _variables.AsReadOnly();
+
+    public Workflow(IStep[] steps, IVariable[] variables)
+    {
+        AddSteps(steps);
+        AddVariables(variables);
+    }
+
+    private void AddVariables(IVariable[] variables)
+    {
+        _variables.AddRange(variables);
+    }
+
+    private void AddSteps(IStep[] steps)
     {
         foreach (IStep step in steps)
         {

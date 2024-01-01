@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using KlabTestFramework.Workflow.Lib.Contracts;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 

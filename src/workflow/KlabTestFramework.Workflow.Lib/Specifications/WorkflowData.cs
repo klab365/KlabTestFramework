@@ -9,5 +9,6 @@ public class WorkflowData
     public string Author { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public List<VariableData> Variables { get; set; } = new();
     public List<StepData> Steps { get; set; } = new();
 }

@@ -1,24 +1,34 @@
 ﻿using FluentAssertions;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Editor;
+using KlabTestFramework.Workflow.Lib.Specifications;
 using Moq;
 
 namespace KlabTestFramework.Workflow.Lib.Tests.Editor;
 
 public class WorkflowEditorTests
 {
+    private readonly Mock<IWorkflowRepository> _repositoryMock;
+    private readonly Mock<IStepFactory> _stepFactoryMock;
+    private readonly Mock<IParameterFactory> _parameterFactoryMock;
+    private readonly WorkflowEditor _sut;
+
+    public WorkflowEditorTests()
+    {
+        _repositoryMock = new();
+        _stepFactoryMock = new();
+        _parameterFactoryMock = new();
+        _sut = new(_repositoryMock.Object, _stepFactoryMock.Object, _parameterFactoryMock.Object);
+    }
+
     [Fact]
     public void CreateNewWorkflowShouldClearStepsAndMetaDataCallbacks()
     {
         // Arrange
-        Mock<IWorkflowRepository> repositoryMock = new();
-        Mock<IStepFactory> stepFactoryMock = new();
-        WorkflowEditor editor = new(repositoryMock.Object, stepFactoryMock.Object);
-
         // Act
-        editor.CreateNewWorkflow();
-        editor.ConfigureMetadata(m => m.Description = "test");
-        Result<Specifications.Workflow> workflowResult = editor.BuildWorkflow();
+        _sut.CreateNewWorkflow();
+        _sut.ConfigureMetadata(m => m.Description = "test");
+        Result<Specifications.Workflow> workflowResult = _sut.BuildWorkflow();
         if (workflowResult.IsFailure)
         {
             Assert.Fail("Workflow should be created successfully");
@@ -33,17 +43,14 @@ public class WorkflowEditorTests
     public void AddStepShouldCreateStepAndAddToStepsList()
     {
         // Arrange
-        Mock<IWorkflowRepository> repositoryMock = new();
-        Mock<IStepFactory> stepFactoryMock = new();
-        stepFactoryMock.Setup(m => m.CreateStep<MockStep>()).Returns(new MockStep());
-        WorkflowEditor editor = new(repositoryMock.Object, stepFactoryMock.Object);
+        _stepFactoryMock.Setup(m => m.CreateStep<MockStep>()).Returns(new MockStep());
 
         // Act
-        editor.CreateNewWorkflow();
-        editor.AddStep<MockStep>();
+        _sut.CreateNewWorkflow();
+        _sut.AddStep<MockStep>();
 
         // Assert
-        Specifications.Workflow workflow = editor.BuildWorkflow().Value!;
+        Specifications.Workflow workflow = _sut.BuildWorkflow().Value!;
         workflow.Steps.Should().HaveCount(1);
         workflow.Steps[0].Step.Should().BeOfType<MockStep>();
     }

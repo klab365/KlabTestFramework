@@ -15,11 +15,16 @@ public class WorkflowJsonRepository : IWorkflowRepository
 
     public WorkflowJsonRepository()
     {
+        JsonNamingPolicy namingPolicy = JsonNamingPolicy.CamelCase;
         _jsonSerializerOptions = new(JsonSerializerDefaults.General)
         {
-            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = namingPolicy,
             WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters =
+            {
+                new JsonStringEnumConverter(namingPolicy)
+            }
         };
     }
 
