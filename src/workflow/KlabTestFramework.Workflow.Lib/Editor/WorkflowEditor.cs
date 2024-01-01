@@ -9,29 +9,42 @@ using KlabTestFramework.Workflow.Lib.Specifications;
 namespace KlabTestFramework.Workflow.Lib.Editor;
 
 /// <summary>
-/// Implementation of <see cref="IWorkflowEditor"/>.
+/// Implementation of <see cref="IWorkflowEditor"/> interface.
 /// </summary>
 public class WorkflowEditor : IWorkflowEditor
 {
-    private readonly List<IVariable> _variables = new();
-    private readonly List<StepIndexContainer> _steps = new();
+    private readonly List<IVariable> _variables = [];
+    private readonly List<StepIndexContainer> _steps = [];
     private readonly IWorkflowRepository _repository;
     private readonly IStepFactory _stepFactory;
     private readonly IParameterFactory _parameterFactory;
-    private readonly List<Action<WorkflowData>> _metaDataConfigureCallbacks = new();
+    private readonly IVariableFactory _variableFactory;
+    private readonly List<Action<WorkflowData>> _workflowDataConfigurationCallbacks = [];
 
-    public WorkflowEditor(IWorkflowRepository repository, IStepFactory stepFactory, IParameterFactory parameterFactory)
+    public WorkflowEditor(
+        IWorkflowRepository repository,
+        IStepFactory stepFactory,
+        IParameterFactory parameterFactory,
+        IVariableFactory variableFactory)
     {
         _repository = repository;
         _stepFactory = stepFactory;
         _parameterFactory = parameterFactory;
+        _variableFactory = variableFactory;
     }
 
+    /// <inheritdoc/>
     public void CreateNewWorkflow()
     {
-        _metaDataConfigureCallbacks.Clear();
+        _workflowDataConfigurationCallbacks.Clear();
         _steps.Clear();
         _variables.Clear();
+    }
+
+    /// <inheritdoc/>
+    public void EditWorkflow(IWorkflow workflow)
+    {
+        throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
@@ -42,26 +55,35 @@ public class WorkflowEditor : IWorkflowEditor
         _steps.Add(new StepIndexContainer(step) { Index = _steps.Count });
     }
 
-    public void AddVariable<TParameter>(string name, Action<TParameter>? configureCallback = default!) where TParameter : IParameterType
+    public void AddVariable<TParameter>(string name, string unit, VariableType variableType, Action<TParameter>? configureCallback = default!) where TParameter : IParameterType
     {
-        TParameter variable = _parameterFactory.CreateParameterType<TParameter>();
-        configureCallback?.Invoke(variable);
-        Variable<TParameter> defaultVariable = new(name, variable);
-        _variables.Add(defaultVariable);
+        TParameter parameterType = _parameterFactory.CreateParameterType<TParameter>();
+        configureCallback?.Invoke(parameterType);
+
+        VariableData data = new()
+        {
+            Name = name,
+            Unit = unit,
+            VariableType = variableType,
+            DataType = parameterType.GetType().Name,
+            Value = parameterType.AsString()
+        };
+        IVariable variable = _variableFactory.CreateNewVariableByType(data, parameterType);
+        _variables.Add(variable);
     }
 
     /// <inheritdoc/>
     public void ConfigureMetadata(Action<WorkflowData> metaDataConfigureCallback)
     {
-        _metaDataConfigureCallbacks.Add(metaDataConfigureCallback);
+        _workflowDataConfigurationCallbacks.Add(metaDataConfigureCallback);
     }
 
     /// <inheritdoc/>
     public Result<Specifications.Workflow> BuildWorkflow()
     {
-        IStep[] steps = _steps.Select(s => s.Step).ToArray();
+        StepContainer[] steps = _steps.Select(s => new StepContainer(s.Step)).ToArray();
         Specifications.Workflow workflow = new(steps, _variables.ToArray());
-        foreach (Action<WorkflowData> callback in _metaDataConfigureCallbacks)
+        foreach (Action<WorkflowData> callback in _workflowDataConfigurationCallbacks)
         {
             callback(workflow.Metadata);
         }
@@ -72,9 +94,24 @@ public class WorkflowEditor : IWorkflowEditor
     public async Task<Result<Specifications.Workflow>> LoadWorkflowFromFileAsync(string path)
     {
         WorkflowData data = await _repository.GetWorkflowAsync(path);
-        IStep[] steps = data.Steps.Select(s => _stepFactory.CreateStep(s)).ToArray();
-        Specifications.Workflow workflow = new(steps, Array.Empty<IVariable>());
 
+        // steps
+        StepContainer[] steps = data.Steps.Select(s =>
+        {
+            IStep step = _stepFactory.CreateStep(s);
+            StepContainer stepContainer = new(step);
+            stepContainer.FromData(s);
+            return stepContainer;
+        }).ToArray();
+
+        // variables
+        if (data.Variables is not null)
+        {
+            IEnumerable<IVariable> variables = data.Variables.Select(v => _variableFactory.CreateVariableFromData(v));
+            _variables.AddRange(variables);
+        }
+
+        Specifications.Workflow workflow = new(steps, _variables.ToArray());
         return workflow;
     }
 
@@ -86,47 +123,18 @@ public class WorkflowEditor : IWorkflowEditor
         return Result.Success();
     }
 
-    private WorkflowData GetWorkflowDataFromWorkflow(Specifications.Workflow workflow)
+    private static WorkflowData GetWorkflowDataFromWorkflow(Specifications.Workflow workflow)
     {
-        WorkflowData data = workflow.Metadata;
-        data.Variables = _variables.Select(v => v.ToData()).ToList();
-        data.Steps = GetStepData();
-        return data;
-    }
-
-    private List<StepData> GetStepData()
-    {
-        List<StepData> stepData = new();
-        foreach (IStep step in _steps.Select(s => s.Step))
-        {
-            StepData singleStepData = new() { Type = step.GetType().Name, };
-            IEnumerable<ParameterContainer>? parameters = step.GetParameters();
-            if (parameters is not null)
-            {
-                List<ParameterData> parameterData = new();
-                foreach (ParameterContainer parameter in parameters)
-                {
-                    ParameterData newParameterData = new()
-                    {
-                        Name = parameter.Key,
-                        IsVariable = parameter.Value.IsVariable ? true : null,
-                        Value = parameter.Value.ToData()
-                    };
-
-                    parameterData.Add(newParameterData);
-                }
-                singleStepData.Parameters = parameterData;
-            }
-
-            stepData.Add(singleStepData);
-        }
-
-        return stepData;
+        WorkflowData wfData = workflow.Metadata;
+        wfData.Steps = workflow.Steps.Select(s => s.ToData()).ToList();
+        wfData.Variables = workflow.Variables.Select(v => v.ToData()).ToList();
+        return wfData;
     }
 }
 
 /// <summary>
-/// Represents a container for a step in a workflow.
+/// Represents a container for a step in a workflow editor.
+/// This class is used to know the order of the steps in the workflow.
 /// </summary>
 public class StepIndexContainer(IStep step)
 {

@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Lib.Runner;
 
-namespace KlabTestFramework.Workflow.Lib;
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Represents a handler for a specific step in a workflow.

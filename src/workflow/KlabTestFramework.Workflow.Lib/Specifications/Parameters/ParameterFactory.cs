@@ -11,42 +11,55 @@ public class ParameterFactory : IParameterFactory
 {
     private readonly IEnumerable<ParameterDependencySpecification> _parameterSpecifications;
 
+    public IEnumerable<ParameterDependencySpecification> ParameterSpecifications => _parameterSpecifications;
+
     public ParameterFactory(IEnumerable<ParameterDependencySpecification> parameterSpecifications)
     {
         _parameterSpecifications = parameterSpecifications;
     }
 
     /// <inheritdoc/>
-    public Parameter<TParameter> CreateParameter<TParameter>(string displayName, string unit, params Action<TParameter>[] configureCallbacks) where TParameter : IParameterType
+    public Parameter<TParameter> CreateParameter<TParameter>(string name, string unit, params Action<TParameter>[] configureCallbacks) where TParameter : IParameterType
     {
-        ParameterDependencySpecification foundParameterSpecifications = FindParameterSpecification<TParameter>();
-        TParameter parameter = (TParameter)foundParameterSpecifications.Factory();
+        string parameterType = typeof(TParameter).Name;
+        TParameter parameter = (TParameter)CreateParameterTypeByName(parameterType);
         foreach (Action<TParameter> configureCallback in configureCallbacks)
         {
             configureCallback(parameter);
         }
 
-        return new Parameter<TParameter>(displayName, unit, parameter);
+        return new Parameter<TParameter>(name, unit, parameter);
     }
 
+    /// <inheritdoc/>
     public TParameter CreateParameterType<TParameter>() where TParameter : IParameterType
     {
-        ParameterDependencySpecification? foundParameterSpecifications = FindParameterSpecification<TParameter>();
-        return (TParameter)foundParameterSpecifications.Factory();
+        string parameterType = typeof(TParameter).Name;
+        return (TParameter)CreateParameterTypeByName(parameterType);
     }
 
-    private ParameterDependencySpecification FindParameterSpecification<TParameter>() where TParameter : IParameterType
+    /// <inheritdoc/>
+    public IParameterType CreateParameterTypeByName(string parameterType)
     {
-        ParameterDependencySpecification? foundParameterSpecifications = _parameterSpecifications.SingleOrDefault(p => p.Type == typeof(TParameter));
+        ParameterDependencySpecification foundParameterSpecifications = FindParameterSpecification(parameterType);
+        return foundParameterSpecifications.Factory();
+    }
+
+    private ParameterDependencySpecification FindParameterSpecification(string parameterType)
+    {
+        ParameterDependencySpecification? foundParameterSpecifications = _parameterSpecifications.SingleOrDefault(p => p.Type.Name == parameterType);
         if (foundParameterSpecifications is null)
         {
-            throw new ArgumentException($"Parameter type {typeof(TParameter).Name} is not supported.");
+            throw new ArgumentException($"Parameter type {parameterType} is not supported.");
         }
 
         return foundParameterSpecifications;
     }
 }
 
+/// <summary>
+/// Class which represents a parameter dependency specification which can be used to create a parameter
+/// </summary>
 public class ParameterDependencySpecification
 {
     public Type Type { get; }

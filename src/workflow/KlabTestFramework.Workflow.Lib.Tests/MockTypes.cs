@@ -7,7 +7,7 @@ namespace KlabTestFramework.Workflow.Lib.Tests;
 
 public class MockStep : IStep
 {
-    public IEnumerable<ParameterContainer> GetParameters()
+    public IEnumerable<IParameter> GetParameters()
     {
         throw new NotImplementedException();
     }

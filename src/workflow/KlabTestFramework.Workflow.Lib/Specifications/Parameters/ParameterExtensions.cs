@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications.Parameters;
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Extension methods for working with <see cref="ParameterData"/>.

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib.BuildInSteps;
+namespace KlabTestFramework.Workflow.Lib.Validator;
 
 /// <summary>
 /// Validate if the parameters of a step are valid
@@ -11,16 +12,16 @@ namespace KlabTestFramework.Workflow.Lib.BuildInSteps;
 public class ParameterValidator : IStepValidatorHandler
 {
     /// <inheritdoc/>
-    public Task<IEnumerable<WorkflowStepValidateResult>> ValidateAsync(Guid id, IStep step)
+    public Task<IEnumerable<WorkflowStepErrorValidation>> ValidateAsync(Guid id, IStep step)
     {
-        List<WorkflowStepValidateResult> results = new();
-        IEnumerable<ParameterContainer> paramters = step.GetParameters();
-        foreach (ParameterContainer parameter in paramters)
+        List<WorkflowStepErrorValidation> results = new();
+        IEnumerable<IParameter> paramters = step.GetParameters();
+        foreach (IParameter parameter in paramters)
         {
-            // if (!parameter.IsValid())
-            // {
-            //     results.Add(new WorkflowStepValidateResult(id, step, new Error(1, $"Parameter {parameter.Key} is not valid")));
-            // }
+            if (!parameter.IsValid())
+            {
+                results.Add(new(id, step, $"Parameter {parameter.Name} is not valid"));
+            }
         }
 
         return Task.FromResult(results.AsEnumerable());

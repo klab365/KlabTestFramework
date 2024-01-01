@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading;
 
-namespace KlabTestFramework.Workflow.Lib;
+namespace KlabTestFramework.Workflow.Lib.Runner;
 
 /// <summary>
-/// Implementation of <see cref="IWorkflowContext"/>.
+/// Default implementation of <see cref="IWorkflowContext"/> interface.
 /// </summary>
-public class WorkflowStepContext : IWorkflowContext
+public class DefaultWorkflowContext : IWorkflowContext
 {
     /// <inheritdoc/>
     public CancellationToken CancellationToken { get; }

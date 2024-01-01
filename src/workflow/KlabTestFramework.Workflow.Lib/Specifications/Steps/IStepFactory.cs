@@ -1,7 +1,4 @@
-﻿
-using KlabTestFramework.Workflow.Lib.Specifications;
-
-namespace KlabTestFramework.Workflow.Lib.Editor;
+﻿namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Represents a factory for creating step handlers and steps.

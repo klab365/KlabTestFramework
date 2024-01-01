@@ -1,10 +1,9 @@
 ﻿using System;
-using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib;
 
 /// <summary>
-/// Represents a parameter in the workflow.
+/// Represents the type of a parameter.
 /// </summary>
 public interface IParameterType
 {
@@ -23,8 +22,7 @@ public interface IParameterType
     /// <summary>
     /// Converts a string representation of a value to the corresponding parameter type.
     /// </summary>
-    /// <param name="data">Data which is deserialized</param>
-    void FromData(ParameterData data);
+    void FromString(string data);
 }
 
 /// <summary>
@@ -35,9 +33,9 @@ public interface IParameterType<TValue> : IParameterType
 {
     /// <summary>
     /// Gets the value of the parameter.
-    /// Set is done by <see cref="SetValue(TValue)"/>.
+    /// Set is done by <see cref="SetValue(TValue)"/> method.
     /// </summary>
-    TValue? Value { get; }
+    TValue Value { get; }
 
     /// <summary>
     /// Gets the type of the parameter value.

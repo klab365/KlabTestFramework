@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Lib.Runner;
+using KlabTestFramework.Workflow.Lib.Specifications;
 
 
-namespace KlabTestFramework.Workflow.Lib.BuildInSteps;
+namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 
 /// <summary>
 /// Handler for the <see cref="WaitStep"/> step.

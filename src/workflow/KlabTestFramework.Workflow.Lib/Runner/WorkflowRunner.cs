@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
 using Microsoft.Extensions.Logging;
@@ -32,9 +31,10 @@ public sealed class WorkflowRunner : IWorkflowRunner
         _stepSpecifications = stepSpecifications;
     }
 
+    /// <inheritdoc/>
     public async Task<WorkflowResult> RunAsync(Specifications.Workflow workflow)
     {
-        WorkflowStepContext context = new();
+        DefaultWorkflowContext context = new();
         WorkflowStatusChanged?.Invoke(this, new() { Status = WorkflowStatus.Running });
         foreach (StepContainer stepContainer in workflow.Steps)
         {
@@ -54,7 +54,7 @@ public sealed class WorkflowRunner : IWorkflowRunner
             }
         }
         WorkflowStatusChanged?.Invoke(this, new() { Status = WorkflowStatus.Completed });
-        return new WorkflowResult { Success = true };
+        return new(true);
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ public sealed class WorkflowRunner : IWorkflowRunner
     /// For this we will use the <see cref="StepHandlerWrapperBase"/> to get the correct step handler from the DI container
     /// </summary>
     /// <typeparam name="TStep"></typeparam>
-    private async Task HandleStep<TStep>(TStep step, WorkflowStepContext context) where TStep : class, IStep
+    private async Task HandleStep<TStep>(TStep step, DefaultWorkflowContext context) where TStep : class, IStep
     {
         try
         {

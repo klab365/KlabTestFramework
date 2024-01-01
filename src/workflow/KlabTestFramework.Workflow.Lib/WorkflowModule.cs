@@ -1,6 +1,5 @@
 ﻿using System;
-using KlabTestFramework.Workflow.Lib.BuildInSteps;
-
+using KlabTestFramework.Workflow.Lib.BuiltIn;
 using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
@@ -29,7 +28,7 @@ public static class WorkflowModule
         configurationCallback?.Invoke(configuration);
 
         services.AddWorkflowEditor(configuration);
-        services.AddWorkflowRunner();
+        services.AddWorkflowRunner(configuration);
         services.AddWorkflowspecification(configuration);
         return services;
     }
@@ -41,8 +40,9 @@ public static class WorkflowModule
         services.AddTransient<IWorkflowReadEditor, WorkflowEditor>();
     }
 
-    private static void AddWorkflowRunner(this IServiceCollection services)
+    private static void AddWorkflowRunner(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
+        services.AddTransient(typeof(IWorkflowContext), configuration.WorkflowContextType);
         services.AddTransient<IWorkflowRunner, WorkflowRunner>();
     }
 
@@ -50,6 +50,7 @@ public static class WorkflowModule
     {
         services.AddSteps(configuration);
         services.AddParameters(configuration);
+        services.AddVariables();
     }
 
     private static void AddSteps(this IServiceCollection services, WorkflowModuleConfiguration configuration)
@@ -100,7 +101,7 @@ public static class WorkflowModule
             configuration.AddParameterType<TimeParameter>();
         }
 
-        foreach (ParameterType parameterType in configuration.ParameterTypes)
+        foreach (ParameterValueType parameterType in configuration.ParameterTypes)
         {
             services.RegisterParameter(parameterType.Parameter);
         }
@@ -117,6 +118,22 @@ public static class WorkflowModule
             );
 
             return parameterSpecicifation;
+        });
+    }
+
+    private static void AddVariables(this IServiceCollection services)
+    {
+        services.AddTransient<IVariableFactory, VariableFactory>();
+        services.AddTransient(typeof(Variable<>));
+        services.AddSingleton(p =>
+        {
+            Func<IParameterType, IVariable> func = new(parameterType =>
+            {
+                Type variableType = typeof(Variable<>).MakeGenericType(parameterType.GetType());
+                return (IVariable)p.GetRequiredService(variableType);
+            });
+
+            return func;
         });
     }
 }

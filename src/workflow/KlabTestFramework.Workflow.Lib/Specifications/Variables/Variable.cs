@@ -5,30 +5,26 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 public class Variable<TParameter> : IVariable where TParameter : IParameterType
 {
-    public string Name { get; set; }
+    public string Name { get; private set; } = string.Empty;
 
-    public string Unit { get; set; } = string.Empty;
+    public string Unit { get; private set; } = string.Empty;
 
-    public VariableType VariableType { get; set; }
+    public VariableType VariableType { get; private set; } = VariableType.Constant;
 
-    public TParameter Parameter { get; }
+    public TParameter? Parameter { get; private set; }
 
     public Type DataType => typeof(TParameter);
 
-    public Variable(string name, TParameter parameter)
-    {
-        Name = name;
-        Parameter = parameter;
-    }
-
+    /// <inheritdoc/>
     public void FromData(VariableData data)
     {
         Name = data.Name;
         Unit = data.Unit;
         VariableType = data.VariableType;
-        Parameter.FromData(new() { Value = data.Value });
+        Parameter?.FromString(data.Value ?? string.Empty);
     }
 
+    /// <inheritdoc/>
     public VariableData ToData()
     {
         return new()
@@ -37,7 +33,12 @@ public class Variable<TParameter> : IVariable where TParameter : IParameterType
             Unit = Unit,
             VariableType = VariableType,
             DataType = DataType.Name,
-            Value = Parameter.AsString()
+            Value = Parameter?.AsString() ?? string.Empty
         };
+    }
+
+    public void Init(IParameterType parameterType)
+    {
+        Parameter = (TParameter)parameterType;
     }
 }

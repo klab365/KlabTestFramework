@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using KlabTestFramework.Workflow.Lib.Specifications;
-using KlabTestFramework.Workflow.Lib.Specifications.Parameters;
 
-namespace KlabTestFramework.Workflow.Lib.BuildInSteps;
+namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 
 /// <summary>
 /// Represents a step that waits for a specified amount of time.
@@ -26,14 +25,8 @@ public class WaitStep : IStep
         );
     }
 
-    public IEnumerable<ParameterContainer> GetParameters()
+    public IEnumerable<IParameter> GetParameters()
     {
-        yield return new(nameof(Time), Time);
-    }
-
-    public void Init(IEnumerable<ParameterData> parameterData)
-    {
-        ParameterData? timeParameterData = parameterData.FoundParameterDataByName(nameof(Time));
-        Time.Content.FromData(timeParameterData);
+        yield return Time;
     }
 }

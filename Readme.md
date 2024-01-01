@@ -1,6 +1,6 @@
 # KlabTestFramework
 
-[![CI](https://github.com/klab365/KlabTestFramework/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/klab365/KlabTestFramework/actions/workflows/ci.yml)
+[![main](https://github.com/klab365/KlabTestFramework/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/klab365/KlabTestFramework/actions/workflows/ci.yml)
 
 Blazingly usable test automation framework
 

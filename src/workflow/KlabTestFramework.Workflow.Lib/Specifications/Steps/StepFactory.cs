@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Lib.Runner;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace KlabTestFramework.Workflow.Lib.Editor;
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Implementation of <see cref="IStepFactory"/>
@@ -31,10 +31,6 @@ public class StepFactory : IStepFactory
     {
         StepSpecification stepSpecification = _stepSpecifications.Single(s => s.StepType.Name == stepData.Type);
         IStep step = stepSpecification.Factory();
-        if (stepData.Parameters != null)
-        {
-            step.Init(stepData.Parameters);
-        }
         return step;
     }
 }
@@ -51,7 +47,7 @@ public abstract class StepHandlerWrapperBase
     /// <param name="step">The step to be handled.</param>
     /// <param name="context">The context of the workflow step.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public abstract Task HandleAsync(IStep step, WorkflowStepContext context);
+    public abstract Task HandleAsync(IStep step, DefaultWorkflowContext context);
 }
 
 /// <summary>
@@ -68,7 +64,7 @@ public class StepHandlerWrapper<TStep> : StepHandlerWrapperBase where TStep : cl
     }
 
     /// <inheritdoc/>
-    public override async Task HandleAsync(IStep step, WorkflowStepContext context)
+    public override async Task HandleAsync(IStep step, DefaultWorkflowContext context)
     {
         IStepHandler<TStep> stepHandler = _serviceProvider.GetRequiredService<IStepHandler<TStep>>();
         await stepHandler.HandleAsync((TStep)step, context);

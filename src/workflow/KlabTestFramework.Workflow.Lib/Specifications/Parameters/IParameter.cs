@@ -1,14 +1,14 @@
 ﻿namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
-/// Interface for a parameter
+/// Represents a parameter in the workflow specification.
 /// </summary>
 public interface IParameter
 {
     /// <summary>
-    /// Gets the display name of the parameter.
+    /// Gets the name of the parameter.
     /// </summary>
-    string DisplayName { get; }
+    string Name { get; }
 
     /// <summary>
     /// Gets the unit of the parameter.
@@ -16,33 +16,45 @@ public interface IParameter
     string Unit { get; }
 
     /// <summary>
-    /// Gets the variable name of the parameter.
+    /// Gets or sets the variable name of the parameter.
     /// </summary>
-    string VariableName { get; set; }
+    string VariableName { get; }
 
-    bool IsVariable { get; }
+    /// <summary>
+    /// Gets a value indicating what type of parameter it is.
+    ParameterValueType ParameterType { get; }
 
+    /// <summary>
+    /// Changes the parameter to a variable with the specified variable name.
+    /// </summary>
+    /// <param name="variableName">The name of the variable.</param>
     void ChangetToVariable(string variableName);
 
+    /// <summary>
+    /// Changes the parameter to a value.
+    /// </summary>
     void ChangeToValue();
 
+    /// <summary>
+    /// Gets the content of the parameter as a string.
+    /// </summary>
+    /// <returns>The content of the parameter as a string.</returns>
     string ContentAsString();
 
-    string ToData();
-}
-
-/// <summary>
-/// Represents the type of a parameter value.
-/// </summary>
-public enum ParameterValueType
-{
     /// <summary>
-    /// Represents a parameter with a specific value.
+    /// Checks if the parameter is valid.
     /// </summary>
-    Value,
+    /// <returns>True if the parameter is valid; otherwise, false.</returns>
+    bool IsValid();
 
     /// <summary>
-    /// Represents a parameter wich is a variable.
+    /// Get the data representation of the parameter.
     /// </summary>
-    Variable
+    /// <returns></returns>
+    ParameterData ToData();
+
+    /// <summary>
+    /// Fill the parameter with data.
+    /// </summary>
+    void FromData(ParameterData data);
 }
