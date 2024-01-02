@@ -5,7 +5,6 @@ using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
 using KlabTestFramework.Workflow.Lib.Validator;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace KlabTestFramework.Workflow.Lib;
 
@@ -59,6 +58,16 @@ public static class WorkflowModule
         services.AddTransient(configuration.WorkflowContextType);
         services.AddTransient<Func<IWorkflowContext>>(provider => () => (IWorkflowContext)provider.GetRequiredService(configuration.WorkflowContextType));
         services.AddTransient<IWorkflowRunner, WorkflowRunner>();
+
+        /// register variable handlers
+        foreach (VariableHandlerType variableHandlerType in configuration.VariableHandlerTypes)
+        {
+            Type genericType = typeof(IVariableParameterReplaceHandler<>).MakeGenericType(variableHandlerType.Parameter);
+            services.AddTransient(genericType, variableHandlerType.VariableHandler);
+        }
+
+        services.AddTransient(typeof(DefaultVariableParameterReplace<>)); // default variable handler
+        services.AddTransient<IVariableReplacer, VariableReplacer>();
     }
 
     private static void AddWorkflowspecification(this IServiceCollection services, WorkflowModuleConfiguration configuration)
@@ -89,10 +98,10 @@ public static class WorkflowModule
 
     private static void RegisterStep(this IServiceCollection services, Type stepType, Type stepHandlerType)
     {
-        services.TryAddTransient(stepType);
+        services.AddTransient(stepType);
         Type genericStepHandlerType = typeof(IStepHandler<>).MakeGenericType(stepType);
-        services.TryAddTransient(genericStepHandlerType, stepHandlerType);
-        services.TryAddTransient(provider =>
+        services.AddTransient(genericStepHandlerType, stepHandlerType);
+        services.AddTransient(provider =>
         {
             StepSpecification stepSpecification = StepSpecification.Create(
                 stepType,
@@ -137,6 +146,7 @@ public static class WorkflowModule
     {
         services.AddTransient<IVariableFactory, VariableFactory>();
         services.AddTransient(typeof(Variable<>));
+        services.AddTransient(typeof(DefaultVariableParameterReplace<>));
         services.AddSingleton(p =>
         {
             Func<IParameterType, IVariable> func = new(parameterType =>
