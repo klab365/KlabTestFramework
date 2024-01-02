@@ -25,10 +25,12 @@ public interface IWorkflowEditor : IWorkflowReadEditor
     void CreateNewWorkflow();
 
     /// <summary>
-    /// Edit a existing workflow
+    /// Edit an existing workflow.
+    /// At the end of the editing process, the <see cref="BuildWorkflowAsync"/> method
+    /// must be called to build the new workflow.
     /// </summary>
     /// <param name="workflow"></param>
-    void EditWorkflow(IWorkflow workflow);
+    void EditWorkflow(Specifications.Workflow workflow);
 
     /// <summary>
     /// Adds a step to last position in the workflow.
@@ -55,5 +57,10 @@ public interface IWorkflowEditor : IWorkflowReadEditor
     /// Build the workflow with the current state of editor.
     /// </summary>
     /// <returns></returns>
-    Result<Specifications.Workflow> BuildWorkflow();
+    Task<Result<Specifications.Workflow>> BuildWorkflowAsync();
+
+    /// <summary>
+    /// Check if the workflow has errors.
+    /// </summary>
+    Task<Result> CheckWorkflowHasErrorsAsync(Specifications.Workflow workflow);
 }

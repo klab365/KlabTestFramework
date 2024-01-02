@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 
 using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Lib.Validator;
 
 namespace KlabTestFramework.Workflow.Lib.Editor;
 
@@ -16,6 +17,7 @@ public class WorkflowEditor : IWorkflowEditor
     private readonly List<IVariable> _variables = [];
     private readonly List<StepIndexContainer> _steps = [];
     private readonly IWorkflowRepository _repository;
+    private readonly IWorkflowValidator _validator;
     private readonly IStepFactory _stepFactory;
     private readonly IParameterFactory _parameterFactory;
     private readonly IVariableFactory _variableFactory;
@@ -23,11 +25,13 @@ public class WorkflowEditor : IWorkflowEditor
 
     public WorkflowEditor(
         IWorkflowRepository repository,
+        IWorkflowValidator validator,
         IStepFactory stepFactory,
         IParameterFactory parameterFactory,
         IVariableFactory variableFactory)
     {
         _repository = repository;
+        _validator = validator;
         _stepFactory = stepFactory;
         _parameterFactory = parameterFactory;
         _variableFactory = variableFactory;
@@ -41,10 +45,25 @@ public class WorkflowEditor : IWorkflowEditor
         _variables.Clear();
     }
 
-    /// <inheritdoc/>
-    public void EditWorkflow(IWorkflow workflow)
+    public void EditWorkflow(Specifications.Workflow workflow)
     {
-        throw new NotImplementedException();
+        _steps.Clear();
+        foreach (StepContainer step in workflow.Steps)
+        {
+            _steps.Add(new StepIndexContainer(step.Step) { Index = _steps.Count });
+        }
+
+        _variables.Clear();
+        foreach (IVariable variable in workflow.Variables)
+        {
+            _variables.Add(variable);
+        }
+
+        _workflowDataConfigurationCallbacks.Clear();
+        _workflowDataConfigurationCallbacks.Add(wf => wf.Description = workflow.Metadata.Description);
+        _workflowDataConfigurationCallbacks.Add(wf => wf.Author = workflow.Metadata.Author);
+        _workflowDataConfigurationCallbacks.Add(wf => wf.CreatedAt = workflow.Metadata.CreatedAt);
+        _workflowDataConfigurationCallbacks.Add(wf => wf.UpdatedAt = workflow.Metadata.UpdatedAt);
     }
 
     /// <inheritdoc/>
@@ -79,7 +98,7 @@ public class WorkflowEditor : IWorkflowEditor
     }
 
     /// <inheritdoc/>
-    public Result<Specifications.Workflow> BuildWorkflow()
+    public Task<Result<Specifications.Workflow>> BuildWorkflowAsync()
     {
         StepContainer[] steps = _steps.Select(s => new StepContainer(s.Step)).ToArray();
         Specifications.Workflow workflow = new(steps, _variables.ToArray());
@@ -87,7 +106,26 @@ public class WorkflowEditor : IWorkflowEditor
         {
             callback(workflow.Metadata);
         }
-        return workflow;
+
+        if (workflow.Metadata.CreatedAt == DateTime.MinValue)
+        {
+            workflow.Metadata.CreatedAt = DateTime.Now;
+        }
+
+        workflow.Metadata.UpdatedAt = DateTime.Now;
+        Result<Specifications.Workflow> result = workflow;
+        return Task.FromResult(result);
+    }
+
+    public async Task<Result> CheckWorkflowHasErrorsAsync(Specifications.Workflow workflow)
+    {
+        WorkflowValidatorResult result = await _validator.ValidateAsync(workflow);
+        if (result.IsFailure)
+        {
+            return WorkflowEditorErrors.WorkflowIsNotValid;
+        }
+
+        return Result.Success();
     }
 
     /// <inheritdoc/>
@@ -102,16 +140,12 @@ public class WorkflowEditor : IWorkflowEditor
             StepContainer stepContainer = new(step);
             stepContainer.FromData(s);
             return stepContainer;
-        }).ToArray();
+        })
+        .ToArray();
 
         // variables
-        if (data.Variables is not null)
-        {
-            IEnumerable<IVariable> variables = data.Variables.Select(v => _variableFactory.CreateVariableFromData(v));
-            _variables.AddRange(variables);
-        }
-
-        Specifications.Workflow workflow = new(steps, _variables.ToArray());
+        IVariable[] variables = data.Variables?.Select(v => _variableFactory.CreateVariableFromData(v)).ToArray() ?? [];
+        Specifications.Workflow workflow = new(steps, variables) { Metadata = data };
         return workflow;
     }
 

@@ -22,7 +22,14 @@ public class RunWorkflowProgamatically : IRunExample
         // run workflow
         Stopwatch stopwatch = Stopwatch.StartNew();
         IWorkflowRunner workflowEngine = services.GetRequiredService<IWorkflowRunner>();
-        Workflow workflow = workflowEditor.BuildWorkflow().Value!;
+        Klab.Toolkit.Results.Result<Workflow> workflowResult = await workflowEditor.BuildWorkflowAsync();
+        if (workflowResult.IsFailure)
+        {
+            Console.WriteLine($"Workflow is invalid: {workflowResult.Error}");
+            return;
+        }
+
+        Workflow workflow = workflowResult.Value!;
         await workflowEngine.RunAsync(workflow);
         stopwatch.Stop();
         Console.WriteLine($"Workflow finished in {stopwatch.ElapsedMilliseconds} ms");

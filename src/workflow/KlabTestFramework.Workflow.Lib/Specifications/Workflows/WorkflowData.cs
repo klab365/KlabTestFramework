@@ -23,7 +23,7 @@ public class WorkflowData
     /// <summary>
     /// When the workflow was created
     /// </summary>
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.MinValue;
 
     /// <summary>
     /// When the workflow was last updated

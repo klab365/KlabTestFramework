@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
@@ -39,7 +40,10 @@ public class Workflow : IWorkflow
 
     public WorkflowData ToData()
     {
-        throw new System.NotImplementedException();
+        WorkflowData data = Metadata;
+        data.Steps = Steps.Select(s => s.ToData()).ToList();
+        data.Variables = Variables.Select(v => v.ToData()).ToList();
+        return data;
     }
 
     public void FromData(WorkflowData data)

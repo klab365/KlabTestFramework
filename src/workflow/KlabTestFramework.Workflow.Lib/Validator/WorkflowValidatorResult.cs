@@ -8,6 +8,8 @@ namespace KlabTestFramework.Workflow.Lib.Validator;
 /// </summary>
 public class WorkflowValidatorResult
 {
+    public bool IsFailure => Errors.Count > 0;
+
     /// <summary>
     /// Gets the list of workflow step validation errors.
     /// </summary>
