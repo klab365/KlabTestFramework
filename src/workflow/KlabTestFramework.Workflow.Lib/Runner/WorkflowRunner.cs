@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Runner;
@@ -18,8 +19,9 @@ public class WorkflowRunner : IWorkflowRunner
     private readonly ILogger<WorkflowRunner> _logger;
     private readonly Func<IWorkflowContext> _workflowContextFactory;
     private readonly IWorkflowValidator _validator;
+    private readonly IVariableReplacer _variableReplacer;
     private readonly Func<Type, StepHandlerWrapperBase> _stepHandlerWrapperFactory;
-    private static readonly ConcurrentDictionary<Type, StepHandlerWrapperBase> StepHandlers = new();
+    private readonly ConcurrentDictionary<Type, StepHandlerWrapperBase> _stepHandlers = new();
 
     /// <inheritdoc/>
     public event EventHandler<WorkflowStepStatusEventArgs>? StepStatusChanged;
@@ -29,6 +31,7 @@ public class WorkflowRunner : IWorkflowRunner
 
     public WorkflowRunner(
         IWorkflowValidator validator,
+        IVariableReplacer variableReplacer,
         Func<Type, StepHandlerWrapperBase> stepHandlerWrapperFactory,
         ILogger<WorkflowRunner> logger,
         Func<IWorkflowContext> workflowContextFactory)
@@ -36,24 +39,34 @@ public class WorkflowRunner : IWorkflowRunner
         _logger = logger;
         _workflowContextFactory = workflowContextFactory;
         _validator = validator;
+        _variableReplacer = variableReplacer;
         _stepHandlerWrapperFactory = stepHandlerWrapperFactory;
     }
 
     /// <inheritdoc/>
     public async Task<WorkflowResult> RunAsync(Specifications.Workflow workflow)
     {
+        IWorkflowContext context = _workflowContextFactory();
+        context.Variables = workflow.Variables.ToList();
+
+        await ReplaceVariableValuesToParametersAsync(workflow);
+
         Result resCheckErrors = await CheckWorkflowHasErrorsAsync(workflow);
         if (resCheckErrors.IsFailure)
         {
             return new(false);
         }
 
-        return await HandleWorkflowAsync(workflow);
+        return await HandleWorkflowAsync(workflow, context);
     }
 
-    private async Task<WorkflowResult> HandleWorkflowAsync(Specifications.Workflow workflow)
+    private async Task ReplaceVariableValuesToParametersAsync(Specifications.Workflow workflow)
     {
-        IWorkflowContext context = _workflowContextFactory();
+        await _variableReplacer.ReplaceVariablesWithTheParametersAsync(workflow);
+    }
+
+    private async Task<WorkflowResult> HandleWorkflowAsync(Specifications.Workflow workflow, IWorkflowContext context)
+    {
         WorkflowStatusChanged?.Invoke(this, new() { Status = WorkflowStatus.Running });
         foreach (StepContainer stepContainer in workflow.Steps)
         {
@@ -96,7 +109,7 @@ public class WorkflowRunner : IWorkflowRunner
     {
         try
         {
-            StepHandlerWrapperBase stepHandler = StepHandlers.GetOrAdd(step.GetType(), requestType =>
+            StepHandlerWrapperBase stepHandler = _stepHandlers.GetOrAdd(step.GetType(), requestType =>
             {
                 StepHandlerWrapperBase wrapper = _stepHandlerWrapperFactory(requestType);
                 return wrapper;

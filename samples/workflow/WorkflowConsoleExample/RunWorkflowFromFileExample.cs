@@ -22,9 +22,8 @@ public class RunWorkflowFromFileExample : IRunExample
         workflowEditor.CreateNewWorkflow();
         workflowEditor.ConfigureMetadata(m => m.Description = "My first workflow from a file");
         workflowEditor.ConfigureMetadata(m => m.Author = "Klab");
-        workflowEditor.AddVariable<IntParameter>("myVariable", "sec", VariableType.Constant, v => v.SetValue(5));
-        workflowEditor.AddVariable<TimeParameter>("myVariable2", "sec", VariableType.Constant, p => p.SetValue(TimeSpan.FromSeconds(5)));
-        workflowEditor.AddStep<WaitStep>(s => s.Time.Content.SetValue(TimeSpan.FromSeconds(5)));
+        workflowEditor.AddVariable<TimeParameter>("myVariable", "sec", VariableType.Constant, p => p.SetValue(TimeSpan.FromSeconds(10)));
+        workflowEditor.AddStep<WaitStep>(s => s.Time.ChangetToVariable("myVariable"));
         workflowEditor.AddStep<WaitStep>(s => s.Time.Content.SetValue(TimeSpan.FromSeconds(1)));
 
         Workflow workflow = (await workflowEditor.BuildWorkflowAsync()).Value!;

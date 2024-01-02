@@ -1,4 +1,6 @@
-﻿namespace KlabTestFramework.Workflow.Lib.Specifications;
+﻿using System;
+
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Represents a parameter in the workflow specification.
@@ -25,6 +27,12 @@ public interface IParameter
     ParameterValueType ParameterType { get; }
 
     /// <summary>
+    /// Parameter content type
+    /// </summary>
+    /// <value></value>
+    Type ParameterContentType { get; }
+
+    /// <summary>
     /// Changes the parameter to a variable with the specified variable name.
     /// </summary>
     /// <param name="variableName">The name of the variable.</param>
@@ -46,6 +54,11 @@ public interface IParameter
     /// </summary>
     /// <returns>True if the parameter is valid; otherwise, false.</returns>
     bool IsValid();
+
+    /// <summary>
+    /// Indicates if the parameter is a variable.
+    /// </summary>
+    bool IsVariable();
 
     /// <summary>
     /// Get the data representation of the parameter.

@@ -1,4 +1,6 @@
-﻿namespace KlabTestFramework.Workflow.Lib.Specifications;
+﻿using System;
+
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Represents a parameter in the workflow specification. A parameter can be inside a step or in the variables
@@ -21,6 +23,19 @@ public class Parameter<TParameter> : IParameter where TParameter : IParameterTyp
     /// Content of the parameter.
     /// </summary>
     public TParameter Content { get; }
+
+    public Type ParameterContentType
+    {
+        get
+        {
+            if (Content is not IParameterType)
+            {
+                throw new InvalidOperationException($"Parameter content must implement {nameof(IParameterType)}");
+            }
+
+            return typeof(TParameter);
+        }
+    }
 
     public Parameter(string name, string unit, TParameter content)
     {
@@ -77,10 +92,18 @@ public class Parameter<TParameter> : IParameter where TParameter : IParameterTyp
     {
         Name = data.Name;
         ParameterType = data.Type;
-        Content.FromString(data.Value);
+
+        if (IsVariable())
+        {
+            VariableName = data.Value;
+        }
+        else
+        {
+            Content.FromString(data.Value);
+        }
     }
 
-    private bool IsVariable()
+    public bool IsVariable()
     {
         return ParameterType == ParameterValueType.Variable;
     }

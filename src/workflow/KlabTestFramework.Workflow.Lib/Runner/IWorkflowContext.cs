@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
+using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Runner;
 
@@ -11,6 +13,8 @@ public interface IWorkflowContext
     /// Gets the cancellation token for the workflow step.
     /// </summary>
     CancellationToken CancellationToken { get; }
+
+    List<IVariable> Variables { get; set; }
 
     /// <summary>
     /// Publishes a message.
