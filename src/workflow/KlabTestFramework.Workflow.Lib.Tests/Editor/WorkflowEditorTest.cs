@@ -12,32 +12,16 @@ namespace KlabTestFramework.Workflow.Lib.Tests.Editor;
 
 public class WorkflowEditorTests
 {
-    public static ServiceProvider ServiceProvider { get; } = GetServiceProvider();
-
-    private static ServiceProvider GetServiceProvider()
-    {
-        IServiceCollection services = new ServiceCollection();
-        services.UseWorkflowLib(config => config.AddStepType<MockStep, MockStepHandler>());
-        services.AddTransient<WorkflowEditor>();
-
-        return services.BuildServiceProvider();
-    }
-
-    private readonly WorkflowEditor _sut;
-
-    public WorkflowEditorTests()
-    {
-        _sut = ServiceProvider.GetRequiredService<WorkflowEditor>();
-    }
-
     [Fact]
     public async Task CreateNewWorkflowShouldClearStepsAndMetaDataCallbacks()
     {
         // Arrange
         // Act
-        _sut.CreateNewWorkflow();
-        _sut.ConfigureMetadata(m => m.Description = "test");
-        Result<Specifications.Workflow> workflowResult = await _sut.BuildWorkflowAsync();
+        ServiceProvider serviceProvider = GetServiceProvider();
+        WorkflowEditor sut = serviceProvider.GetRequiredService<WorkflowEditor>();
+        sut.CreateNewWorkflow();
+        sut.ConfigureMetadata(m => m.Description = "test");
+        Result<Specifications.Workflow> workflowResult = await sut.BuildWorkflowAsync();
 
         // Assert
         workflowResult.IsFailure.Should().BeFalse("Workflow should be created successfully");
@@ -51,11 +35,13 @@ public class WorkflowEditorTests
     {
         // Arrange
         // Act
-        _sut.CreateNewWorkflow();
-        _sut.AddStep<MockStep>();
+        ServiceProvider serviceProvider = GetServiceProvider();
+        WorkflowEditor sut = serviceProvider.GetRequiredService<WorkflowEditor>();
+        sut.CreateNewWorkflow();
+        sut.AddStep<MockStep>();
 
         // Assert
-        Result<Specifications.Workflow> workflowResult = await _sut.BuildWorkflowAsync();
+        Result<Specifications.Workflow> workflowResult = await sut.BuildWorkflowAsync();
         Specifications.Workflow workflow = workflowResult.Value!;
         workflow.Metadata.CreatedAt.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(2000));
         workflow.Metadata.UpdatedAt.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(2000));
@@ -66,12 +52,14 @@ public class WorkflowEditorTests
     [Fact]
     public async Task BuildWorkflow_ShouldReturnTwoDifferentWorkflows_If_Called_Twice()
     {
-        _sut.CreateNewWorkflow();
-        _sut.AddStep<MockStep>();
+        ServiceProvider serviceProvider = GetServiceProvider();
+        WorkflowEditor sut = serviceProvider.GetRequiredService<WorkflowEditor>();
+        sut.CreateNewWorkflow();
+        sut.AddStep<MockStep>();
 
-        Result<Specifications.Workflow> workflow1Result = await _sut.BuildWorkflowAsync();
+        Result<Specifications.Workflow> workflow1Result = await sut.BuildWorkflowAsync();
         Specifications.Workflow workflow1 = workflow1Result.Value!;
-        Result<Specifications.Workflow> workflow2Result = await _sut.BuildWorkflowAsync();
+        Result<Specifications.Workflow> workflow2Result = await sut.BuildWorkflowAsync();
         Specifications.Workflow workflow2 = workflow2Result.Value!;
 
         workflow1.Should().NotBeSameAs(workflow2);
@@ -82,19 +70,21 @@ public class WorkflowEditorTests
     [Fact]
     public async Task SaveWorkflowAsync_Should_Save_Expected_Data()
     {
+        ServiceProvider serviceProvider = GetServiceProvider();
+        WorkflowEditor sut = serviceProvider.GetRequiredService<WorkflowEditor>();
         string dir = AppDomain.CurrentDomain.BaseDirectory;
         string path = Path.Combine(dir, "test.json");
 
-        _sut.CreateNewWorkflow();
-        _sut.AddStep<MockStep>(p => p.Counter.Content.SetValue(1));
-        _sut.AddVariable<IntParameter>("test", "mV", VariableType.Constant, p => p.SetValue(1));
+        sut.CreateNewWorkflow();
+        sut.AddStep<MockStep>(p => p.Counter.Content.SetValue(1));
+        sut.AddVariable<IntParameter>("test", "mV", VariableType.Constant, p => p.SetValue(1));
 
-        Result<Specifications.Workflow> workflowResult = await _sut.BuildWorkflowAsync();
+        Result<Specifications.Workflow> workflowResult = await sut.BuildWorkflowAsync();
         Specifications.Workflow workflow = workflowResult.Value!;
-        Result result = await _sut.SaveWorkflowAsync(path, workflow);
+        Result result = await sut.SaveWorkflowAsync(path, workflow);
         result.IsSuccess.Should().BeTrue();
 
-        Result<Specifications.Workflow> readWorkflow = await _sut.LoadWorkflowFromFileAsync(path)!;
+        Result<Specifications.Workflow> readWorkflow = await sut.LoadWorkflowFromFileAsync(path)!;
         readWorkflow.IsSuccess.Should().BeTrue();
         workflow.ToData().Should().BeEquivalentTo(readWorkflow.Value!.ToData());
     }
@@ -102,11 +92,13 @@ public class WorkflowEditorTests
     [Fact]
     public async Task CheckHasWorkflowErrors_Should_Be_True_If_Worfklow_NotValid()
     {
-        _sut.CreateNewWorkflow();
-        _sut.AddStep<MockStep>(p => p.Counter.Content.SetValue(-1));
+        ServiceProvider serviceProvider = GetServiceProvider();
+        WorkflowEditor sut = serviceProvider.GetRequiredService<WorkflowEditor>();
+        sut.CreateNewWorkflow();
+        sut.AddStep<MockStep>(p => p.Counter.Content.SetValue(-1));
 
-        Result<Specifications.Workflow> workflowResult = await _sut.BuildWorkflowAsync();
-        Result result = await _sut.CheckWorkflowHasErrorsAsync(workflowResult.Value!);
+        Result<Specifications.Workflow> workflowResult = await sut.BuildWorkflowAsync();
+        Result result = await sut.CheckWorkflowHasErrorsAsync(workflowResult.Value!);
 
         result.IsSuccess.Should().BeFalse();
     }
@@ -114,11 +106,13 @@ public class WorkflowEditorTests
     [Fact]
     public async Task CheckHasWorkflowErrors_Should_Be_True_If_Worfklow_Valid()
     {
-        _sut.CreateNewWorkflow();
-        _sut.AddStep<MockStep>(p => p.Counter.Content.SetValue(1));
+        ServiceProvider serviceProvider = GetServiceProvider();
+        WorkflowEditor sut = serviceProvider.GetRequiredService<WorkflowEditor>();
+        sut.CreateNewWorkflow();
+        sut.AddStep<MockStep>(p => p.Counter.Content.SetValue(1));
 
-        Result<Specifications.Workflow> workflowResult = await _sut.BuildWorkflowAsync();
-        Result result = await _sut.CheckWorkflowHasErrorsAsync(workflowResult.Value!);
+        Result<Specifications.Workflow> workflowResult = await sut.BuildWorkflowAsync();
+        Result result = await sut.CheckWorkflowHasErrorsAsync(workflowResult.Value!);
 
         result.IsSuccess.Should().BeTrue();
     }
@@ -126,19 +120,29 @@ public class WorkflowEditorTests
     [Fact]
     public async Task EditWorkflow_Should_UpdateTimestamp_And_Build_Different_Workflow()
     {
-        _sut.CreateNewWorkflow();
-        _sut.AddStep<MockStep>(p => p.Counter.Content.SetValue(1));
-        Result<Specifications.Workflow> workflowResult = await _sut.BuildWorkflowAsync();
+        ServiceProvider serviceProvider = GetServiceProvider();
+        WorkflowEditor sut = serviceProvider.GetRequiredService<WorkflowEditor>();
+        sut.CreateNewWorkflow();
+        sut.AddStep<MockStep>(p => p.Counter.Content.SetValue(1));
+        Result<Specifications.Workflow> workflowResult = await sut.BuildWorkflowAsync();
         Specifications.Workflow workflow = workflowResult.Value!;
         DateTime firstCreatedDate = workflow.Metadata.CreatedAt;
 
-        _sut.EditWorkflow(workflow);
-        _sut.AddStep<MockStep>(p => p.Counter.Content.SetValue(2));
-        Result<Specifications.Workflow> workflowResult2 = await _sut.BuildWorkflowAsync();
+        sut.EditWorkflow(workflow);
+        sut.AddStep<MockStep>(p => p.Counter.Content.SetValue(2));
+        Result<Specifications.Workflow> workflowResult2 = await sut.BuildWorkflowAsync();
         Specifications.Workflow workflow2 = workflowResult2.Value!;
 
         workflow.Metadata.UpdatedAt.Should().BeBefore(workflow2.Metadata.UpdatedAt);
         workflow2.Metadata.CreatedAt.Should().Be(firstCreatedDate);
         workflow.Steps.Should().NotBeSameAs(workflow2.Steps);
+    }
+
+    private static ServiceProvider GetServiceProvider()
+    {
+        return ServiceProviderTestHelper.GetServiceProvider(services =>
+        {
+            services.AddTransient<WorkflowEditor>();
+        });
     }
 }

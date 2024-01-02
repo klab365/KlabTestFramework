@@ -25,7 +25,7 @@ public class RunWorkflowFromFileExample : IRunExample
         workflowEditor.AddVariable<IntParameter>("myVariable", "sec", VariableType.Constant, v => v.SetValue(5));
         workflowEditor.AddVariable<TimeParameter>("myVariable2", "sec", VariableType.Constant, p => p.SetValue(TimeSpan.FromSeconds(5)));
         workflowEditor.AddStep<WaitStep>(s => s.Time.Content.SetValue(TimeSpan.FromSeconds(5)));
-        workflowEditor.AddStep<WaitStep>(s => s.Time.ChangetToVariable("myVariable"));
+        workflowEditor.AddStep<WaitStep>(s => s.Time.Content.SetValue(TimeSpan.FromSeconds(1)));
 
         Workflow workflow = (await workflowEditor.BuildWorkflowAsync()).Value!;
         await workflowEditor.SaveWorkflowAsync(workflowPath, workflow);
@@ -33,6 +33,7 @@ public class RunWorkflowFromFileExample : IRunExample
         Console.WriteLine($"Workflow saved to {workflowPath} in {watch.Elapsed.TotalMilliseconds}ms");
 
         // run workflow.json
+        watch.Restart();
         Result<Workflow> readWorkflow = await workflowEditor.LoadWorkflowFromFileAsync(workflowPath);
         if (readWorkflow.IsFailure)
         {
@@ -42,5 +43,7 @@ public class RunWorkflowFromFileExample : IRunExample
 
         IWorkflowRunner runner = services.GetRequiredService<IWorkflowRunner>();
         await runner.RunAsync(readWorkflow.Value!);
+        watch.Stop();
+        Console.WriteLine($"Workflow executed in {watch.Elapsed.TotalMilliseconds}ms");
     }
 }

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-
+using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Lib.Validator;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace KlabTestFramework.Workflow.Lib;
@@ -13,10 +13,12 @@ namespace KlabTestFramework.Workflow.Lib;
 /// <summary>
 /// Implementation of <see cref="IWorkflowRunner"/>
 /// </summary>
-public sealed class WorkflowRunner : IWorkflowRunner
+public class WorkflowRunner : IWorkflowRunner
 {
     private readonly ILogger<WorkflowRunner> _logger;
-    private readonly IEnumerable<StepSpecification> _stepSpecifications;
+    private readonly Func<IWorkflowContext> _workflowContextFactory;
+    private readonly IWorkflowValidator _validator;
+    private readonly Func<Type, StepHandlerWrapperBase> _stepHandlerWrapperFactory;
     private static readonly ConcurrentDictionary<Type, StepHandlerWrapperBase> StepHandlers = new();
 
     /// <inheritdoc/>
@@ -25,16 +27,33 @@ public sealed class WorkflowRunner : IWorkflowRunner
     /// <inheritdoc/>
     public event EventHandler<WorkflowStatusEventArgs>? WorkflowStatusChanged;
 
-    public WorkflowRunner(ILogger<WorkflowRunner> logger, IEnumerable<StepSpecification> stepSpecifications)
+    public WorkflowRunner(
+        IWorkflowValidator validator,
+        Func<Type, StepHandlerWrapperBase> stepHandlerWrapperFactory,
+        ILogger<WorkflowRunner> logger,
+        Func<IWorkflowContext> workflowContextFactory)
     {
         _logger = logger;
-        _stepSpecifications = stepSpecifications;
+        _workflowContextFactory = workflowContextFactory;
+        _validator = validator;
+        _stepHandlerWrapperFactory = stepHandlerWrapperFactory;
     }
 
     /// <inheritdoc/>
     public async Task<WorkflowResult> RunAsync(Specifications.Workflow workflow)
     {
-        DefaultWorkflowContext context = new();
+        Result resCheckErrors = await CheckWorkflowHasErrorsAsync(workflow);
+        if (resCheckErrors.IsFailure)
+        {
+            return new(false);
+        }
+
+        return await HandleWorkflowAsync(workflow);
+    }
+
+    private async Task<WorkflowResult> HandleWorkflowAsync(Specifications.Workflow workflow)
+    {
+        IWorkflowContext context = _workflowContextFactory();
         WorkflowStatusChanged?.Invoke(this, new() { Status = WorkflowStatus.Running });
         foreach (StepContainer stepContainer in workflow.Steps)
         {
@@ -57,35 +76,74 @@ public sealed class WorkflowRunner : IWorkflowRunner
         return new(true);
     }
 
+    private async Task<Result> CheckWorkflowHasErrorsAsync(Specifications.Workflow workflow)
+    {
+        WorkflowValidatorResult res = await _validator.ValidateAsync(workflow);
+        if (res.Errors.Count != 0)
+        {
+            return WorkflowRunnerErrors.WorkflowHasErrors;
+        }
+
+        return Result.Success();
+    }
+
     /// <summary>
     /// Handle the step handler
     /// For this we will use the <see cref="StepHandlerWrapperBase"/> to get the correct step handler from the DI container
     /// </summary>
     /// <typeparam name="TStep"></typeparam>
-    private async Task HandleStep<TStep>(TStep step, DefaultWorkflowContext context) where TStep : class, IStep
+    private async Task<Result> HandleStep<TStep>(TStep step, IWorkflowContext context) where TStep : class, IStep
     {
         try
         {
             StepHandlerWrapperBase stepHandler = StepHandlers.GetOrAdd(step.GetType(), requestType =>
             {
-                StepSpecification stepSpecification = _stepSpecifications.Single(s => s.StepType == requestType);
-                Type wrapperType = typeof(StepHandlerWrapper<>).MakeGenericType(stepSpecification.StepType);
-                object? wrapper = stepSpecification.HandlerFactory();
-                if (wrapper == null)
-                {
-                    throw new InvalidOperationException($"Could not create instance of {wrapperType}");
-                }
-
-                StepHandlerWrapperBase stepHandler = (StepHandlerWrapperBase)wrapper;
-                return stepHandler;
+                StepHandlerWrapperBase wrapper = _stepHandlerWrapperFactory(requestType);
+                return wrapper;
             });
 
-            await stepHandler.HandleAsync(step, context);
+            return await stepHandler.HandleAsync(step, context);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while handling step {Type}", step.GetType());
             throw;
         }
+    }
+}
+
+/// <summary>
+/// This class is used to wrap the step handler in a generic type so that it can be resolved from the DI container.
+/// </summary>
+public abstract class StepHandlerWrapperBase
+{
+    /// <summary>
+    /// Handles the execution of a step asynchronously.
+    /// This method will be resolve the correct step handler from the DI container.
+    /// </summary>
+    /// <param name="step">The step to be handled.</param>
+    /// <param name="context">The context of the workflow step.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public abstract Task<Result> HandleAsync(IStep step, IWorkflowContext context);
+}
+
+/// <summary>
+/// This class is used to wrap the step handler in a generic type so that it can be resolved from the DI container.
+/// </summary>
+/// <typeparam name="TStep"></typeparam>
+public class StepHandlerWrapper<TStep> : StepHandlerWrapperBase where TStep : class, IStep
+{
+    private readonly IServiceProvider _serviceProvider;
+
+    public StepHandlerWrapper(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+
+    /// <inheritdoc/>
+    public override async Task<Result> HandleAsync(IStep step, IWorkflowContext context)
+    {
+        IStepHandler<TStep> stepHandler = _serviceProvider.GetRequiredService<IStepHandler<TStep>>();
+        return await stepHandler.HandleAsync((TStep)step, context);
     }
 }
