@@ -27,7 +27,7 @@ public class RunWorkflowFromFileExample : IRunExample
         workflowEditor.AddStep<WaitStep>(s => s.Time.Content.SetValue(TimeSpan.FromSeconds(5)));
         workflowEditor.AddStep<WaitStep>(s => s.Time.ChangetToVariable("myVariable"));
 
-        Workflow workflow = workflowEditor.BuildWorkflow().Value!;
+        Workflow workflow = (await workflowEditor.BuildWorkflowAsync()).Value!;
         await workflowEditor.SaveWorkflowAsync(workflowPath, workflow);
         watch.Stop();
         Console.WriteLine($"Workflow saved to {workflowPath} in {watch.Elapsed.TotalMilliseconds}ms");

@@ -3,6 +3,7 @@ using KlabTestFramework.Workflow.Lib.BuiltIn;
 using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Lib.Validator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -27,10 +28,17 @@ public static class WorkflowModule
         WorkflowModuleConfiguration configuration = new();
         configurationCallback?.Invoke(configuration);
 
+        services.AddWorkflowspecification(configuration);
         services.AddWorkflowEditor(configuration);
         services.AddWorkflowRunner(configuration);
-        services.AddWorkflowspecification(configuration);
+        services.AddWorkflowValidator();
         return services;
+    }
+
+    private static void AddWorkflowValidator(this IServiceCollection services)
+    {
+        services.AddTransient<IWorkflowValidator, WorkflowValidator>();
+        services.AddTransient<IStepValidatorHandler, ParameterValidator>();
     }
 
     private static void AddWorkflowEditor(this IServiceCollection services, WorkflowModuleConfiguration configuration)

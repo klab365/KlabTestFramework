@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KlabTestFramework.Workflow.Lib\KlabTestFramework.Workflow.Lib.csproj" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="20.0.4" />
   </ItemGroup>
 
 </Project>

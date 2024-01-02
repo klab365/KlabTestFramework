@@ -22,14 +22,24 @@ public class StepFactory : IStepFactory
     /// <inheritdoc/>
     public IStep CreateStep<TStep>() where TStep : IStep
     {
-        StepSpecification stepSpecification = _stepSpecifications.Single(s => s.StepType == typeof(TStep));
+        StepSpecification? stepSpecification = _stepSpecifications.SingleOrDefault(s => s.StepType == typeof(TStep));
+        if (stepSpecification == null)
+        {
+            throw new InvalidOperationException($"Step specification for type {typeof(TStep).Name} not found");
+        }
+
         IStep step = stepSpecification.Factory();
         return step;
     }
 
     public IStep CreateStep(StepData stepData)
     {
-        StepSpecification stepSpecification = _stepSpecifications.Single(s => s.StepType.Name == stepData.Type);
+        StepSpecification? stepSpecification = _stepSpecifications.SingleOrDefault(s => s.StepType.Name == stepData.Type);
+        if (stepSpecification == null)
+        {
+            throw new InvalidOperationException($"Step specification for type {stepData.Type} not found");
+        }
+
         IStep step = stepSpecification.Factory();
         return step;
     }
