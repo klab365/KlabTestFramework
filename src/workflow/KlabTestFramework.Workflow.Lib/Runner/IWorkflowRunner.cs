@@ -26,7 +26,7 @@ public interface IWorkflowRunner
     Task<WorkflowResult> RunAsync(Specifications.Workflow workflow);
 }
 
-public record WorkflowResult(bool Success);
+public record WorkflowResult(bool IsSuccess);
 
 public class WorkflowStatusEventArgs : EventArgs
 {

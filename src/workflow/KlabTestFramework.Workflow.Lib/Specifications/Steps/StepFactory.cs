@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using KlabTestFramework.Workflow.Lib.Runner;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -45,42 +42,6 @@ public class StepFactory : IStepFactory
     }
 }
 
-/// <summary>
-/// This class is used to wrap the step handler in a generic type so that it can be resolved from the DI container.
-/// </summary>
-public abstract class StepHandlerWrapperBase
-{
-    /// <summary>
-    /// Handles the execution of a step asynchronously.
-    /// This method will be resolve the correct step handler from the DI container.
-    /// </summary>
-    /// <param name="step">The step to be handled.</param>
-    /// <param name="context">The context of the workflow step.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    public abstract Task HandleAsync(IStep step, DefaultWorkflowContext context);
-}
-
-/// <summary>
-/// This class is used to wrap the step handler in a generic type so that it can be resolved from the DI container.
-/// </summary>
-/// <typeparam name="TStep"></typeparam>
-public class StepHandlerWrapper<TStep> : StepHandlerWrapperBase where TStep : class, IStep
-{
-    private readonly IServiceProvider _serviceProvider;
-
-    public StepHandlerWrapper(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
-
-    /// <inheritdoc/>
-    public override async Task HandleAsync(IStep step, DefaultWorkflowContext context)
-    {
-        IStepHandler<TStep> stepHandler = _serviceProvider.GetRequiredService<IStepHandler<TStep>>();
-        await stepHandler.HandleAsync((TStep)step, context);
-    }
-}
-
 public record StepSpecification
 {
     /// <summary>
@@ -96,20 +57,14 @@ public record StepSpecification
     public Func<IStep> Factory { get; }
 
     /// <summary>
-    /// Generate the step handler wrapper to be able resolve the correct handler from the DI container
-    /// </summary>
-    /// <value></value>
-    public Func<StepHandlerWrapperBase> HandlerFactory { get; }
-
-    /// <summary>
     /// Create a valid step specification
     /// </summary>
     /// <param name="stepType"></param>
     /// <param name="factory"></param>
     /// <returns></returns>
-    public static StepSpecification Create(Type stepType, Func<IStep> factory, Func<StepHandlerWrapperBase> handlerFactory)
+    public static StepSpecification Create(Type stepType, Func<IStep> factory)
     {
-        return new(stepType, factory, handlerFactory);
+        return new(stepType, factory);
     }
 
     /// <summary>
@@ -117,10 +72,9 @@ public record StepSpecification
     /// </summary>
     /// <param name="key"></param>
     /// <param name="factory"></param>
-    private StepSpecification(Type stepType, Func<IStep> factory, Func<StepHandlerWrapperBase> handlerFactory)
+    private StepSpecification(Type stepType, Func<IStep> factory)
     {
         StepType = stepType;
         Factory = factory;
-        HandlerFactory = handlerFactory;
     }
 }

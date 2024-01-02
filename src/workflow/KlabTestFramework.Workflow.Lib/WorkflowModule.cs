@@ -50,7 +50,14 @@ public static class WorkflowModule
 
     private static void AddWorkflowRunner(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
-        services.AddTransient(typeof(IWorkflowContext), configuration.WorkflowContextType);
+        services.AddSingleton(typeof(StepHandlerWrapper<>));
+        services.AddSingleton<Func<Type, StepHandlerWrapperBase>>(provider => stepType =>
+        {
+            Type genericStepHandlerType = typeof(StepHandlerWrapper<>).MakeGenericType(stepType);
+            return (StepHandlerWrapperBase)provider.GetRequiredService(genericStepHandlerType);
+        });
+        services.AddTransient(configuration.WorkflowContextType);
+        services.AddTransient<Func<IWorkflowContext>>(provider => () => (IWorkflowContext)provider.GetRequiredService(configuration.WorkflowContextType));
         services.AddTransient<IWorkflowRunner, WorkflowRunner>();
     }
 
@@ -85,14 +92,11 @@ public static class WorkflowModule
         services.TryAddTransient(stepType);
         Type genericStepHandlerType = typeof(IStepHandler<>).MakeGenericType(stepType);
         services.TryAddTransient(genericStepHandlerType, stepHandlerType);
-        Type genericStepHandlerWrapperType = typeof(StepHandlerWrapper<>).MakeGenericType(stepType);
-        services.TryAddTransient(genericStepHandlerWrapperType);
         services.TryAddTransient(provider =>
         {
             StepSpecification stepSpecification = StepSpecification.Create(
                 stepType,
-                () => (IStep)provider.GetRequiredService(stepType),
-                () => (StepHandlerWrapperBase)provider.GetRequiredService(genericStepHandlerWrapperType)
+                () => (IStep)provider.GetRequiredService(stepType)
             );
             return stepSpecification;
         });

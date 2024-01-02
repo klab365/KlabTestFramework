@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
@@ -33,6 +32,6 @@ public class MockStepHandler : IStepHandler<MockStep>
 {
     public Task<Result> HandleAsync(MockStep step, IWorkflowContext context)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(Result.Success());
     }
 }
