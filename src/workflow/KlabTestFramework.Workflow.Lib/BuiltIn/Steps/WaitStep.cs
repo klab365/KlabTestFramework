@@ -9,6 +9,8 @@ namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 /// </summary>
 public class WaitStep : IStep
 {
+    public Guid Id { get; } = Guid.NewGuid();
+
     /// <summary>
     /// Gets or sets the time to wait.
     /// </summary>

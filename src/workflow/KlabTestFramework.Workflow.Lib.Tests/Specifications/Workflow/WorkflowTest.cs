@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using Moq;
 
@@ -10,10 +11,10 @@ public class WorkflowTests
     public void WorkflowShouldAddStepsAndVariables()
     {
         // Arrange
-        StepContainer[] steps =
+        IStep[] steps =
         [
-            new StepContainer(new Mock<IStep>().Object),
-            new StepContainer(new Mock<IStep>().Object)
+            new Mock<IStep>().Object,
+            new Mock<IStep>().Object,
         ];
 
         IVariable[] variables =
@@ -23,7 +24,7 @@ public class WorkflowTests
         ];
 
         // Act
-        Workflow workflow = new(steps, variables);
+        Workflow workflow = new(steps, variables, new Dictionary<string, IWorkflow>());
 
         // Assert
         workflow.Steps.Should().HaveCount(2);
@@ -35,7 +36,7 @@ public class WorkflowTests
     {
         // Arrange
         // Act
-        Workflow workflow = new(Array.Empty<StepContainer>(), Array.Empty<IVariable>());
+        Workflow workflow = new(Array.Empty<IStep>(), Array.Empty<IVariable>(), new Dictionary<string, IWorkflow>());
 
         // Assert
         workflow.Metadata.Should().NotBeNull();

@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
-using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Lib.Tests;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace KlabTestFramework.Workflow.Lib.Tests.Editor;
+namespace KlabTestFramework.Workflow.Lib.Editor.Tests;
 
 public class WorkflowEditorTests
 {
@@ -46,7 +46,7 @@ public class WorkflowEditorTests
         workflow.Metadata.CreatedAt.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(2000));
         workflow.Metadata.UpdatedAt.Should().BeCloseTo(DateTime.Now, TimeSpan.FromMilliseconds(2000));
         workflow.Steps.Should().HaveCount(1);
-        workflow.Steps[0].Step.Should().BeOfType<MockStep>();
+        workflow.Steps[0].Should().BeOfType<MockStep>();
     }
 
     [Fact]

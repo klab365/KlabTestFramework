@@ -8,6 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace KlabTestFramework.Workflow.Lib;
 
+/// <summary>
+/// Implementation of <see cref="IVariableReplacer"/>
+/// </summary>
 public class VariableReplacer : IVariableReplacer
 {
     private readonly IServiceProvider _serviceProvider;
@@ -20,17 +23,39 @@ public class VariableReplacer : IVariableReplacer
 
     public async Task ReplaceVariablesWithTheParametersAsync(IWorkflow workflow)
     {
-        foreach (StepContainer step in workflow.Steps)
+        await ReplaceStepsWithVariables(workflow.Steps, workflow.Variables);
+    }
+
+
+    private async Task ReplaceStepsWithVariables(IEnumerable<IStep> steps, IEnumerable<IVariable> variables)
+    {
+        foreach (IStep step in steps)
         {
-            foreach (IParameter parameter in step.Step.GetParameters())
+            foreach (IParameter parameter in step.GetParameters())
             {
-                if (!parameter.IsVariable())
+                if (parameter.IsValue())
                 {
                     continue;
                 }
 
-                await ReplaceVariablesAsync(parameter, workflow.Variables);
+                await ReplaceVariablesAsync(parameter, variables);
             }
+
+            if (step is ISubworkflowStep subworkflowStep && subworkflowStep.Subworkflow != null)
+            {
+                ReplaceSubworkflowVariableWithTheArgumentsOfSubworkflowStep(subworkflowStep);
+                await ReplaceStepsWithVariables(subworkflowStep.Children, subworkflowStep.Subworkflow.Variables);
+            }
+        }
+    }
+
+    private static void ReplaceSubworkflowVariableWithTheArgumentsOfSubworkflowStep(ISubworkflowStep subworkflowStep)
+    {
+        IWorkflow subworkflow = subworkflowStep.Subworkflow!;
+        foreach (IParameter parameter in subworkflowStep.Arguments)
+        {
+            IVariable subworkflowVariable = subworkflow.Variables.Single(v => v.VariableType == VariableType.Argument && v.Name == parameter.Name);
+            subworkflowVariable.UpdateValue(parameter.ContentAsString());
         }
     }
 

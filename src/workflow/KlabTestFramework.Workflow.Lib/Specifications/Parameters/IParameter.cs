@@ -61,6 +61,12 @@ public interface IParameter
     bool IsVariable();
 
     /// <summary>
+    /// Indicates if the parameter is a value.
+    /// </summary>
+    /// <returns></returns>
+    bool IsValue() => !IsVariable();
+
+    /// <summary>
     /// Get the data representation of the parameter.
     /// </summary>
     /// <returns></returns>
@@ -70,4 +76,10 @@ public interface IParameter
     /// Fill the parameter with data.
     /// </summary>
     void FromData(ParameterData data);
+
+    /// <summary>
+    /// Get the parameter type
+    /// </summary>
+    /// <returns></returns>
+    IParameterType GetParameterType();
 }

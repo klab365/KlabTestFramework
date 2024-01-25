@@ -16,6 +16,7 @@ public class VariableFactory : IVariableFactory
         _variableFactory = variableFactory;
     }
 
+    /// <inheritdoc/>
     public IVariable CreateNewVariableByType(VariableData data, IParameterType parameterType)
     {
         IVariable variable = _variableFactory.Invoke(parameterType);

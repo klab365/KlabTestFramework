@@ -21,11 +21,11 @@ public class WorkflowValidator : IWorkflowValidator
     public async Task<WorkflowValidatorResult> ValidateAsync(IWorkflow workflow)
     {
         WorkflowValidatorResult result = new();
-        foreach (StepContainer step in workflow.Steps)
+        foreach (IStep step in workflow.Steps)
         {
             foreach (IStepValidatorHandler stepValidatorHandler in _stepValidatorHandlers)
             {
-                IEnumerable<WorkflowStepErrorValidation> stepValidations = await stepValidatorHandler.ValidateAsync(step.Id, step.Step);
+                IEnumerable<WorkflowStepErrorValidation> stepValidations = await stepValidatorHandler.ValidateAsync(step.Id, step);
                 result.AddErrors(stepValidations);
             }
         }

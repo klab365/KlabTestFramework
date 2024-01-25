@@ -3,6 +3,10 @@
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
+/// <summary>
+/// Represents a variable in a workflow
+/// </summary>
+/// <typeparam name="TParameter"></typeparam>
 public class Variable<TParameter> : IVariable where TParameter : IParameterType
 {
     public string Name { get; private set; } = string.Empty;
@@ -40,5 +44,19 @@ public class Variable<TParameter> : IVariable where TParameter : IParameterType
     public void Init(IParameterType parameterType)
     {
         Parameter = (TParameter)parameterType;
+    }
+
+    public IParameterType GetParameterType()
+    {
+        if (Parameter is null)
+        {
+            throw new InvalidOperationException("Parameter is not initialized.");
+        }
+        return Parameter;
+    }
+
+    public void UpdateValue(string value)
+    {
+        Parameter?.FromString(value);
     }
 }

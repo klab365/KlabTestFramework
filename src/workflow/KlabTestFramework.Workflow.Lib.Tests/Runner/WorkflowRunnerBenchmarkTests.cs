@@ -37,7 +37,8 @@ public class WorkflowRunnerBenchmarkTests
 
         // Act
         Stopwatch stopwatch = Stopwatch.StartNew();
-        await sut.RunAsync(workflow);
+        IWorkflowContext context = serviceProvider.GetRequiredService<IWorkflowContext>();
+        await sut.RunAsync(workflow, context);
         stopwatch.Stop();
 
         // Assert

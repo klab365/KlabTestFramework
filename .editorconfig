@@ -69,6 +69,7 @@ dotnet_diagnostic.IDE0270.severity = none
 dotnet_diagnostic.CA1000.severity = none
 dotnet_diagnostic.SA1516.severity = silent
 dotnet_diagnostic.CA1707.severity = silent
+dotnet_diagnostic.CA1709.severity = silent
 
 ##########################################
 # .NET Language Conventions

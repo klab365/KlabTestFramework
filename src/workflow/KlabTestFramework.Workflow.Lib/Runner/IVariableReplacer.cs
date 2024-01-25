@@ -8,5 +8,10 @@ namespace KlabTestFramework.Workflow.Lib;
 /// </summary>
 public interface IVariableReplacer
 {
+    /// <summary>
+    /// Replace variables
+    /// </summary>
+    /// <param name="workflow"></param>
+    /// <returns></returns>
     Task ReplaceVariablesWithTheParametersAsync(IWorkflow workflow);
 }

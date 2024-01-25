@@ -37,7 +37,7 @@ public interface IWorkflowEditor : IWorkflowReadEditor
     /// </summary>
     /// <typeparam name="TStep">The type of the step to add.</typeparam>
     /// <param name="configureCallback">An optional callback to configure the step.</param>
-    void AddStep<TStep>(Action<TStep>? configureCallback = default) where TStep : IStep;
+    TStep AddStep<TStep>(Action<TStep>? configureCallback = default) where TStep : IStep;
 
     /// <summary>
     /// Add variable to the workflow.
@@ -46,6 +46,13 @@ public interface IWorkflowEditor : IWorkflowReadEditor
     /// <param name="configureCallback"></param>
     /// <typeparam name="TParameter"></typeparam>
     void AddVariable<TParameter>(string name, string unit, VariableType variableType, Action<TParameter>? configureCallback = default!) where TParameter : IParameterType;
+
+    /// <summary>
+    /// Include a subworkflow in the workflow.
+    /// </summary>
+    /// <param name="workflow"></param>
+    /// <param name="name"></param>
+    void IncludeSubworkflow(string name, IWorkflow workflow);
 
     /// <summary>
     /// Configure the metadata of the workflow.

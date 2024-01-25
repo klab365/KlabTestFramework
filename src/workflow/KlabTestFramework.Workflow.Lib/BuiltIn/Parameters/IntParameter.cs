@@ -15,6 +15,8 @@ public class IntParameter : IParameterType<int>, IWithValidation<int>
 
     public List<Func<int, bool>> ValidaCallbacks { get; } = new();
 
+    public event Action<int>? ValueChanged;
+
     public bool IsValid()
     {
         return ValidaCallbacks.TrueForAll(v => v(Value));
@@ -23,6 +25,7 @@ public class IntParameter : IParameterType<int>, IWithValidation<int>
     public void SetValue(int newValue)
     {
         Value = newValue;
+        ValueChanged?.Invoke(Value);
     }
 
     public string AsString()
@@ -43,5 +46,17 @@ public class IntParameter : IParameterType<int>, IWithValidation<int>
     public void AddValiation(Func<int, bool> value)
     {
         ValidaCallbacks.Add(value);
+    }
+
+    public IParameterType Clone()
+    {
+        IntParameter clonedParameter = (IntParameter)MemberwiseClone();
+        clonedParameter.ValidaCallbacks.Clear();
+        foreach (Func<int, bool> callback in ValidaCallbacks)
+        {
+            clonedParameter.AddValiation(callback);
+        }
+
+        return clonedParameter;
     }
 }

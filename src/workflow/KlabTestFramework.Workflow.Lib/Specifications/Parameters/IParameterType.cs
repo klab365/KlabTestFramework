@@ -23,6 +23,12 @@ public interface IParameterType
     /// Converts a string representation of a value to the corresponding parameter type.
     /// </summary>
     void FromString(string data);
+
+    /// <summary>
+    /// Creates a deep copy of the parameter type.
+    /// </summary>
+    /// <returns>A new instance of the parameter type with the same values.</returns>
+    IParameterType Clone();
 }
 
 /// <summary>
@@ -47,5 +53,7 @@ public interface IParameterType<TValue> : IParameterType
     /// </summary>
     /// <param name="newValue">The new value to set.</param>
     void SetValue(TValue newValue);
+
+    event Action<TValue>? ValueChanged;
 }
 

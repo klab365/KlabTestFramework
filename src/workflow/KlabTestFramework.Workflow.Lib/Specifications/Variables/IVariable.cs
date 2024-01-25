@@ -28,10 +28,14 @@ public interface IVariable
     /// </summary>
     Type DataType { get; }
 
+    bool IsArgument => VariableType == VariableType.Argument;
+
     /// <summary>
     /// Initialize the variable with the specified parameter type.
     /// </summary>
     void Init(IParameterType parameterType);
+
+    void UpdateValue(string value);
 
     /// <summary>
     /// Initializes the variable from the specified data.
@@ -44,4 +48,10 @@ public interface IVariable
     /// </summary>
     /// <returns>The data representation of the variable.</returns>
     VariableData ToData();
+
+    /// <summary>
+    /// Get the parameter type
+    /// </summary>
+    /// <returns></returns>
+    IParameterType GetParameterType();
 }

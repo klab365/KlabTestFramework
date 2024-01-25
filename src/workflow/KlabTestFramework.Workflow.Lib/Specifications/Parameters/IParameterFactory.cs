@@ -30,4 +30,6 @@ public interface IParameterFactory
     /// </summary>
     /// <returns></returns>
     Parameter<TParameter> CreateParameter<TParameter>(string name, string unit, params Action<TParameter>[] configureCallbacks) where TParameter : IParameterType;
+
+    IParameter CreateParameter(IParameterType parameterType, string name, string unit);
 }

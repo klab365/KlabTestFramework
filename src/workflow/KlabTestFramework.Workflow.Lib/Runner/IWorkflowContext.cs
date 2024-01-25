@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Runner;
@@ -14,11 +13,14 @@ public interface IWorkflowContext
     /// </summary>
     CancellationToken CancellationToken { get; }
 
-    List<IVariable> Variables { get; set; }
+    /// <summary>
+    /// List of variables
+    /// </summary>
+    IVariable[] Variables { get; set; }
 
     /// <summary>
     /// Publishes a message.
     /// </summary>
     /// <param name="message">The message to be published.</param>
-    void PublishMessage(string message);
+    void PublishMessage(IStep step, string message);
 }

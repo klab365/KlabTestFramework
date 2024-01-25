@@ -25,7 +25,7 @@ public class StepFactory : IStepFactory
             throw new InvalidOperationException($"Step specification for type {typeof(TStep).Name} not found");
         }
 
-        IStep step = stepSpecification.Factory();
+        IStep step = stepSpecification.StepFactory();
         return step;
     }
 
@@ -37,8 +37,20 @@ public class StepFactory : IStepFactory
             throw new InvalidOperationException($"Step specification for type {stepData.Type} not found");
         }
 
-        IStep step = stepSpecification.Factory();
+        IStep step = stepSpecification.StepFactory();
         return step;
+    }
+
+    public IStepHandler CreateStepHandler(IStep step)
+    {
+        StepSpecification? stepSpecification = _stepSpecifications.SingleOrDefault(s => s.StepType == step.GetType());
+        if (stepSpecification == null)
+        {
+            throw new InvalidOperationException($"Step specification for type {step.GetType().Name} not found");
+        }
+
+        IStepHandler stepHandler = stepSpecification.HandlerFactory();
+        return stepHandler;
     }
 }
 
@@ -54,27 +66,34 @@ public record StepSpecification
     /// Factory how to create the step
     /// </summary>
     /// <value></value>
-    public Func<IStep> Factory { get; }
+    public Func<IStep> StepFactory { get; }
+
+    /// <summary>
+    /// Handler factory method
+    /// </summary>
+    /// <value></value>
+    public Func<IStepHandler> HandlerFactory { get; }
 
     /// <summary>
     /// Create a valid step specification
     /// </summary>
     /// <param name="stepType"></param>
-    /// <param name="factory"></param>
+    /// <param name="stepFactory"></param>
     /// <returns></returns>
-    public static StepSpecification Create(Type stepType, Func<IStep> factory)
+    public static StepSpecification Create(Type stepType, Func<IStep> stepFactory, Func<IStepHandler> handlerFactory)
     {
-        return new(stepType, factory);
+        return new(stepType, stepFactory, handlerFactory);
     }
 
     /// <summary>
     /// Private constructor to force the use of the factory method
     /// </summary>
     /// <param name="key"></param>
-    /// <param name="factory"></param>
-    private StepSpecification(Type stepType, Func<IStep> factory)
+    /// <param name="stepFactory"></param>
+    private StepSpecification(Type stepType, Func<IStep> stepFactory, Func<IStepHandler> handlerFactory)
     {
         StepType = stepType;
-        Factory = factory;
+        StepFactory = stepFactory;
+        HandlerFactory = handlerFactory;
     }
 }

@@ -107,4 +107,9 @@ public class Parameter<TParameter> : IParameter where TParameter : IParameterTyp
     {
         return ParameterType == ParameterValueType.Variable;
     }
+
+    public IParameterType GetParameterType()
+    {
+        return Content;
+    }
 }

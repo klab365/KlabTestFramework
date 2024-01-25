@@ -1,5 +1,8 @@
 ﻿namespace KlabTestFramework.Workflow.Lib.Specifications;
 
+/// <summary>
+/// Data representation of a variable
+/// </summary>
 public class VariableData
 {
     public string Name { get; set; } = string.Empty;
