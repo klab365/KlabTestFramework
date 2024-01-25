@@ -35,8 +35,11 @@ public class WorkflowData
     /// </summary>
     public List<VariableData>? Variables { get; set; }
 
+    public Dictionary<string, WorkflowData>? Subworkflows { get; set; }
+
     /// <summary>
     /// Steps of the workflow
     /// </summary>
     public List<StepData> Steps { get; set; } = [];
+
 }

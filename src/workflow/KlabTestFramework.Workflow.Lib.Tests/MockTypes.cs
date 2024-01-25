@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
@@ -9,6 +10,8 @@ namespace KlabTestFramework.Workflow.Lib.Tests;
 
 public class MockStep : IStep
 {
+    public Guid Id { get; } = Guid.NewGuid();
+
     public Parameter<IntParameter> Counter { get; }
 
     public MockStep(IParameterFactory parameterFactory)
@@ -32,6 +35,7 @@ public class MockStepHandler : IStepHandler<MockStep>
 {
     public Task<Result> HandleAsync(MockStep step, IWorkflowContext context)
     {
+        step.Counter.Content.SetValue(step.Counter.Content.Value + 1);
         return Task.FromResult(Result.Success());
     }
 }

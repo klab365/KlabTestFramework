@@ -14,7 +14,6 @@ public class RunWorkflowProgamatically : IRunExample
     public async Task Run(IServiceProvider services)
     {
         // create workflow programmatically
-        Random random = new();
         IWorkflowEditor workflowEditor = services.GetRequiredService<IWorkflowEditor>();
         workflowEditor.ConfigureMetadata(m => m.Description = "My first workflow");
         workflowEditor.AddStep<WaitStep>(s => s.Time.ChangetToVariable("time"));
@@ -29,8 +28,9 @@ public class RunWorkflowProgamatically : IRunExample
             return;
         }
 
+        IWorkflowContext context = services.GetRequiredService<IWorkflowContext>();
         Workflow workflow = workflowResult.Value!;
-        await workflowEngine.RunAsync(workflow);
+        await workflowEngine.RunAsync(workflow, context);
         stopwatch.Stop();
         Console.WriteLine($"Workflow finished in {stopwatch.ElapsedMilliseconds} ms");
     }

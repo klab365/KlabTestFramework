@@ -55,6 +55,11 @@ public class ParameterFactory : IParameterFactory
 
         return foundParameterSpecifications;
     }
+
+    public IParameter CreateParameter(IParameterType parameterType, string name, string unit)
+    {
+        return new Parameter<IParameterType>(name, unit, parameterType);
+    }
 }
 
 /// <summary>

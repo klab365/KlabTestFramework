@@ -14,17 +14,31 @@ public class RunWorkflowFromFileExample : IRunExample
 {
     public async Task Run(IServiceProvider services)
     {
-        Stopwatch watch = Stopwatch.StartNew();
         const string workflowPath = "workflow.json";
+        const string subName = "sub1";
+        Stopwatch watch = Stopwatch.StartNew();
 
         // write to worklfow.json
         IWorkflowEditor workflowEditor = services.GetRequiredService<IWorkflowEditor>();
         workflowEditor.CreateNewWorkflow();
         workflowEditor.ConfigureMetadata(m => m.Description = "My first workflow from a file");
         workflowEditor.ConfigureMetadata(m => m.Author = "Klab");
-        workflowEditor.AddVariable<TimeParameter>("myVariable", "sec", VariableType.Constant, p => p.SetValue(TimeSpan.FromSeconds(10)));
-        workflowEditor.AddStep<WaitStep>(s => s.Time.ChangetToVariable("myVariable"));
-        workflowEditor.AddStep<WaitStep>(s => s.Time.Content.SetValue(TimeSpan.FromSeconds(1)));
+        workflowEditor.IncludeSubworkflow(subName, await CreateSubworkflow1(services));
+        workflowEditor.AddStep<SubworkflowStep>(s =>
+        {
+            s.SelectedSubworkflow.Content.SetValue(subName);
+            s.ReplaceArgumentValue("myVariable", "00:00:10");
+        });
+        workflowEditor.AddStep<SubworkflowStep>(s =>
+        {
+            s.SelectedSubworkflow.Content.SetValue(subName);
+            s.ReplaceArgumentValue("myVariable", "00:00:06");
+        });
+        workflowEditor.AddStep<SubworkflowStep>(s =>
+        {
+            s.SelectedSubworkflow.Content.SetValue(subName);
+            s.ReplaceArgumentValue("myVariable", "00:00:03");
+        });
 
         Workflow workflow = (await workflowEditor.BuildWorkflowAsync()).Value!;
         await workflowEditor.SaveWorkflowAsync(workflowPath, workflow);
@@ -41,8 +55,19 @@ public class RunWorkflowFromFileExample : IRunExample
         }
 
         IWorkflowRunner runner = services.GetRequiredService<IWorkflowRunner>();
-        await runner.RunAsync(readWorkflow.Value!);
+        IWorkflowContext context = services.GetRequiredService<IWorkflowContext>();
+        WorkflowResult resRun = await runner.RunAsync(workflow, context);
         watch.Stop();
         Console.WriteLine($"Workflow executed in {watch.Elapsed.TotalMilliseconds}ms");
+    }
+
+    public static async Task<Workflow> CreateSubworkflow1(IServiceProvider services)
+    {
+        IWorkflowEditor workflowEditor = services.GetRequiredService<IWorkflowEditor>();
+        workflowEditor.CreateNewWorkflow();
+        workflowEditor.ConfigureMetadata(m => m.Description = "My first subworkflow");
+        workflowEditor.AddVariable<TimeParameter>("myVariable", "sec", VariableType.Argument, p => p.SetValue(TimeSpan.FromSeconds(3)));
+        workflowEditor.AddStep<WaitStep>(s => s.Time.ChangetToVariable("myVariable"));
+        return (await workflowEditor.BuildWorkflowAsync()).Value!;
     }
 }

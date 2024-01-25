@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Runner;
 
@@ -23,7 +24,15 @@ public interface IWorkflowRunner
     /// </summary>
     /// <param name="workflow">The workflow to run.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task<WorkflowResult> RunAsync(Specifications.Workflow workflow);
+    Task<WorkflowResult> RunAsync(Specifications.Workflow workflow, IWorkflowContext context);
+
+    /// <summary>
+    /// Runs the specified subworkflow asynchronously.
+    /// </summary>
+    /// <param name="subworkflowStep"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    Task<WorkflowResult> RunSubworkflowAsync(ISubworkflowStep subworkflowStep, IWorkflowContext context);
 }
 
 public record WorkflowResult(bool IsSuccess);

@@ -49,14 +49,7 @@ public static class WorkflowModule
 
     private static void AddWorkflowRunner(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
-        services.AddSingleton(typeof(StepHandlerWrapper<>));
-        services.AddSingleton<Func<Type, StepHandlerWrapperBase>>(provider => stepType =>
-        {
-            Type genericStepHandlerType = typeof(StepHandlerWrapper<>).MakeGenericType(stepType);
-            return (StepHandlerWrapperBase)provider.GetRequiredService(genericStepHandlerType);
-        });
-        services.AddTransient(configuration.WorkflowContextType);
-        services.AddTransient<Func<IWorkflowContext>>(provider => () => (IWorkflowContext)provider.GetRequiredService(configuration.WorkflowContextType));
+        services.AddTransient(typeof(IWorkflowContext), configuration.WorkflowContextType);
         services.AddTransient<IWorkflowRunner, WorkflowRunner>();
 
         /// register variable handlers
@@ -88,6 +81,7 @@ public static class WorkflowModule
         if (configuration.ShouldRegisterDefaultSteps)
         {
             configuration.AddStepType<WaitStep, WaitStepHandler>();
+            configuration.AddStepType<SubworkflowStep, SubworkflowStepHandler>();
         }
 
         foreach (StepType stepType in configuration.StepTypes)
@@ -105,7 +99,8 @@ public static class WorkflowModule
         {
             StepSpecification stepSpecification = StepSpecification.Create(
                 stepType,
-                () => (IStep)provider.GetRequiredService(stepType)
+                () => (IStep)provider.GetRequiredService(stepType),
+                () => (IStepHandler)provider.GetRequiredService(genericStepHandlerType)
             );
             return stepSpecification;
         });
@@ -120,6 +115,7 @@ public static class WorkflowModule
         {
             configuration.AddParameterType<IntParameter>();
             configuration.AddParameterType<TimeParameter>();
+            configuration.AddParameterType<StringParameter>();
         }
 
         foreach (ParameterValueType parameterType in configuration.ParameterTypes)

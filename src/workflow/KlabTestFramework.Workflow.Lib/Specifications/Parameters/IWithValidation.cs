@@ -20,5 +20,8 @@ public interface IWithValidation<TType>
     /// Adds a validation callback for the parameter type.
     /// </summary>
     /// <param name="value">The validation callback to add.</param>
-    void AddValiation(Func<TType, bool> value);
+    void AddValiation(Func<TType, bool> value)
+    {
+        ValidaCallbacks.Add(value);
+    }
 }

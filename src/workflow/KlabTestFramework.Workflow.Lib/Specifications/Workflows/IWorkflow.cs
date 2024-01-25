@@ -16,14 +16,14 @@ public interface IWorkflow
     /// <summary>
     /// Gets the list of steps in the workflow.
     /// </summary>
-    IReadOnlyList<StepContainer> Steps { get; }
+    IReadOnlyList<IStep> Steps { get; }
 
     /// <summary>
     /// Gets the list of variables used in the workflow.
     /// </summary>
     IReadOnlyList<IVariable> Variables { get; }
 
-    WorkflowData ToData();
+    IReadOnlyDictionary<string, IWorkflow> Subworkflows { get; }
 
-    void FromData(WorkflowData data);
+    WorkflowData ToData();
 }

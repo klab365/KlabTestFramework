@@ -18,5 +18,7 @@ public interface IStepFactory
     /// <param name="stepData"></param>
     /// <returns></returns>
     IStep CreateStep(StepData stepData);
+
+    IStepHandler CreateStepHandler(IStep step);
 }
 

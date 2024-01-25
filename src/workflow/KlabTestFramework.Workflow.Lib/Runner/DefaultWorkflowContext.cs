@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -14,11 +13,13 @@ public class DefaultWorkflowContext : IWorkflowContext
     public CancellationToken CancellationToken { get; }
 
     /// <inheritdoc/>
-    public List<IVariable> Variables { get; set; } = new();
+    public IVariable[] Variables { get; set; } = Array.Empty<IVariable>();
 
     /// <inheritdoc/>
-    public void PublishMessage(string message)
+    public void PublishMessage(IStep step, string message)
     {
-        Console.WriteLine(message);
+        Guid id = step.Id;
+        string composedMessage = $"[{id}] {message}";
+        Console.WriteLine(composedMessage);
     }
 }

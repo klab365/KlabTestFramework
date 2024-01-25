@@ -31,7 +31,8 @@ public class WorkflowRunnerTests
         Specifications.Workflow workflow = res.Value!;
 
         // Act
-        await sut.RunAsync(workflow);
+        IWorkflowContext context = serviceProvider.GetRequiredService<IWorkflowContext>();
+        await sut.RunAsync(workflow, context);
 
         // Assert
         invocationCounter.Should().Be(4);
@@ -51,7 +52,8 @@ public class WorkflowRunnerTests
         Specifications.Workflow workflow = res.Value!;
 
         // Act
-        await sut.RunAsync(workflow);
+        IWorkflowContext context = serviceProvider.GetRequiredService<IWorkflowContext>();
+        await sut.RunAsync(workflow, context);
 
         // Assert
         invocationCounter.Should().Be(0);
@@ -70,7 +72,8 @@ public class WorkflowRunnerTests
         Result<Specifications.Workflow> res = await editor.BuildWorkflowAsync();
         Specifications.Workflow workflow = res.Value!;
 
-        WorkflowResult resRun = await sut.RunAsync(workflow);
+        IWorkflowContext context = serviceProvider.GetRequiredService<IWorkflowContext>();
+        WorkflowResult resRun = await sut.RunAsync(workflow, context);
 
         resRun.IsSuccess.Should().BeFalse();
         invocationCounter.Should().Be(0);
@@ -95,7 +98,8 @@ public class WorkflowRunnerTests
         Specifications.Workflow workflow = res.Value!;
         SpecialStorage storage = serviceProvider.GetRequiredService<SpecialStorage>();
 
-        WorkflowResult resRun = await sut.RunAsync(workflow);
+        IWorkflowContext context = serviceProvider.GetRequiredService<IWorkflowContext>();
+        WorkflowResult resRun = await sut.RunAsync(workflow, context);
 
         resRun.IsSuccess.Should().BeTrue();
         invocationCounter.Should().Be(2);
@@ -133,5 +137,3 @@ public class WorkflowRunnerTests
         }
     }
 }
-
-

@@ -4,13 +4,18 @@ using KlabTestFramework.Workflow.Lib.Specifications;
 namespace KlabTestFramework.Workflow.Lib;
 
 /// <summary>
-/// Interface to replace variables in a step
+/// Interface to replace variable value of a parameter
+/// This interface can have multiple implementations for different types of parameters
 /// </summary>
 public interface IVariableParameterReplaceHandler
 {
     Task ReplaceAsync(object variable, IParameter parameter);
 }
 
+/// <summary>
+/// Generic interface to replace variable of a parameter
+/// </summary>
+/// <typeparam name="TInput"></typeparam>
 public interface IVariableParameterReplaceHandler<TInput> : IVariableParameterReplaceHandler where TInput : IParameterType
 {
     Task Replace(Variable<TInput> variable, Parameter<TInput> parameter);
@@ -21,17 +26,3 @@ public interface IVariableParameterReplaceHandler<TInput> : IVariableParameterRe
         return Replace((Variable<TInput>)variable, (Parameter<TInput>)parameter);
     }
 }
-
-/// <summary>
-/// Default variable handler, if no other handler is applicable
-/// </summary>
-/// <typeparam name="TParameterType"></typeparam>
-public class DefaultVariableParameterReplace<TParameterType> : IVariableParameterReplaceHandler<TParameterType> where TParameterType : IParameterType
-{
-    public Task Replace(Variable<TParameterType> variable, Parameter<TParameterType> parameter)
-    {
-        parameter.Content.FromString(variable!.Parameter!.AsString());
-        return Task.CompletedTask;
-    }
-}
-

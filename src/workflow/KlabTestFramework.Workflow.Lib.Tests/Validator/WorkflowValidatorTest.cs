@@ -26,8 +26,9 @@ public class WorkflowValidatorTests
         // Arrange
         Guid id = Guid.NewGuid();
         Mock<IStep> mockStep = new();
+        mockStep.Setup(m => m.Id).Returns(id);
         Mock<IWorkflow> workflowMock = new();
-        workflowMock.Setup(m => m.Steps).Returns(new List<StepContainer>() { new(mockStep.Object) { Id = id } });
+        workflowMock.Setup(m => m.Steps).Returns(new List<IStep>() { mockStep.Object });
 
         _stepValidatorHandlerMock
             .Setup(m => m.ValidateAsync(It.IsAny<Guid>(), It.IsAny<IStep>()))
@@ -48,8 +49,9 @@ public class WorkflowValidatorTests
         // Arrange
         Guid id = Guid.NewGuid();
         Mock<IStep> mockStep = new();
+        mockStep.Setup(m => m.Id).Returns(id);
         Mock<IWorkflow> workflowMock = new();
-        workflowMock.Setup(m => m.Steps).Returns(new List<StepContainer>() { new(mockStep.Object) { Id = id } });
+        workflowMock.Setup(m => m.Steps).Returns(new List<IStep>() { mockStep.Object });
 
         List<WorkflowStepErrorValidation> validationErrors = [new(id, mockStep.Object, "error")];
 

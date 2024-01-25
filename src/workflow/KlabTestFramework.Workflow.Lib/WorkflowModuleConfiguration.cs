@@ -63,28 +63,13 @@ public class WorkflowModuleConfiguration
     /// <typeparam name="TStep"></typeparam>
     /// <typeparam name="TStepHandler"></typeparam>
     /// <returns></returns>
-    public void AddStepType<TStep, TStepHandler>()
+    public void AddStepType<TStep, TStepHandler>() where TStep : IStep where TStepHandler : IStepHandler<TStep>
     {
-        if (!typeof(TStep).IsAssignableTo(typeof(IStep)))
-        {
-            throw new ArgumentException($"Type {typeof(TStep).Name} is not assignable to {nameof(IStep)}");
-        }
-
-        if (!typeof(TStepHandler).IsAssignableTo(typeof(IStepHandler<>).MakeGenericType(typeof(TStep))))
-        {
-            throw new ArgumentException($"Type {typeof(TStepHandler).Name} is not assignable to {nameof(IStepHandler<IStep>)}");
-        }
-
         _stepTypes.Add(new(typeof(TStep), typeof(TStepHandler)));
     }
 
     public void AddParameterType<TParameter>() where TParameter : IParameterType
     {
-        if (!typeof(TParameter).IsAssignableTo(typeof(IParameterType)))
-        {
-            throw new ArgumentException($"Type {typeof(TParameter).Name} is not assignable to {nameof(IParameterType)}");
-        }
-
         _parameterTypes.Add(new(typeof(TParameter)));
     }
 
