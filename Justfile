@@ -27,3 +27,6 @@ format:
 # run the workflow example
 workflowex:
     dotnet run --project ./samples/workflow/WorkflowConsoleExample/WorkflowConsoleExample.csproj
+
+build_systemex:
+    dotnet build ./samples/system/SystemConsoleExample/SystemConsoleExample.csproj
