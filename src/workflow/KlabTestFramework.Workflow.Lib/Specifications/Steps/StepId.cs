@@ -5,21 +5,24 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 public record StepId
 {
-    private readonly string _id;
-
     public List<string> Routes { get; } = new();
 
-    public string Value => GetWholeId();
+    public string Value { get; }
 
-    public bool IsPlainGuid => Guid.TryParse(_id, out _);
+    public string TotalId => GetWholeId();
 
-    public bool IsEmpty => string.IsNullOrEmpty(_id);
+    public bool IsPlainGuid => Guid.TryParse(Value, out _);
+
+    public bool IsEmpty => string.IsNullOrEmpty(Value);
 
     public bool IsCustom => !IsPlainGuid;
 
     public static StepId Empty => new(string.Empty);
 
-    public static StepId Create(string id) => new(id);
+    public static StepId Create(string id)
+    {
+        return new(id);
+    }
 
     public void AddRoute(string route)
     {
@@ -28,17 +31,17 @@ public record StepId
 
     private StepId(string id)
     {
-        _id = id;
+        Value = id;
     }
 
     private string GetWholeId()
     {
         if (Routes.Count == 0)
         {
-            return $"/{_id}";
+            return $"/{Value}";
         }
 
-        return $"{string.Join("", Routes)}{_id}";
+        return $"/{string.Join("/", Routes)}/{Value}";
     }
 }
 

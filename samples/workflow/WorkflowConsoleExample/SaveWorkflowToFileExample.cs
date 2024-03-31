@@ -25,17 +25,18 @@ public class SaveWorkflowToFileExample : IRunExample
         workflowEditor.IncludeSubworkflow(subName, await CreateSubworkflow1(services));
         workflowEditor.AddStepToLastPosition<SubworkflowStep>(s =>
         {
-            s.SelectedSubworkflow.Content.Value.SetValue(subName);
+            s.Id = StepId.Create("subworkflowstep1");
+            s.SelectSubworkflow(subName);
             s.ReplaceArgumentValue("myVariable", "00:00:10");
         });
         workflowEditor.AddStepToLastPosition<SubworkflowStep>(s =>
         {
-            s.SelectedSubworkflow.Content.Value.SetValue(subName);
+            s.SelectSubworkflow(subName);
             s.ReplaceArgumentValue("myVariable", "00:00:06");
         });
         workflowEditor.AddStepToLastPosition<SubworkflowStep>(s =>
         {
-            s.SelectedSubworkflow.Content.Value.SetValue(subName);
+            s.SelectSubworkflow(subName);
             s.ReplaceArgumentValue("myVariable", "00:00:03");
         });
 
@@ -50,7 +51,11 @@ public class SaveWorkflowToFileExample : IRunExample
         workflowEditor.CreateNewWorkflow();
         workflowEditor.ConfigureMetadata(m => m.Description = "My first subworkflow");
         workflowEditor.AddVariable<TimeParameter>("myVariable", "sec", VariableType.Argument, p => p.SetValue(TimeSpan.FromSeconds(3)));
-        workflowEditor.AddStepToLastPosition<WaitStep>(s => s.Time.ChangetToVariable("myVariable"));
+        workflowEditor.AddStepToLastPosition<WaitStep>(s =>
+        {
+            s.Id = StepId.Create("wait1");
+            s.Time.ChangetToVariable("myVariable");
+        });
         Result<IWorkflow> subworkflow = await workflowEditor.BuildWorkflowAsync();
         return subworkflow.Value!;
     }

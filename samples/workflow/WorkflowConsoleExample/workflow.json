@@ -2,7 +2,7 @@
   "description": "My first workflow from a file",
   "steps": [
     {
-      "id": "subworkflowStep1",
+      "id": "subworkflowstep1",
       "type": "SubworkflowStep",
       "parameters": [
         {
@@ -18,6 +18,7 @@
       ]
     },
     {
+      "id": "SubworkflowStep_96b7a001-9c20-437a-8d64-07eb92ea14d0",
       "type": "SubworkflowStep",
       "parameters": [
         {
@@ -33,6 +34,7 @@
       ]
     },
     {
+      "id": "SubworkflowStep_3ee0df5b-ab0d-420d-ae94-0e085ee540c8",
       "type": "SubworkflowStep",
       "parameters": [
         {
@@ -51,9 +53,6 @@
   "subworkflows": {
     "sub1": {
       "description": "My first subworkflow",
-      "author": "",
-      "createdAt": "2024-03-03T20:37:08.4608206+01:00",
-      "updatedAt": "2024-03-03T20:37:08.482176+01:00",
       "variables": [
         {
           "name": "myVariable",
@@ -75,8 +74,7 @@
             }
           ]
         }
-      ],
-      "subworkflows": {}
+      ]
     }
   }
 }

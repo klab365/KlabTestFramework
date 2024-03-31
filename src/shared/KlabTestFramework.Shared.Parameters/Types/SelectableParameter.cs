@@ -24,7 +24,7 @@ public class SelectableParameter<TParameterType> : BaseParameterType<TParameterT
 
     public override string AsString()
     {
-        return Value.ToString() ?? string.Empty;
+        return Value.AsString() ?? string.Empty;
     }
 
     public override void FromString(string data)
