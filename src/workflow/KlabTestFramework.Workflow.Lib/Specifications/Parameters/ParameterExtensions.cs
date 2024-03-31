@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using KlabTestFramework.Shared.Parameters;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -25,5 +26,25 @@ public static class ParameterExtensions
         }
 
         return foundData;
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Parameter{TParameter}"/> object with the specified name, unit, and configuration callbacks.
+    /// </summary>
+    /// <typeparam name="TParameter"></typeparam>
+    /// <param name="parameterFactory"></param>
+    /// <param name="name"></param>
+    /// <param name="unit"></param>
+    /// <param name="configureCallbacks"></param>
+    /// <returns></returns>
+    public static Parameter<TParameter> CreateParameter<TParameter>(this ParameterFactory parameterFactory, string name, string unit, params Action<TParameter>[] configureCallbacks) where TParameter : IParameterType
+    {
+        TParameter parameter = parameterFactory.CreateParameterType<TParameter>();
+        foreach (Action<TParameter> configureCallback in configureCallbacks)
+        {
+            configureCallback(parameter);
+        }
+
+        return new Parameter<TParameter>(name, unit, parameter);
     }
 }

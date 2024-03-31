@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
@@ -28,12 +26,6 @@ public class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
         {
             return Result.Failure(new Error(0, string.Empty));
         }
-
-        Console.WriteLine($"Executing subworkflow '{step.SelectedSubworkflow.Content.Value}'");
-
-        IStep[] steps = step.Children.ToArray();
-        IVariable[] variables = step.Subworkflow.Variables.ToArray();
-        Specifications.Workflow workflow = new(steps, variables, step.Subworkflow.Subworkflows);
 
         await _workflowRunner.RunSubworkflowAsync(step, context);
         return Result.Success();

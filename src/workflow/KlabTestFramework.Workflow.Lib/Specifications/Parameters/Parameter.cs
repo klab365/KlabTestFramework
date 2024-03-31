@@ -1,4 +1,5 @@
 ﻿using System;
+using KlabTestFramework.Shared.Parameters;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -8,10 +9,10 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 public class Parameter<TParameter> : IParameter where TParameter : IParameterType
 {
     /// <inheritdoc/>
-    public string Name { get; private set; }
+    public string Name => Content.Name;
 
     /// <inheritdoc/>
-    public string Unit { get; private set; }
+    public string Unit => Content.Unit;
 
     /// <inheritdoc/>
     public string VariableName { get; private set; } = string.Empty;
@@ -39,9 +40,9 @@ public class Parameter<TParameter> : IParameter where TParameter : IParameterTyp
 
     public Parameter(string name, string unit, TParameter content)
     {
-        Name = name;
-        Unit = unit;
         Content = content;
+        Content.Name = name;
+        Content.Unit = unit;
     }
 
     /// <inheritdoc/>
@@ -90,7 +91,7 @@ public class Parameter<TParameter> : IParameter where TParameter : IParameterTyp
     /// <inheritdoc/>
     public void FromData(ParameterData data)
     {
-        Name = data.Name;
+        Content.Name = data.Name;
         ParameterType = data.Type;
 
         if (IsVariable())

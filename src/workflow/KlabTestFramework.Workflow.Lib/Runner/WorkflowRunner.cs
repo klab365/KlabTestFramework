@@ -18,18 +18,18 @@ public class WorkflowRunner : IWorkflowRunner
     private readonly ILogger<WorkflowRunner> _logger;
     private readonly IWorkflowValidator _validator;
     private readonly IVariableReplacer _variableReplacer;
-    private readonly IStepFactory _stepFactory;
+    private readonly StepFactory _stepFactory;
 
     /// <inheritdoc/>
-    public event EventHandler<WorkflowStepStatusEventArgs>? StepStatusChanged;
+    public event Action<WorkflowStepStatusEvent>? StepStatusChanged;
 
     /// <inheritdoc/>
-    public event EventHandler<WorkflowStatusEventArgs>? WorkflowStatusChanged;
+    public event Action<WorkflowStatusEvent>? WorkflowStatusChanged;
 
     public WorkflowRunner(
         IWorkflowValidator validator,
         IVariableReplacer variableReplacer,
-        IStepFactory stepFactory,
+        StepFactory stepFactory,
         ILogger<WorkflowRunner> logger)
     {
         _logger = logger;
@@ -39,7 +39,7 @@ public class WorkflowRunner : IWorkflowRunner
     }
 
     /// <inheritdoc/>
-    public async Task<WorkflowResult> RunAsync(Specifications.Workflow workflow, IWorkflowContext context)
+    public async Task<WorkflowResult> RunAsync(IWorkflow workflow, IWorkflowContext context)
     {
         context.Variables = workflow.Variables.ToArray();
         await ReplaceVariableValuesToParametersAsync(workflow);
@@ -58,18 +58,18 @@ public class WorkflowRunner : IWorkflowRunner
         return await HandleStepsAsync(subworkflowStep.Children, context);
     }
 
-    private async Task ReplaceVariableValuesToParametersAsync(Specifications.Workflow workflow)
+    private async Task ReplaceVariableValuesToParametersAsync(IWorkflow workflow)
     {
         await _variableReplacer.ReplaceVariablesWithTheParametersAsync(workflow);
     }
 
-    private async Task<WorkflowResult> HandleWorkflowAsync(Specifications.Workflow workflow, IWorkflowContext context)
+    private async Task<WorkflowResult> HandleWorkflowAsync(IWorkflow workflow, IWorkflowContext context)
     {
-        WorkflowStatusChanged?.Invoke(this, new() { Status = WorkflowStatus.Running });
+        WorkflowStatusChanged?.Invoke(new(WorkflowStatus.Running));
 
         WorkflowResult res = await HandleStepsAsync(workflow.Steps, context);
 
-        WorkflowStatusChanged?.Invoke(this, new() { Status = WorkflowStatus.Completed });
+        WorkflowStatusChanged?.Invoke(new(WorkflowStatus.Completed));
         return res;
     }
 
@@ -79,24 +79,24 @@ public class WorkflowRunner : IWorkflowRunner
         {
             try
             {
-                StepStatusChanged?.Invoke(this, new() { StepId = step.Id, Status = StepStatus.Running });
+                StepStatusChanged?.Invoke(new(step, StepStatus.Running));
                 await HandleStep(step, context);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error while running workflow");
-                throw;
+                return new(false);
             }
             finally
             {
-                StepStatusChanged?.Invoke(this, new() { StepId = step.Id, Status = StepStatus.Completed });
+                StepStatusChanged?.Invoke(new(step, StepStatus.Completed));
             }
         }
 
         return new(true);
     }
 
-    private async Task<Result> CheckWorkflowHasErrorsAsync(Specifications.Workflow workflow)
+    private async Task<Result> CheckWorkflowHasErrorsAsync(IWorkflow workflow)
     {
         WorkflowValidatorResult res = await _validator.ValidateAsync(workflow);
         if (res.Errors.Count != 0)
@@ -122,7 +122,7 @@ public class WorkflowRunner : IWorkflowRunner
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while handling step {Type}", step.GetType());
-            throw;
+            return WorkflowRunnerErrors.ErrorWhileHandlingStep;
         }
     }
 }

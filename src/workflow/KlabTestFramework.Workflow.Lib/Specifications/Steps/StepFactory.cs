@@ -7,7 +7,7 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 /// <summary>
 /// Implementation of <see cref="IStepFactory"/>
 /// </summary>
-public class StepFactory : IStepFactory
+public class StepFactory
 {
     private readonly IEnumerable<StepSpecification> _stepSpecifications;
 

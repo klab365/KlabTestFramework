@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Shared.Parameters;
 
-namespace KlabTestFramework.Workflow.Lib;
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Interface to replace variable value of a parameter
@@ -9,7 +9,13 @@ namespace KlabTestFramework.Workflow.Lib;
 /// </summary>
 public interface IVariableParameterReplaceHandler
 {
-    Task ReplaceAsync(object variable, IParameter parameter);
+    /// <summary>
+    /// Generic replace method, which will accept any type of variable and parameter
+    /// </summary>
+    /// <param name="variable"></param>
+    /// <param name="parameter"></param>
+    /// <returns></returns>
+    Task ReplaceAsync(IVariable variable, IParameter parameter);
 }
 
 /// <summary>
@@ -18,10 +24,16 @@ public interface IVariableParameterReplaceHandler
 /// <typeparam name="TInput"></typeparam>
 public interface IVariableParameterReplaceHandler<TInput> : IVariableParameterReplaceHandler where TInput : IParameterType
 {
+    /// <summary>
+    /// Typed replace method
+    /// </summary>
+    /// <param name="variable"></param>
+    /// <param name="parameter"></param>
+    /// <returns></returns>
     Task Replace(Variable<TInput> variable, Parameter<TInput> parameter);
 
     /// <inheritdoc/>
-    Task IVariableParameterReplaceHandler.ReplaceAsync(object variable, IParameter parameter)
+    Task IVariableParameterReplaceHandler.ReplaceAsync(IVariable variable, IParameter parameter)
     {
         return Replace((Variable<TInput>)variable, (Parameter<TInput>)parameter);
     }

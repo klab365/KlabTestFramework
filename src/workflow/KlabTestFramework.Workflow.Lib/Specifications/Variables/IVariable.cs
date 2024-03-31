@@ -1,4 +1,4 @@
-﻿using System;
+﻿using KlabTestFramework.Shared.Parameters;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -26,7 +26,7 @@ public interface IVariable
     /// <summary>
     /// Gets the data type of the variable.
     /// </summary>
-    Type DataType { get; }
+    string DataType { get; }
 
     bool IsArgument => VariableType == VariableType.Argument;
 
@@ -35,6 +35,10 @@ public interface IVariable
     /// </summary>
     void Init(IParameterType parameterType);
 
+    /// <summary>
+    /// Update the value of the variable.
+    /// </summary>
+    /// <param name="value"></param>
     void UpdateValue(string value);
 
     /// <summary>

@@ -7,7 +7,7 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 /// <summary>
 /// Represents a workflow that consists of multiple steps.
 /// </summary>
-public class Workflow : IWorkflow
+internal class Workflow : IWorkflow
 {
     private readonly List<IStep> _steps = new();
 

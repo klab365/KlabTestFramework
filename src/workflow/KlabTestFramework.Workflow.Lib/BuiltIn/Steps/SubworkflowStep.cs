@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using KlabTestFramework.Shared.Parameters;
+using KlabTestFramework.Shared.Parameters.Types;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 
@@ -8,44 +10,40 @@ namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 
 public class SubworkflowStep : ISubworkflowStep
 {
-    public static readonly string NoneSelected = "none";
-    private readonly IParameterFactory _parameterFactory;
-    private readonly IStepFactory _stepFactory;
+    public static readonly StringParameter NoneSelected = new() { Name = "none" };
+    private readonly StepFactory _stepFactory;
+    public StepId Id { get; set; } = StepId.Empty;
 
-    public Guid Id { get; } = Guid.NewGuid();
-
-    public Parameter<StringParameter> SelectedSubworkflow { get; }
-
-    public event EventHandler<string>? SubworkflowSelected;
+    public Parameter<SelectableParameter<StringParameter>> SelectedSubworkflow { get; }
 
     public List<IStep> Children { get; private set; } = new();
 
     public List<IParameter> Arguments { get; private set; } = new();
 
-    public IWorkflow? Subworkflow { get; set; }
-
-    public SubworkflowStep(IStepFactory stepFactory, IParameterFactory parameterFactory)
+    private IWorkflow? _subworkflow;
+    public IWorkflow? Subworkflow
     {
-        _parameterFactory = parameterFactory;
+        get => _subworkflow;
+        set
+        {
+            _subworkflow = value;
+            InitInternalStructure();
+        }
+    }
+
+    public event Action<string>? SubworkflowSelected;
+
+    public SubworkflowStep(StepFactory stepFactory, ParameterFactory parameterFactory)
+    {
         _stepFactory = stepFactory;
-        SelectedSubworkflow = parameterFactory.CreateParameter<StringParameter>
+        SelectedSubworkflow = parameterFactory.CreateParameter<SelectableParameter<StringParameter>>
         (
             "Subworkflow",
             string.Empty,
             p => p.SetValue(NoneSelected)
         );
 
-        SelectedSubworkflow.Content.ValueChanged += (s) =>
-        {
-            SubworkflowSelected?.Invoke(this, s);
-            InitInternalStructure();
-        };
-    }
-
-    private void InitInternalStructure()
-    {
-        Arguments = GetArgumentsOfSelectedSubworkflow();
-        Children = GetChildrenOfSelectedSubworkflow();
+        SelectedSubworkflow.Content.ValueChanged += OnSelectedSubworkflowChanged;
     }
 
     public IEnumerable<IParameter> GetParameters()
@@ -61,6 +59,18 @@ public class SubworkflowStep : ISubworkflowStep
     {
         IParameter argument = Arguments.Single(a => a.Name == argumentName);
         argument.GetParameterType().FromString(value);
+    }
+
+    public void SelectSubworkflow(string subWorkflow)
+    {
+        StringParameter parameter = new();
+        parameter.SetValue(subWorkflow);
+        SelectedSubworkflow.Content.SelectOption(parameter);
+    }
+
+    private void OnSelectedSubworkflowChanged(StringParameter parameter)
+    {
+        SubworkflowSelected?.Invoke(parameter.Value);
     }
 
     private List<IStep> GetChildrenOfSelectedSubworkflow()
@@ -85,7 +95,6 @@ public class SubworkflowStep : ISubworkflowStep
     private List<IParameter> GetArgumentsOfSelectedSubworkflow()
     {
         List<IParameter> arguments = new();
-
         if (Subworkflow == null)
         {
             return arguments;
@@ -95,10 +104,16 @@ public class SubworkflowStep : ISubworkflowStep
         foreach (IVariable variable in argumentVariables)
         {
             IParameterType parameterType = variable.GetParameterType().Clone();
-            IParameter parameter = _parameterFactory.CreateParameter(parameterType, variable.Name, variable.Unit);
+            IParameter parameter = new Parameter<IParameterType>(variable.Name, variable.Unit, parameterType);
             arguments.Add(parameter);
         }
 
         return arguments;
+    }
+
+    private void InitInternalStructure()
+    {
+        Arguments = GetArgumentsOfSelectedSubworkflow();
+        Children = GetChildrenOfSelectedSubworkflow();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using KlabTestFramework.Shared.Parameters;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 

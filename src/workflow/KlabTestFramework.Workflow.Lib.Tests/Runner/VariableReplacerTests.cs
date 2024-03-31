@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Shared.Parameters.Types;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
 using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Specifications;
@@ -21,8 +22,8 @@ public class VariableReplacerTests
         workflowEditor.CreateNewWorkflow();
         workflowEditor.ConfigureMetadata(m => m.Description = "My first subworkflow");
         workflowEditor.AddVariable<IntParameter>("myVariable", "sec", VariableType.Argument, p => p.SetValue(5));
-        MockStep mockStep = workflowEditor.AddStep<MockStep>(s => s.Counter.ChangetToVariable("myVariable"));
-        Result<Specifications.Workflow> workflow = await workflowEditor.BuildWorkflowAsync();
+        MockStep mockStep = workflowEditor.AddStepToLastPosition<MockStep>(s => s.Counter.ChangetToVariable("myVariable"));
+        Result<IWorkflow> workflow = await workflowEditor.BuildWorkflowAsync();
 
         await sut.ReplaceVariablesWithTheParametersAsync(workflow.Value!);
 
@@ -38,12 +39,12 @@ public class VariableReplacerTests
         workflowEditor.CreateNewWorkflow();
         workflowEditor.ConfigureMetadata(m => m.Description = "My first subworkflow");
         workflowEditor.IncludeSubworkflow("sub1", await CreateSubworkflow1Async(serviceProvider));
-        SubworkflowStep subStep = workflowEditor.AddStep<SubworkflowStep>(s =>
+        SubworkflowStep subStep = workflowEditor.AddStepToLastPosition<SubworkflowStep>(s =>
         {
-            s.SelectedSubworkflow.Content.SetValue("sub1");
+            s.SelectSubworkflow("sub1");
             s.ReplaceArgumentValue("myVariable", "10");
         });
-        Result<Specifications.Workflow> workflow = await workflowEditor.BuildWorkflowAsync();
+        Result<IWorkflow> workflow = await workflowEditor.BuildWorkflowAsync();
 
         await sut.ReplaceVariablesWithTheParametersAsync(workflow.Value!);
 
@@ -60,17 +61,17 @@ public class VariableReplacerTests
         workflowEditor.CreateNewWorkflow();
         workflowEditor.ConfigureMetadata(m => m.Description = "My first subworkflow");
         workflowEditor.IncludeSubworkflow("sub1", await CreateSubworkflow1Async(serviceProvider));
-        SubworkflowStep subStep1 = workflowEditor.AddStep<SubworkflowStep>(s =>
+        SubworkflowStep subStep1 = workflowEditor.AddStepToLastPosition<SubworkflowStep>(s =>
         {
-            s.SelectedSubworkflow.Content.SetValue("sub1");
+            s.SelectSubworkflow("sub1");
             s.ReplaceArgumentValue("myVariable", "10");
         });
-        SubworkflowStep subStep2 = workflowEditor.AddStep<SubworkflowStep>(s =>
+        SubworkflowStep subStep2 = workflowEditor.AddStepToLastPosition<SubworkflowStep>(s =>
         {
-            s.SelectedSubworkflow.Content.SetValue("sub1");
+            s.SelectSubworkflow("sub1");
             s.ReplaceArgumentValue("myVariable", "20");
         });
-        Result<Specifications.Workflow> workflow = await workflowEditor.BuildWorkflowAsync();
+        Result<IWorkflow> workflow = await workflowEditor.BuildWorkflowAsync();
 
         await sut.ReplaceVariablesWithTheParametersAsync(workflow.Value!);
 
@@ -89,14 +90,14 @@ public class VariableReplacerTests
         });
     }
 
-    private static Task<Specifications.Workflow> CreateSubworkflow1Async(IServiceProvider services)
+    private static Task<IWorkflow> CreateSubworkflow1Async(IServiceProvider services)
     {
         IWorkflowEditor workflowEditor = services.GetRequiredService<IWorkflowEditor>();
         workflowEditor.CreateNewWorkflow();
         workflowEditor.ConfigureMetadata(m => m.Description = "My first subworkflow");
         workflowEditor.AddVariable<IntParameter>("myVariable", "sec", VariableType.Argument, p => p.SetValue(2));
-        workflowEditor.AddStep<MockStep>(s => s.Counter.ChangetToVariable("myVariable"));
-        Result<Specifications.Workflow> workflow = workflowEditor.BuildWorkflowAsync().Result;
+        workflowEditor.AddStepToLastPosition<MockStep>(s => s.Counter.ChangetToVariable("myVariable"));
+        Result<IWorkflow> workflow = workflowEditor.BuildWorkflowAsync().Result;
         return Task.FromResult(workflow.Value!);
     }
 }

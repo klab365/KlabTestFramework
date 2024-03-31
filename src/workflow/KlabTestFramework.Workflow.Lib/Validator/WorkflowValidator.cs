@@ -25,7 +25,7 @@ public class WorkflowValidator : IWorkflowValidator
         {
             foreach (IStepValidatorHandler stepValidatorHandler in _stepValidatorHandlers)
             {
-                IEnumerable<WorkflowStepErrorValidation> stepValidations = await stepValidatorHandler.ValidateAsync(step.Id, step);
+                IEnumerable<WorkflowStepErrorValidation> stepValidations = await stepValidatorHandler.ValidateAsync(step);
                 result.AddErrors(stepValidations);
             }
         }

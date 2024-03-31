@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Shared.Parameters.Types;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
 using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Specifications;
@@ -20,17 +21,18 @@ public class WorkflowRunnerSubworkflowTests
         int invocationCounter = 0;
         ServiceProvider serviceProvider = GetServiceProvider();
         WorkflowRunner sut = serviceProvider.GetRequiredService<WorkflowRunner>();
-        sut.StepStatusChanged += (_, _) => invocationCounter++;
+        sut.StepStatusChanged += (_) => invocationCounter++;
         IWorkflowEditor editor = serviceProvider.GetRequiredService<IWorkflowEditor>();
         editor.CreateNewWorkflow();
         editor.IncludeSubworkflow("sub1", await CreateSubworkflow1(serviceProvider, out MockStep _));
-        SubworkflowStep subStep = editor.AddStep<SubworkflowStep>(s =>
+        SubworkflowStep subStep = editor.AddStepToLastPosition<SubworkflowStep>(s =>
         {
-            s.SelectedSubworkflow.Content.SetValue("sub1");
+            s.SelectSubworkflow("sub1");
             s.ReplaceArgumentValue("myVariable", "10");
+
         });
-        Result<Specifications.Workflow> res = await editor.BuildWorkflowAsync();
-        Specifications.Workflow workflow = res.Value!;
+        Result<IWorkflow> res = await editor.BuildWorkflowAsync();
+        IWorkflow workflow = res.Value!;
 
         IWorkflowContext context = serviceProvider.GetRequiredService<IWorkflowContext>();
         WorkflowResult resRun = await sut.RunAsync(workflow, context);
@@ -47,39 +49,39 @@ public class WorkflowRunnerSubworkflowTests
         IWorkflowEditor editor = services.GetRequiredService<IWorkflowEditor>();
         editor.CreateNewWorkflow();
         editor.IncludeSubworkflow("sub1", await CreateSubworkflow1(services, out MockStep _));
-        SubworkflowStep subStep1 = editor.AddStep<SubworkflowStep>(s =>
+        SubworkflowStep subStep1 = editor.AddStepToLastPosition<SubworkflowStep>(s =>
         {
-            s.SelectedSubworkflow.Content.SetValue("sub1");
+            s.SelectSubworkflow("sub1");
             s.ReplaceArgumentValue("myVariable", "10");
         });
-        SubworkflowStep subStep2 = editor.AddStep<SubworkflowStep>(s =>
+        SubworkflowStep subStep2 = editor.AddStepToLastPosition<SubworkflowStep>(s =>
         {
-            s.SelectedSubworkflow.Content.SetValue("sub1");
+            s.SelectSubworkflow("sub1");
             s.ReplaceArgumentValue("myVariable", "6");
         });
-        Result<Specifications.Workflow> res = await editor.BuildWorkflowAsync();
+        Result<IWorkflow> res = await editor.BuildWorkflowAsync();
 
         WorkflowRunner runner = services.GetRequiredService<WorkflowRunner>();
-        runner.StepStatusChanged += (_, args) =>
+        runner.StepStatusChanged += (args) =>
         {
             if (args.Status != StepStatus.Completed)
             {
                 return;
             }
 
-            if (args.StepId == subStep1.Id)
+            if (args.Step.Id == subStep1.Id)
             {
                 MockStep mockStep1 = subStep1.Children[0] as MockStep ?? throw new InvalidOperationException();
                 mockStep1.Counter.Content.Value.Should().Be(11);
             }
-            else if (args.StepId == subStep2.Id)
+            else if (args.Step.Id == subStep2.Id)
             {
                 MockStep mockStep2 = subStep2.Children[0] as MockStep ?? throw new InvalidOperationException();
                 mockStep2.Counter.Content.Value.Should().Be(7);
             }
         };
         IWorkflowContext context = services.GetRequiredService<IWorkflowContext>();
-        WorkflowResult resRun = await runner.RunAsync(res.Value!, context);
+        await runner.RunAsync(res.Value!, context);
     }
 
     private static ServiceProvider GetServiceProvider(Action<IServiceCollection>? configure = null)
@@ -92,14 +94,14 @@ public class WorkflowRunnerSubworkflowTests
         });
     }
 
-    private static Task<Specifications.Workflow> CreateSubworkflow1(IServiceProvider services, out MockStep mockStep)
+    private static Task<IWorkflow> CreateSubworkflow1(IServiceProvider services, out MockStep mockStep)
     {
         IWorkflowEditor workflowEditor = services.GetRequiredService<IWorkflowEditor>();
         workflowEditor.CreateNewWorkflow();
         workflowEditor.ConfigureMetadata(m => m.Description = "My first subworkflow");
         workflowEditor.AddVariable<IntParameter>("myVariable", "sec", VariableType.Argument, p => p.SetValue(1));
-        mockStep = workflowEditor.AddStep<MockStep>(s => s.Counter.ChangetToVariable("myVariable"));
-        Result<Specifications.Workflow> workflow = workflowEditor.BuildWorkflowAsync().Result;
+        mockStep = workflowEditor.AddStepToLastPosition<MockStep>(s => s.Counter.ChangetToVariable("myVariable"));
+        Result<IWorkflow> workflow = workflowEditor.BuildWorkflowAsync().Result;
         return Task.FromResult(workflow.Value!);
     }
 }

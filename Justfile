@@ -1,23 +1,29 @@
 set quiet
 
+# add projects to solution
+slnadd:
+    find . -name "*.csproj" -print0 | xargs -0 dotnet sln add
+
 # build the solution
 build:
-	dotnet build
+    dotnet build \
+        KlabTestFramework.sln \
+        /property:GenerateFullPaths=true \
+        /consoleloggerparameters:"NoSummary;ForceNoAlign;"
 
 # clean the solution and remove all bin and obj folders
 clean:
-	dotnet clean
-	find . -iname "bin" | xargs rm -rf
-	find . -iname "obj" | xargs rm -rf
+    find . -iname "bin" | xargs rm -rf
+    find . -iname "obj" | xargs rm -rf
 
 # test the solution
 test:
-	dotnet test
+    dotnet test
 
 # format the solution
 format:
-	dotnet format -v diag
+    dotnet format -v diag
 
 # run the workflow example
 workflowex:
-	dotnet run --project ./samples/workflow/WorkflowConsoleExample/WorkflowConsoleExample.csproj
+    dotnet run --project ./samples/workflow/WorkflowConsoleExample/WorkflowConsoleExample.csproj

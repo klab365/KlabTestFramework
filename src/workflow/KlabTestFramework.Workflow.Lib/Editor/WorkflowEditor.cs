@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Workflow.Lib.Specifications;
-using KlabTestFramework.Workflow.Lib.Validator;
 
 namespace KlabTestFramework.Workflow.Lib.Editor;
 
@@ -14,24 +14,21 @@ namespace KlabTestFramework.Workflow.Lib.Editor;
 public class WorkflowEditor : IWorkflowEditor
 {
     private readonly List<IVariable> _variables = [];
-    private readonly List<StepIndexContainer> _steps = [];
+    private readonly List<IStep> _steps = [];
     private readonly Dictionary<string, IWorkflow> _subworkflows = [];
     private readonly IWorkflowRepository _repository;
-    private readonly IWorkflowValidator _validator;
-    private readonly IStepFactory _stepFactory;
-    private readonly IParameterFactory _parameterFactory;
-    private readonly IVariableFactory _variableFactory;
+    private readonly StepFactory _stepFactory;
+    private readonly ParameterFactory _parameterFactory;
+    private readonly VariableFactory _variableFactory;
     private readonly List<Action<WorkflowData>> _workflowDataConfigurationCallbacks = [];
 
     public WorkflowEditor(
         IWorkflowRepository repository,
-        IWorkflowValidator validator,
-        IStepFactory stepFactory,
-        IParameterFactory parameterFactory,
-        IVariableFactory variableFactory)
+        StepFactory stepFactory,
+        ParameterFactory parameterFactory,
+        VariableFactory variableFactory)
     {
         _repository = repository;
-        _validator = validator;
         _stepFactory = stepFactory;
         _parameterFactory = parameterFactory;
         _variableFactory = variableFactory;
@@ -43,62 +40,143 @@ public class WorkflowEditor : IWorkflowEditor
         _workflowDataConfigurationCallbacks.Clear();
         _steps.Clear();
         _variables.Clear();
+        _subworkflows.Clear();
     }
 
-    public void EditWorkflow(Specifications.Workflow workflow)
+    public void EditWorkflow(IWorkflow workflow)
     {
-        _steps.Clear();
+        CreateNewWorkflow();
+
         foreach (IStep step in workflow.Steps)
         {
-            _steps.Add(new StepIndexContainer(step) { Index = _steps.Count });
+            _steps.Add(step);
         }
 
-        _variables.Clear();
         foreach (IVariable variable in workflow.Variables)
         {
             _variables.Add(variable);
         }
 
-        _workflowDataConfigurationCallbacks.Clear();
+        foreach (KeyValuePair<string, IWorkflow> subworkflow in workflow.Subworkflows)
+        {
+            _subworkflows.Add(subworkflow.Key, subworkflow.Value);
+        }
+
         _workflowDataConfigurationCallbacks.Add(wf => wf.Description = workflow.Metadata.Description);
-        _workflowDataConfigurationCallbacks.Add(wf => wf.Author = workflow.Metadata.Author);
-        _workflowDataConfigurationCallbacks.Add(wf => wf.CreatedAt = workflow.Metadata.CreatedAt);
-        _workflowDataConfigurationCallbacks.Add(wf => wf.UpdatedAt = workflow.Metadata.UpdatedAt);
     }
 
     /// <inheritdoc/>
-    public TStep AddStep<TStep>(Action<TStep>? configureCallback = default) where TStep : IStep
+    public TStep AddStepToLastPosition<TStep>(Action<TStep>? configureCallback = default) where TStep : IStep
     {
         IStep step = _stepFactory.CreateStep<TStep>();
         ConfigureStepAfterCreate(step);
 
         configureCallback?.Invoke((TStep)step);
-        _steps.Add(new StepIndexContainer(step) { Index = _steps.Count });
+        _steps.Add(step);
         return (TStep)step;
     }
 
-    private void ConfigureStepAfterCreate(IStep step)
+    public Result AddChildStepToLastPosition(IStepWithChildren parentStep, string stepKey, Action<IStep>? configureCallback = default!)
     {
-        if (step is ISubworkflowStep subworkflowStep)
-        {
-            RegisterSelectionOfSubworklfow(subworkflowStep);
-        }
+        StepData stepData = new() { Type = stepKey };
+        IStep childStep = _stepFactory.CreateStep(stepData);
+        ConfigureStepAfterCreate(childStep);
+        configureCallback?.Invoke(childStep);
+
+        parentStep.Children.Add(childStep);
+        return Result.Success();
     }
 
-    private void RegisterSelectionOfSubworklfow(ISubworkflowStep subworkflowStep)
+    public Result MoveStepUp(IStep step)
     {
-        subworkflowStep.SubworkflowSelected += (sender, subworkflowName) =>
+        int foundIndex = _steps.FindIndex(s => s.Id == step.Id);
+        if (foundIndex == -1)
         {
-            LoadSubworkflowByName(subworkflowStep, subworkflowName);
-        };
+            return WorkflowEditorErrors.StepNotFound;
+        }
+
+        bool isStepAtEndPosition = foundIndex == _steps.Count - 1;
+        if (isStepAtEndPosition)
+        {
+            return WorkflowEditorErrors.StepIsAtEndPosition;
+        }
+
+        IStep previousStep = _steps[foundIndex - 1];
+        _steps[foundIndex - 1] = step;
+        _steps[foundIndex] = previousStep;
+        return Result.Success();
     }
 
-    private void LoadSubworkflowByName(ISubworkflowStep subworkflowStep, string subworkflowName)
+    public Result MoveChildStepUp(IStepWithChildren parentStep, IStep childStep)
     {
-        if (_subworkflows.TryGetValue(subworkflowName, out IWorkflow? subworkflow))
+        int foundParentIndex = _steps.FindIndex(s => s.Id == parentStep.Id);
+        if (foundParentIndex == -1)
         {
-            subworkflowStep.Subworkflow = subworkflow;
+            return WorkflowEditorErrors.StepNotFound;
         }
+
+        int foundChildIndex = parentStep.Children.FindIndex(s => s.Id == childStep.Id);
+        if (foundChildIndex == -1)
+        {
+            return WorkflowEditorErrors.StepNotFound;
+        }
+
+        bool isStepAtEndPosition = foundChildIndex == parentStep.Children.Count - 1;
+        if (isStepAtEndPosition)
+        {
+            return WorkflowEditorErrors.StepIsAtEndPosition;
+        }
+
+        IStep previousStep = parentStep.Children[foundChildIndex - 1];
+        parentStep.Children[foundChildIndex - 1] = childStep;
+        parentStep.Children[foundChildIndex] = previousStep;
+        return Result.Success();
+    }
+
+    public Result MoveStepDown(IStep step)
+    {
+        int foundIndex = _steps.FindIndex(s => s.Id == step.Id);
+        if (foundIndex == -1)
+        {
+            return WorkflowEditorErrors.StepNotFound;
+        }
+
+        bool isStepAtFirstPosition = foundIndex == 0;
+        if (isStepAtFirstPosition)
+        {
+            return WorkflowEditorErrors.StepIsAtFirstPosition;
+        }
+
+        IStep nextStep = _steps[foundIndex + 1];
+        _steps[foundIndex + 1] = step;
+        _steps[foundIndex] = nextStep;
+        return Result.Success();
+    }
+
+    public Result MoveChildStepDown(IStepWithChildren parentStep, IStep childStep)
+    {
+        int foundIndex = _steps.FindIndex(s => s.Id == parentStep.Id);
+        if (foundIndex == -1)
+        {
+            return WorkflowEditorErrors.StepNotFound;
+        }
+
+        int foundChildIndex = parentStep.Children.FindIndex(s => s.Id == childStep.Id);
+        if (foundChildIndex == -1)
+        {
+            return WorkflowEditorErrors.StepNotFound;
+        }
+
+        bool isStepAtFirstPosition = foundChildIndex == 0;
+        if (isStepAtFirstPosition)
+        {
+            return WorkflowEditorErrors.StepIsAtFirstPosition;
+        }
+
+        IStep nextStep = parentStep.Children[foundChildIndex + 1];
+        parentStep.Children[foundChildIndex + 1] = childStep;
+        parentStep.Children[foundChildIndex] = nextStep;
+        return Result.Success();
     }
 
     public void AddVariable<TParameter>(string name, string unit, VariableType variableType, Action<TParameter>? configureCallback = default!) where TParameter : IParameterType
@@ -114,7 +192,7 @@ public class WorkflowEditor : IWorkflowEditor
             DataType = parameterType.GetType().Name,
             Value = parameterType.AsString()
         };
-        IVariable variable = _variableFactory.CreateNewVariableByType(data, parameterType);
+        IVariable variable = VariableFactory.CreateNewVariableByType(data, parameterType);
         _variables.Add(variable);
     }
 
@@ -125,19 +203,49 @@ public class WorkflowEditor : IWorkflowEditor
     }
 
     /// <inheritdoc/>
-    public Task<Result<Specifications.Workflow>> BuildWorkflowAsync()
+    public Task<Result<IWorkflow>> BuildWorkflowAsync()
     {
-        Specifications.Workflow workflow = CreateWorkflowByEditedData();
-        ConfiugreTimestamps(workflow);
-
-        Result<Specifications.Workflow> result = workflow;
+        AssignIdsToSteps(_steps);
+        IWorkflow workflow = CreateWorkflowByEditedData();
+        Specifications.Workflow workflow1 = (Specifications.Workflow)workflow;
+        Result<IWorkflow> result = workflow1;
         return Task.FromResult(result);
     }
 
-    private Specifications.Workflow CreateWorkflowByEditedData()
+    /// <inheritdoc/>
+    public async Task<Result> LoadWorkflowFromFileAsync(string path)
     {
-        IStep[] steps = _steps.Select(s => s.Step).ToArray();
-        Specifications.Workflow workflow = new(steps, _variables.ToArray(), _subworkflows);
+        WorkflowData data = await _repository.GetWorkflowAsync(path);
+        IWorkflow workflow = CreateWorkflowFromData(new KeyValuePair<string, WorkflowData>(string.Empty, data));
+        EditWorkflow(workflow);
+
+        return Result.Success();
+    }
+
+    /// <inheritdoc/>
+    public async Task<Result> SaveWorkflowAsync(string path)
+    {
+        Result<IWorkflow> buildWorkflowResult = await BuildWorkflowAsync();
+        if (buildWorkflowResult.IsFailure)
+        {
+            return WorkflowEditorErrors.WorkflowIsNotValid;
+        }
+
+        IWorkflow workflow = buildWorkflowResult.Value!;
+        WorkflowData data = GetWorkflowDataFromWorkflow(workflow);
+        await _repository.SaveWorkflowAsync(path, data);
+        return Result.Success();
+    }
+
+    /// <inheritdoc/>
+    public void IncludeSubworkflow(string name, IWorkflow workflow)
+    {
+        _subworkflows.Add(name, workflow);
+    }
+
+    private IWorkflow CreateWorkflowByEditedData()
+    {
+        IWorkflow workflow = new Specifications.Workflow(_steps.ToArray(), _variables.ToArray(), _subworkflows);
 
         foreach (Action<WorkflowData> callback in _workflowDataConfigurationCallbacks)
         {
@@ -147,92 +255,97 @@ public class WorkflowEditor : IWorkflowEditor
         return workflow;
     }
 
-    private static void ConfiugreTimestamps(Specifications.Workflow workflow)
+    /// <summary>
+    /// Assigns unique ids to the steps of the workflow, if they don't have one.
+    /// </summary>
+    /// <param name="steps"></param>
+    private static void AssignIdsToSteps(IEnumerable<IStep> steps, ISubworkflowStep? subworkflowStepInput = default)
     {
-        if (workflow.Metadata.CreatedAt == DateTime.MinValue)
+        foreach (IStep step in steps)
         {
-            workflow.Metadata.CreatedAt = DateTime.Now;
+            if (step.Id.IsEmpty)
+            {
+                string id = $"{step.GetType().Name}_{Guid.NewGuid()}";
+                step.Id = StepId.Create(id);
+            }
+            else if (step.Id.IsCustom && subworkflowStepInput != null)
+            {
+                step.Id.AddRoute(subworkflowStepInput.Id.Value);
+            }
+
+            if (step is ISubworkflowStep subworkflowStep)
+            {
+                AssignIdsToSteps(subworkflowStep.Children, subworkflowStep);
+            }
         }
-        workflow.Metadata.UpdatedAt = DateTime.Now;
     }
 
-    public async Task<Result> CheckWorkflowHasErrorsAsync(Specifications.Workflow workflow)
-    {
-        WorkflowValidatorResult result = await _validator.ValidateAsync(workflow);
-        if (result.IsFailure)
-        {
-            return WorkflowEditorErrors.WorkflowIsNotValid;
-        }
-
-        return Result.Success();
-    }
-
-    /// <inheritdoc/>
-    public async Task<Result<Specifications.Workflow>> LoadWorkflowFromFileAsync(string path)
-    {
-        WorkflowData data = await _repository.GetWorkflowAsync(path);
-        Specifications.Workflow workflow = CreateWorkflowFromData(new KeyValuePair<string, WorkflowData>(string.Empty, data));
-        return workflow;
-    }
-
-    private Specifications.Workflow CreateWorkflowFromData(KeyValuePair<string, WorkflowData> data)
+    private IWorkflow CreateWorkflowFromData(KeyValuePair<string, WorkflowData> data)
     {
         WorkflowData wfData = data.Value;
 
-        // steps
-        IStep[] steps = wfData.Steps.Select(s =>
-        {
-            IStep step = _stepFactory.CreateStep(s);
-            ConfigureStepAfterCreate(step);
-            step.FromData(s);
-            return step;
-        })
-        .ToArray();
+        Dictionary<string, IWorkflow> subworkflows = LoadSubworkflows(wfData);
+        IVariable[] variables = LoadVariables(wfData);
+        IStep[] steps = LoadSteps(wfData, subworkflows);
 
-        // variables
-        IVariable[] variables = wfData.Variables?.Select(v => _variableFactory.CreateVariableFromData(v)).ToArray() ?? [];
-
-        // subworkflows (recursion!)
-        Dictionary<string, IWorkflow> subworkflows = wfData.Subworkflows?
-            .Select(s => new KeyValuePair<string, IWorkflow>(s.Key, CreateWorkflowFromData(s)))
-            .ToDictionary(k => k.Key, v => v.Value) ?? new();
-
-        Specifications.Workflow workflow = new(steps, variables, subworkflows) { Metadata = wfData };
+        IWorkflow workflow = new Specifications.Workflow(steps, variables, subworkflows) { Metadata = wfData };
         return workflow;
     }
 
-    /// <inheritdoc/>
-    public async Task<Result> SaveWorkflowAsync(string path, Specifications.Workflow workflow)
+    private IVariable[] LoadVariables(WorkflowData wfData)
     {
-        WorkflowData data = GetWorkflowDataFromWorkflow(workflow);
-        await _repository.SaveWorkflowAsync(path, data);
-        return Result.Success();
+        return wfData.Variables?
+            .Select(v => _variableFactory.CreateVariableFromData(v))
+            .ToArray() ?? [];
     }
 
-    public void IncludeSubworkflow(string name, IWorkflow workflow)
+    private IStep[] LoadSteps(WorkflowData wfData, Dictionary<string, IWorkflow> subworkflows)
     {
-        _subworkflows.Add(name, workflow);
+        List<IStep> steps = new();
+        foreach (StepData stepData in wfData.Steps)
+        {
+            IStep step = _stepFactory.CreateStep(stepData);
+            if (step is ISubworkflowStep subworkflowStep)
+            {
+                ParameterData parameterData = stepData.Parameters!.FoundParameterDataByName(subworkflowStep.SelectedSubworkflow.Name);
+                string subworkflowName = parameterData.Value;
+                subworkflowStep.SelectedSubworkflow.Content.AddOptions(subworkflows.Keys.ToArray());
+                subworkflowStep.Subworkflow = subworkflows[subworkflowName];
+            }
+
+            step.FromData(stepData);
+            steps.Add(step);
+        }
+
+        return steps.ToArray();
     }
 
-    private static WorkflowData GetWorkflowDataFromWorkflow(Specifications.Workflow workflow)
+    private Dictionary<string, IWorkflow> LoadSubworkflows(WorkflowData wfData)
+    {
+        return wfData.Subworkflows?
+            .Select(s => new KeyValuePair<string, IWorkflow>(s.Key, CreateWorkflowFromData(s)))
+            .ToDictionary(k => k.Key, v => v.Value) ?? [];
+    }
+
+    private static WorkflowData GetWorkflowDataFromWorkflow(IWorkflow workflow)
     {
         return workflow.ToData();
     }
-}
 
-/// <summary>
-/// Represents a container for a step in a workflow editor.
-/// This class is used to know the order of the steps in the workflow.
-/// </summary>
-public class StepIndexContainer(IStep step)
-{
-    /// <summary>
-    /// Gets or sets the order index.
-    /// </summary>
-    public int Index { get; set; }
+    private void ConfigureStepAfterCreate(IStep step)
+    {
+        if (step is ISubworkflowStep subworkflowStep)
+        {
+            subworkflowStep.SelectedSubworkflow.Content.AddOptions(_subworkflows.Keys.ToArray());
+            subworkflowStep.SubworkflowSelected += (subworkflowName) => LoadSubworkflowByName(subworkflowStep, subworkflowName);
+        }
+    }
 
-    /// <summary>
-    /// Gets the step of the workflow.
-    /// </summary>
-    public IStep Step { get; } = step;
+    private void LoadSubworkflowByName(ISubworkflowStep subworkflowStep, string subworkflowName)
+    {
+        if (_subworkflows.TryGetValue(subworkflowName, out IWorkflow? subworkflow))
+        {
+            subworkflowStep.Subworkflow = subworkflow;
+        }
+    }
 }

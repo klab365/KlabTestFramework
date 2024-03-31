@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using KlabTestFramework.Workflow.Lib.BuiltIn;
+using KlabTestFramework.Shared.Parameters.Types;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -9,12 +9,8 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 /// </summary>
 public interface IStep
 {
-    Guid Id { get; }
+    StepId Id { get; set; }
 
-    /// <summary>
-    /// Get the parameters of the step.
-    /// </summary>
-    /// <returns></returns>
     IEnumerable<IParameter> GetParameters();
 }
 
@@ -23,10 +19,6 @@ public interface IStep
 /// </summary>
 public interface IStepWithChildren : IStep
 {
-    /// <summary>
-    /// Get the children of the step.
-    /// </summary>
-    /// <returns></returns>
     List<IStep> Children { get; }
 }
 
@@ -35,44 +27,12 @@ public interface IStepWithChildren : IStep
 /// </summary>
 public interface ISubworkflowStep : IStepWithChildren
 {
-    event EventHandler<string>? SubworkflowSelected;
+    Parameter<SelectableParameter<StringParameter>> SelectedSubworkflow { get; }
 
-    Parameter<StringParameter> SelectedSubworkflow { get; }
+    event Action<string>? SubworkflowSelected;
 
-    /// <summary>
-    /// Get the subworkflow of the step.
-    /// </summary>
-    /// <returns></returns>
     IWorkflow? Subworkflow { get; set; }
 
     List<IParameter> Arguments { get; }
 }
 
-public static class StepExtensions
-{
-    public static void FromData(this IStep step, StepData stepData)
-    {
-        if (stepData.Parameters is null)
-        {
-            return;
-        }
-
-        foreach (IParameter parameter in step.GetParameters())
-        {
-            ParameterData parameterData = stepData.Parameters.FoundParameterDataByName(parameter.Name);
-            parameter.FromData(parameterData);
-        }
-    }
-
-    public static StepData ToData(this IStep step)
-    {
-        List<ParameterData> parameters = new();
-        foreach (IParameter parameter in step.GetParameters())
-        {
-            parameters.Add(parameter.ToData());
-        }
-
-        StepData data = new() { Type = step.GetType().Name, Parameters = parameters };
-        return data;
-    }
-}

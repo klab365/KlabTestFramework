@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KlabTestFramework.Shared.Parameters\KlabTestFramework.Shared.Parameters.csproj" />
+  </ItemGroup>
+</Project>

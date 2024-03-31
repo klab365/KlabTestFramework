@@ -25,7 +25,7 @@ public static class WorkflowModule
     public static IServiceCollection UseWorkflowLib(this IServiceCollection services, Action<WorkflowModuleConfiguration>? configurationCallback = default)
     {
         WorkflowModuleConfiguration configuration = new();
-        configurationCallback?.Invoke(configuration);
+        configurationCallback?.Invoke(configuration); // apply configuration if provided ;)
 
         services.AddWorkflowspecification(configuration);
         services.AddWorkflowEditor(configuration);
@@ -44,35 +44,23 @@ public static class WorkflowModule
     {
         services.AddTransient(typeof(IWorkflowRepository), _ => configuration.DefaultWorkflowRepositoryFactory());
         services.AddTransient<IWorkflowEditor, WorkflowEditor>();
-        services.AddTransient<IWorkflowReadEditor, WorkflowEditor>();
     }
 
     private static void AddWorkflowRunner(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
         services.AddTransient(typeof(IWorkflowContext), configuration.WorkflowContextType);
         services.AddTransient<IWorkflowRunner, WorkflowRunner>();
-
-        /// register variable handlers
-        foreach (VariableHandlerType variableHandlerType in configuration.VariableHandlerTypes)
-        {
-            Type genericType = typeof(IVariableParameterReplaceHandler<>).MakeGenericType(variableHandlerType.Parameter);
-            services.AddTransient(genericType, variableHandlerType.VariableHandler);
-        }
-
-        services.AddTransient(typeof(DefaultVariableParameterReplace<>)); // default variable handler
-        services.AddTransient<IVariableReplacer, VariableReplacer>();
     }
 
     private static void AddWorkflowspecification(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
         services.AddSteps(configuration);
-        services.AddParameters(configuration);
-        services.AddVariables();
+        services.AddVariables(configuration);
     }
 
     private static void AddSteps(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
-        services.AddTransient<IStepFactory, StepFactory>();
+        services.AddTransient<StepFactory>();
         RegisterSteps(services, configuration);
     }
 
@@ -106,52 +94,33 @@ public static class WorkflowModule
         });
     }
 
-    private static void AddParameters(this IServiceCollection services, WorkflowModuleConfiguration configuration)
+    private static void AddVariables(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
-        services.AddTransient<IParameterFactory, ParameterFactory>();
-        services.AddTransient(typeof(Parameter<>));
+        services.AddTransient<VariableFactory>();
+        services.AddTransient(typeof(DefaultVariableParameterReplace<>));
+        services.AddTransient<IVariableReplacer, VariableReplacer>();
 
-        if (configuration.ShouldRegisterDefaultParameters)
+        foreach (VariableReplaceHandlerType item in configuration.VariableHandlerTypes)
         {
-            configuration.AddParameterType<IntParameter>();
-            configuration.AddParameterType<TimeParameter>();
-            configuration.AddParameterType<StringParameter>();
-        }
-
-        foreach (ParameterValueType parameterType in configuration.ParameterTypes)
-        {
-            services.RegisterParameter(parameterType.Parameter);
+            services.RegisterVariableReplaceHandler(item.Parameter, item.VariableHandler);
         }
     }
 
-    private static void RegisterParameter(this IServiceCollection services, Type parameterType)
+    private static void RegisterVariableReplaceHandler(this IServiceCollection services, Type parameterType, Type variableHandlerType)
     {
-        services.AddTransient(parameterType);
+        Type genericVariableHandlerType = typeof(IVariableParameterReplaceHandler<>).MakeGenericType(parameterType);
+        Type variableType = typeof(Variable<>).MakeGenericType(parameterType);
+        services.AddTransient(genericVariableHandlerType, variableHandlerType);
+        services.AddTransient(variableType);
+
         services.AddTransient(provider =>
         {
-            ParameterDependencySpecification parameterSpecicifation = new(
+            VariableDependenySpecification specs = new(
                 parameterType,
-                () => (IParameterType)provider.GetRequiredService(parameterType)
+                () => (IVariableParameterReplaceHandler)provider.GetRequiredService(genericVariableHandlerType)
             );
 
-            return parameterSpecicifation;
-        });
-    }
-
-    private static void AddVariables(this IServiceCollection services)
-    {
-        services.AddTransient<IVariableFactory, VariableFactory>();
-        services.AddTransient(typeof(Variable<>));
-        services.AddTransient(typeof(DefaultVariableParameterReplace<>));
-        services.AddSingleton(p =>
-        {
-            Func<IParameterType, IVariable> func = new(parameterType =>
-            {
-                Type variableType = typeof(Variable<>).MakeGenericType(parameterType.GetType());
-                return (IVariable)p.GetRequiredService(variableType);
-            });
-
-            return func;
+            return specs;
         });
     }
 }

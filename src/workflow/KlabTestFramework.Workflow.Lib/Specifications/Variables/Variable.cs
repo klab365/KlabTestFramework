@@ -1,4 +1,5 @@
 ﻿using System;
+using KlabTestFramework.Shared.Parameters;
 
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
@@ -15,9 +16,10 @@ public class Variable<TParameter> : IVariable where TParameter : IParameterType
 
     public VariableType VariableType { get; private set; } = VariableType.Constant;
 
-    public TParameter? Parameter { get; private set; }
+    private TParameter? _parameter;
+    public TParameter Parameter => _parameter ?? throw new InvalidOperationException("Parameter is not initialized.");
 
-    public Type DataType => typeof(TParameter);
+    public string DataType => Parameter.TypeKey;
 
     /// <inheritdoc/>
     public void FromData(VariableData data)
@@ -36,14 +38,14 @@ public class Variable<TParameter> : IVariable where TParameter : IParameterType
             Name = Name,
             Unit = Unit,
             VariableType = VariableType,
-            DataType = DataType.Name,
-            Value = Parameter?.AsString() ?? string.Empty
+            DataType = DataType,
+            Value = Parameter.AsString() ?? string.Empty
         };
     }
 
     public void Init(IParameterType parameterType)
     {
-        Parameter = (TParameter)parameterType;
+        _parameter = (TParameter)parameterType;
     }
 
     public IParameterType GetParameterType()

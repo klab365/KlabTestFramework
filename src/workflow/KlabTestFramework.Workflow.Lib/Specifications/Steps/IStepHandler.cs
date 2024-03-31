@@ -4,6 +4,9 @@ using KlabTestFramework.Workflow.Lib.Runner;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
+/// <summary>
+/// Interface for a step handler.
+/// </summary>
 public interface IStepHandler
 {
     /// <summary>

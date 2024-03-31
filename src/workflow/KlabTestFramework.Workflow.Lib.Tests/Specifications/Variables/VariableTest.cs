@@ -1,5 +1,10 @@
 ﻿using FluentAssertions;
+using KlabTestFramework.Shared.Parameters;
+using KlabTestFramework.Shared.Parameters.Types;
+using KlabTestFramework.Workflow.Lib.Tests;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using NSubstitute;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications.Tests;
 
@@ -9,7 +14,8 @@ public class VariableTests
     public void VariableShouldInitializeProperties()
     {
         // Arrange
-        IParameterType mockParameter = Mock.Of<IParameterType>();
+        IParameterType mockParameter = Substitute.For<IParameterType>();
+        mockParameter.TypeKey.Returns("IParameterType");
 
         // Act
         Variable<IParameterType> variable = new();
@@ -20,7 +26,7 @@ public class VariableTests
         variable.Unit.Should().BeEmpty();
         variable.VariableType.Should().Be(VariableType.Constant);
         variable.Parameter.Should().Be(mockParameter);
-        variable.DataType.Should().Be(typeof(IParameterType));
+        variable.DataType.Should().Be("IParameterType");
     }
 
     [Fact]
@@ -29,8 +35,9 @@ public class VariableTests
         // Arrange
         VariableType expectedVariableType = VariableType.Constant;
         string expectedValue = "ParameterValue";
-        IParameterType mockParameter = Mock.Of<IParameterType>();
-        Mock.Get(mockParameter).Setup(p => p.AsString()).Returns(expectedValue);
+        IParameterType mockParameter = Substitute.For<IParameterType>();
+        mockParameter.AsString().Returns(expectedValue);
+        mockParameter.TypeKey.Returns("IParameterType");
 
         Variable<IParameterType> variable = new();
         variable.Init(mockParameter);
@@ -42,7 +49,7 @@ public class VariableTests
         data.Name.Should().BeEmpty();
         data.Unit.Should().BeEmpty();
         data.VariableType.Should().Be(expectedVariableType);
-        data.DataType.Should().Be(typeof(IParameterType).Name);
+        data.DataType.Should().Be("IParameterType");
         data.Value.Should().Be(expectedValue);
     }
 
@@ -76,5 +83,20 @@ public class VariableTests
         variable.VariableType.Should().Be(expectedVariableType);
         variable.Parameter.Should().Be(mockParameter);
         Mock.Get(mockParameter).Verify(p => p.FromString(expectedValue), Times.Once);
+    }
+
+    [Fact]
+    public void VariableGenerateGenericParameterType()
+    {
+        ServiceProvider serviceProvider = ServiceProviderTestHelper.GetServiceProvider();
+        ParameterFactory parameterFactory = serviceProvider.GetRequiredService<ParameterFactory>();
+        SelectableParameter<StringParameter> parameter = parameterFactory.CreateParameterType<SelectableParameter<StringParameter>>();
+        parameter.SetValue(new StringParameter());
+        Variable<SelectableParameter<StringParameter>> variable = new();
+        variable.Init(parameter);
+
+        VariableData data = variable.ToData();
+
+        data.DataType.Should().Be("SelectableParameter<StringParameter>");
     }
 }
