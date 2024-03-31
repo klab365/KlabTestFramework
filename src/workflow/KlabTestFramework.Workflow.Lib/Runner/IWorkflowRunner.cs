@@ -12,19 +12,19 @@ public interface IWorkflowRunner
     /// <summary>
     /// Event that is raised when the status of a workflow step changes.
     /// </summary>
-    event EventHandler<WorkflowStepStatusEventArgs>? StepStatusChanged;
+    event Action<WorkflowStepStatusEvent>? StepStatusChanged;
 
     /// <summary>
     /// Event that is raised when the workflow status changes.
     /// </summary>
-    event EventHandler<WorkflowStatusEventArgs>? WorkflowStatusChanged;
+    event Action<WorkflowStatusEvent>? WorkflowStatusChanged;
 
     /// <summary>
     /// Runs the specified workflow asynchronously.
     /// </summary>
     /// <param name="workflow">The workflow to run.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task<WorkflowResult> RunAsync(Specifications.Workflow workflow, IWorkflowContext context);
+    Task<WorkflowResult> RunAsync(IWorkflow workflow, IWorkflowContext context);
 
     /// <summary>
     /// Runs the specified subworkflow asynchronously.
@@ -37,10 +37,7 @@ public interface IWorkflowRunner
 
 public record WorkflowResult(bool IsSuccess);
 
-public class WorkflowStatusEventArgs : EventArgs
-{
-    public WorkflowStatus Status { get; set; }
-}
+public record WorkflowStatusEvent(WorkflowStatus Status);
 
 public enum WorkflowStatus
 {
@@ -53,18 +50,7 @@ public enum WorkflowStatus
 /// <summary>
 /// Provides data for the StepStatusChanged event.
 /// </summary>
-public class WorkflowStepStatusEventArgs : EventArgs
-{
-    /// <summary>
-    /// Get or sets the id of the workflow step.
-    /// </summary>
-    public Guid StepId { get; set; }
-
-    /// <summary>
-    /// Gets or sets the status of the workflow step.
-    /// </summary>
-    public StepStatus Status { get; set; }
-}
+public record WorkflowStepStatusEvent(IStep Step, StepStatus Status);
 
 /// <summary>
 /// Represents the status of a workflow step.

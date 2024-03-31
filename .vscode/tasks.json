@@ -5,14 +5,9 @@
   "tasks": [
       {
         "label": "build",
-        "command": "dotnet",
+        "command": "just",
         "type": "process",
-        "args": [
-            "build",
-            "${workspaceFolder}/KlabTestFramework.sln",
-            "/property:GenerateFullPaths=true",
-            "/consoleloggerparameters:NoSummary;ForceNoAlign"
-        ],
+        "args": ["build"],
         "problemMatcher": "$msCompile"
     },
     {

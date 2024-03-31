@@ -8,6 +8,11 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 public class StepData
 {
     /// <summary>
+    /// Id of the step
+    /// </summary>
+    public string? Id { get; set; }
+
+    /// <summary>
     /// Type of the step
     /// </summary>
     /// <value></value>

@@ -1,5 +1,7 @@
 ﻿using FluentAssertions;
+using KlabTestFramework.Shared.Parameters;
 using Moq;
+using NSubstitute;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications.Parameters.Tests;
 
@@ -11,7 +13,9 @@ public class ParameterTests
         // Arrange
         string name = "ParameterName";
         string unit = "ParameterUnit";
-        IParameterType content = new Mock<IParameterType>().Object;
+        IParameterType content = Substitute.For<IParameterType>();
+        content.Name.Returns(name);
+        content.Unit.Returns(unit);
 
         // Act
         Parameter<IParameterType> parameter = new(name, unit, content);
@@ -122,9 +126,11 @@ public class ParameterTests
         string name = "ParameterName";
         string unit = "ParameterUnit";
         string contentAsString = "ContentAsString";
-        Mock<IParameterType> content = new();
-        content.Setup(c => c.AsString()).Returns(contentAsString);
-        Parameter<IParameterType> parameter = new(name, unit, content.Object);
+        IParameterType content = Substitute.For<IParameterType>();
+        content.Name.Returns(name);
+        content.Unit.Returns(unit);
+        content.AsString().Returns(contentAsString);
+        Parameter<IParameterType> parameter = new(name, unit, content);
 
         // Act
         ParameterData data = parameter.ToData();

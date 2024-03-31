@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
-
+using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Editor;
@@ -9,7 +9,7 @@ namespace KlabTestFramework.Workflow.Lib.Editor;
 /// <summary>
 /// Interface to manipulate a workflow.
 /// </summary>
-public interface IWorkflowEditor : IWorkflowReadEditor
+public interface IWorkflowEditor
 {
     /// <summary>
     /// Save the workflow to a file.
@@ -17,10 +17,18 @@ public interface IWorkflowEditor : IWorkflowReadEditor
     /// <param name="path"></param>
     /// <param name="workflow"></param>
     /// <returns></returns>
-    Task<Result> SaveWorkflowAsync(string path, Specifications.Workflow workflow);
+    Task<Result> SaveWorkflowAsync(string path);
+
+    /// <summary>
+    /// Load a workflow from a file and set it as the current workflow for editing or building.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    Task<Result> LoadWorkflowFromFileAsync(string path);
 
     /// <summary>
     /// Start to create a new workflow
+    /// At the end of the editing process, the <see cref="BuildWorkflowAsync"/> method
     /// </summary>
     void CreateNewWorkflow();
 
@@ -30,14 +38,42 @@ public interface IWorkflowEditor : IWorkflowReadEditor
     /// must be called to build the new workflow.
     /// </summary>
     /// <param name="workflow"></param>
-    void EditWorkflow(Specifications.Workflow workflow);
+    void EditWorkflow(IWorkflow workflow);
 
     /// <summary>
     /// Adds a step to last position in the workflow.
     /// </summary>
     /// <typeparam name="TStep">The type of the step to add.</typeparam>
     /// <param name="configureCallback">An optional callback to configure the step.</param>
-    TStep AddStep<TStep>(Action<TStep>? configureCallback = default) where TStep : IStep;
+    TStep AddStepToLastPosition<TStep>(Action<TStep>? configureCallback = default) where TStep : IStep;
+
+    /// <summary>
+    /// Adds a step to the parent step of the workflow.
+    /// </summary>
+    /// <param name="parentStep"></param>
+    /// <param name="childStep"></param>
+    /// <returns></returns>
+    Result AddChildStepToLastPosition(IStepWithChildren parentStep, string stepKey, Action<IStep>? configureCallback = default!);
+
+    /// <summary>
+    /// Move the step up in the workflow.
+    /// </summary>
+    Result MoveStepUp(IStep step);
+
+    /// <summary>
+    /// Move the child step up in the workflow.
+    /// </summary>
+    /// <param name="parentStep"></param>
+    /// <param name="childStep"></param>
+    /// <returns></returns>
+    Result MoveChildStepUp(IStepWithChildren parentStep, IStep childStep);
+
+    /// <summary>
+    /// Move the step down in the workflow.
+    /// </summary>
+    Result MoveStepDown(IStep step);
+
+    Result MoveChildStepDown(IStepWithChildren parentStep, IStep childStep);
 
     /// <summary>
     /// Add variable to the workflow.
@@ -64,10 +100,5 @@ public interface IWorkflowEditor : IWorkflowReadEditor
     /// Build the workflow with the current state of editor.
     /// </summary>
     /// <returns></returns>
-    Task<Result<Specifications.Workflow>> BuildWorkflowAsync();
-
-    /// <summary>
-    /// Check if the workflow has errors.
-    /// </summary>
-    Task<Result> CheckWorkflowHasErrorsAsync(Specifications.Workflow workflow);
+    Task<Result<IWorkflow>> BuildWorkflowAsync();
 }

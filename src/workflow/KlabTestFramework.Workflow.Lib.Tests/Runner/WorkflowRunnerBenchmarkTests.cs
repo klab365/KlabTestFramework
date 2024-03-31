@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Editor;
+using KlabTestFramework.Workflow.Lib.Specifications;
 using KlabTestFramework.Workflow.Lib.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -30,10 +31,10 @@ public class WorkflowRunnerBenchmarkTests
         editor.CreateNewWorkflow();
         for (int i = 0; i < 1000; i++)
         {
-            editor.AddStep<MockStep>();
+            editor.AddStepToLastPosition<MockStep>();
         }
-        Result<Specifications.Workflow> res = await editor.BuildWorkflowAsync();
-        Specifications.Workflow workflow = res.Value!;
+        Result<IWorkflow> res = await editor.BuildWorkflowAsync();
+        IWorkflow workflow = res.Value!;
 
         // Act
         Stopwatch stopwatch = Stopwatch.StartNew();

@@ -18,7 +18,7 @@ public class DefaultWorkflowContext : IWorkflowContext
     /// <inheritdoc/>
     public void PublishMessage(IStep step, string message)
     {
-        Guid id = step.Id;
+        string id = step.Id.Value;
         string composedMessage = $"[{id}] {message}";
         Console.WriteLine(composedMessage);
     }

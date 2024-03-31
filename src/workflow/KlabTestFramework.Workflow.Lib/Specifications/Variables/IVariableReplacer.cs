@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
-using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib;
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Interface to replace variables in a step

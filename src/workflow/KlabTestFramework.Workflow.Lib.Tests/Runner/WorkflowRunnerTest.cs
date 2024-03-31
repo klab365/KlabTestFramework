@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using Klab.Toolkit.Results;
-using KlabTestFramework.Workflow.Lib.BuiltIn;
+using KlabTestFramework.Shared.Parameters.Types;
 using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Specifications;
 using KlabTestFramework.Workflow.Lib.Tests;
@@ -22,13 +22,13 @@ public class WorkflowRunnerTests
         int invocationCounter = 0;
         ServiceProvider serviceProvider = GetServiceProvider();
         WorkflowRunner sut = serviceProvider.GetRequiredService<WorkflowRunner>();
-        sut.StepStatusChanged += (_, _) => invocationCounter++;
+        sut.StepStatusChanged += (_) => invocationCounter++;
         IWorkflowEditor editor = serviceProvider.GetRequiredService<IWorkflowEditor>();
         editor.CreateNewWorkflow();
-        editor.AddStep<MockStep>();
-        editor.AddStep<MockStep>();
-        Result<Specifications.Workflow> res = await editor.BuildWorkflowAsync();
-        Specifications.Workflow workflow = res.Value!;
+        editor.AddStepToLastPosition<MockStep>();
+        editor.AddStepToLastPosition<MockStep>();
+        Result<IWorkflow> res = await editor.BuildWorkflowAsync();
+        IWorkflow workflow = res.Value!;
 
         // Act
         IWorkflowContext context = serviceProvider.GetRequiredService<IWorkflowContext>();
@@ -45,11 +45,11 @@ public class WorkflowRunnerTests
         int invocationCounter = 0;
         ServiceProvider serviceProvider = GetServiceProvider();
         WorkflowRunner sut = serviceProvider.GetRequiredService<WorkflowRunner>();
-        sut.StepStatusChanged += (_, _) => invocationCounter++;
+        sut.StepStatusChanged += (_) => invocationCounter++;
         IWorkflowEditor editor = serviceProvider.GetRequiredService<IWorkflowEditor>();
         editor.CreateNewWorkflow();
-        Result<Specifications.Workflow> res = await editor.BuildWorkflowAsync();
-        Specifications.Workflow workflow = res.Value!;
+        Result<IWorkflow> res = await editor.BuildWorkflowAsync();
+        IWorkflow workflow = res.Value!;
 
         // Act
         IWorkflowContext context = serviceProvider.GetRequiredService<IWorkflowContext>();
@@ -65,12 +65,12 @@ public class WorkflowRunnerTests
         int invocationCounter = 0;
         ServiceProvider serviceProvider = GetServiceProvider();
         WorkflowRunner sut = serviceProvider.GetRequiredService<WorkflowRunner>();
-        sut.StepStatusChanged += (_, _) => invocationCounter++;
+        sut.StepStatusChanged += (_) => invocationCounter++;
         IWorkflowEditor editor = serviceProvider.GetRequiredService<IWorkflowEditor>();
         editor.CreateNewWorkflow();
-        editor.AddStep<MockStep>(p => p.Counter.Content.SetValue(-1));
-        Result<Specifications.Workflow> res = await editor.BuildWorkflowAsync();
-        Specifications.Workflow workflow = res.Value!;
+        editor.AddStepToLastPosition<MockStep>(p => p.Counter.Content.SetValue(-1));
+        Result<IWorkflow> res = await editor.BuildWorkflowAsync();
+        IWorkflow workflow = res.Value!;
 
         IWorkflowContext context = serviceProvider.GetRequiredService<IWorkflowContext>();
         WorkflowResult resRun = await sut.RunAsync(workflow, context);
@@ -89,13 +89,13 @@ public class WorkflowRunnerTests
             services.Replace(ServiceDescriptor.Transient<IStepHandler<MockStep>, SpecialMockStepHandler>());
         });
         WorkflowRunner sut = serviceProvider.GetRequiredService<WorkflowRunner>();
-        sut.StepStatusChanged += (_, _) => invocationCounter++;
+        sut.StepStatusChanged += (_) => invocationCounter++;
         IWorkflowEditor editor = serviceProvider.GetRequiredService<IWorkflowEditor>();
         editor.CreateNewWorkflow();
         editor.AddVariable<IntParameter>("counter", string.Empty, VariableType.Constant, p => p.SetValue(10));
-        editor.AddStep<MockStep>(p => p.Counter.ChangetToVariable("counter"));
-        Result<Specifications.Workflow> res = await editor.BuildWorkflowAsync();
-        Specifications.Workflow workflow = res.Value!;
+        editor.AddStepToLastPosition<MockStep>(p => p.Counter.ChangetToVariable("counter"));
+        Result<IWorkflow> res = await editor.BuildWorkflowAsync();
+        IWorkflow workflow = res.Value!;
         SpecialStorage storage = serviceProvider.GetRequiredService<SpecialStorage>();
 
         IWorkflowContext context = serviceProvider.GetRequiredService<IWorkflowContext>();
@@ -116,12 +116,12 @@ public class WorkflowRunnerTests
         });
     }
 
-    private sealed class SpecialStorage
+    public sealed class SpecialStorage
     {
         public int Counter { get; set; }
     }
 
-    private sealed class SpecialMockStepHandler : IStepHandler<MockStep>
+    public sealed class SpecialMockStepHandler : IStepHandler<MockStep>
     {
         private readonly SpecialStorage _storage;
 

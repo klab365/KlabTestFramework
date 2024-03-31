@@ -1,8 +1,8 @@
 <Project>
   <PropertyGroup>
-    <Copyright>Copyright (C) 2023 klab</Copyright>
+    <Copyright>Copyright (C) 2024 klab</Copyright>
     <AssemblyCompany>klab</AssemblyCompany>
-    <AssemblyCopyright>Copyright (C) 2023 klab</AssemblyCopyright>
+    <AssemblyCopyright>Copyright (C) 2024 klab</AssemblyCopyright>
     <Company>klab</Company>
     <Platforms>x64</Platforms>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -10,8 +10,8 @@
     <PlatformTarget>$(Platform)</PlatformTarget>
     <TargetFramework>net8.0</TargetFramework>
     <Version>0.0.0</Version>
-
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
@@ -30,13 +30,18 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
 
+     <PackageReference Include="SonarAnalyzer.CSharp" Version="9.21.0.86780">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
   </ItemGroup>
 
-
   <!-- Test projects -->
   <ItemGroup Condition="$(MSBuildProjectName.Contains('Tests'))">
+    <PackageReference Include="NSubstitute" Version="5.1.0" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="xunit" Version="2.6.4" />

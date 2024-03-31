@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Workflow.Lib.Editor;
-using KlabTestFramework.Workflow.Lib.Editor.Persistence;
+using KlabTestFramework.Workflow.Lib.Editor.Adapter;
 using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -14,22 +14,17 @@ namespace KlabTestFramework.Workflow.Lib;
 public class WorkflowModuleConfiguration
 {
     private readonly List<StepType> _stepTypes = new();
-    private readonly List<ParameterValueType> _parameterTypes = new();
-    private readonly List<VariableHandlerType> _variableHandlerTypes = new();
+    private readonly List<VariableReplaceHandlerType> _variableHandlerTypes = new();
 
     /// <summary>
     /// Gets or sets a value indicating whether to register default steps.
     /// </summary>
     public bool ShouldRegisterDefaultSteps { get; set; } = true;
 
-    public bool ShouldRegisterDefaultParameters { get; set; } = true;
-
     /// <summary>
     /// List of step types to register.
     /// </summary>
     public IEnumerable<StepType> StepTypes => _stepTypes;
-
-    public IEnumerable<ParameterValueType> ParameterTypes => _parameterTypes;
 
     /// <summary>
     /// Default workflow repository type.
@@ -46,7 +41,7 @@ public class WorkflowModuleConfiguration
     /// <summary>
     /// Variable handler types.
     /// </summary>
-    public IEnumerable<VariableHandlerType> VariableHandlerTypes => _variableHandlerTypes;
+    public IEnumerable<VariableReplaceHandlerType> VariableHandlerTypes => _variableHandlerTypes;
 
     /// <summary>
     /// Configure the workflow context type.
@@ -68,24 +63,9 @@ public class WorkflowModuleConfiguration
         _stepTypes.Add(new(typeof(TStep), typeof(TStepHandler)));
     }
 
-    public void AddParameterType<TParameter>() where TParameter : IParameterType
-    {
-        _parameterTypes.Add(new(typeof(TParameter)));
-    }
-
     public void AddVariableHandlerType<TParameter, TVariableHandler>() where TParameter : IParameterType where TVariableHandler : IVariableParameterReplaceHandler<TParameter>
     {
-        if (!typeof(TParameter).IsAssignableTo(typeof(IParameterType)))
-        {
-            throw new ArgumentException($"Type {typeof(TParameter).Name} is not assignable to {nameof(IParameterType)}");
-        }
-
-        if (!typeof(TVariableHandler).IsAssignableTo(typeof(IVariableParameterReplaceHandler<>).MakeGenericType(typeof(TParameter))))
-        {
-            throw new ArgumentException($"Type {typeof(TVariableHandler).Name} is not assignable to {nameof(IVariableParameterReplaceHandler<IParameterType>)}");
-        }
-
-        VariableHandlerType variableHandlerType = new(typeof(TParameter), typeof(TVariableHandler));
+        VariableReplaceHandlerType variableHandlerType = new(typeof(TParameter), typeof(TVariableHandler));
         _variableHandlerTypes.Add(variableHandlerType);
     }
 }
@@ -99,10 +79,8 @@ public class WorkflowModuleConfiguration
 public record StepType(Type Step, Type Handler);
 
 /// <summary>
-/// Represents a parameter type in the workflow module configuration.
+/// Represents a variable handler type in the workflow module configuration.
 /// </summary>
 /// <param name="Parameter"></param>
-/// <returns></returns>
-public record ParameterValueType(Type Parameter);
-
-public record VariableHandlerType(Type Parameter, Type VariableHandler);
+/// <param name="VariableHandler"></param>
+public record VariableReplaceHandlerType(Type Parameter, Type VariableHandler);

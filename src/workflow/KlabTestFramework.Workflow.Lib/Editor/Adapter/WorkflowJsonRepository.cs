@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib.Editor.Persistence;
+namespace KlabTestFramework.Workflow.Lib.Editor.Adapter;
 
 /// <summary>
 /// Json implementation of <see cref="IWorkflowRepository"/>.

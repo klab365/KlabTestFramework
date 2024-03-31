@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using KlabTestFramework.Workflow.Lib.Specifications;
@@ -12,7 +11,7 @@ namespace KlabTestFramework.Workflow.Lib.Validator;
 public class ParameterValidator : IStepValidatorHandler
 {
     /// <inheritdoc/>
-    public Task<IEnumerable<WorkflowStepErrorValidation>> ValidateAsync(Guid id, IStep step)
+    public Task<IEnumerable<WorkflowStepErrorValidation>> ValidateAsync(IStep step)
     {
         List<WorkflowStepErrorValidation> results = new();
         IEnumerable<IParameter> paramters = step.GetParameters();
@@ -20,7 +19,7 @@ public class ParameterValidator : IStepValidatorHandler
         {
             if (!parameter.IsValid())
             {
-                results.Add(new(id, step, $"Parameter {parameter.Name} is not valid"));
+                results.Add(new(step, $"Parameter {parameter.Name} is not valid"));
             }
         }
 

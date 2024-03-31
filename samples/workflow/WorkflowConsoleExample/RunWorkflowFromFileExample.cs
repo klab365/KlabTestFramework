@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
-using KlabTestFramework.Workflow.Lib.BuiltIn;
 using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
@@ -14,60 +15,27 @@ public class RunWorkflowFromFileExample : IRunExample
 {
     public async Task Run(IServiceProvider services)
     {
-        const string workflowPath = "workflow.json";
-        const string subName = "sub1";
-        Stopwatch watch = Stopwatch.StartNew();
-
-        // write to worklfow.json
+        const string workflowName = "workflow.json";
+        string workflowPath = Assembly.GetExecutingAssembly().Location;
+        workflowPath = Path.Join(Path.GetDirectoryName(workflowPath)!, workflowName);
+        Console.WriteLine($"Running workflow from {workflowName} in {workflowPath}");
         IWorkflowEditor workflowEditor = services.GetRequiredService<IWorkflowEditor>();
-        workflowEditor.CreateNewWorkflow();
-        workflowEditor.ConfigureMetadata(m => m.Description = "My first workflow from a file");
-        workflowEditor.ConfigureMetadata(m => m.Author = "Klab");
-        workflowEditor.IncludeSubworkflow(subName, await CreateSubworkflow1(services));
-        workflowEditor.AddStep<SubworkflowStep>(s =>
-        {
-            s.SelectedSubworkflow.Content.SetValue(subName);
-            s.ReplaceArgumentValue("myVariable", "00:00:10");
-        });
-        workflowEditor.AddStep<SubworkflowStep>(s =>
-        {
-            s.SelectedSubworkflow.Content.SetValue(subName);
-            s.ReplaceArgumentValue("myVariable", "00:00:06");
-        });
-        workflowEditor.AddStep<SubworkflowStep>(s =>
-        {
-            s.SelectedSubworkflow.Content.SetValue(subName);
-            s.ReplaceArgumentValue("myVariable", "00:00:03");
-        });
-
-        Workflow workflow = (await workflowEditor.BuildWorkflowAsync()).Value!;
-        await workflowEditor.SaveWorkflowAsync(workflowPath, workflow);
-        watch.Stop();
-        Console.WriteLine($"Workflow saved to {workflowPath} in {watch.Elapsed.TotalMilliseconds}ms");
 
         // run workflow.json
+        Stopwatch watch = Stopwatch.StartNew();
         watch.Restart();
-        Result<Workflow> readWorkflow = await workflowEditor.LoadWorkflowFromFileAsync(workflowPath);
-        if (readWorkflow.IsFailure)
+        Result resultReadWorkflow = await workflowEditor.LoadWorkflowFromFileAsync(workflowPath);
+        if (resultReadWorkflow.IsFailure)
         {
-            Console.WriteLine($"Failed to load workflow from {workflowPath}");
+            Console.WriteLine($"Failed to load workflow from {workflowName}");
             return;
         }
 
         IWorkflowRunner runner = services.GetRequiredService<IWorkflowRunner>();
         IWorkflowContext context = services.GetRequiredService<IWorkflowContext>();
-        WorkflowResult resRun = await runner.RunAsync(workflow, context);
+        Result<IWorkflow> workflow = await workflowEditor.BuildWorkflowAsync();
+        await runner.RunAsync(workflow.Value!, context);
         watch.Stop();
         Console.WriteLine($"Workflow executed in {watch.Elapsed.TotalMilliseconds}ms");
-    }
-
-    public static async Task<Workflow> CreateSubworkflow1(IServiceProvider services)
-    {
-        IWorkflowEditor workflowEditor = services.GetRequiredService<IWorkflowEditor>();
-        workflowEditor.CreateNewWorkflow();
-        workflowEditor.ConfigureMetadata(m => m.Description = "My first subworkflow");
-        workflowEditor.AddVariable<TimeParameter>("myVariable", "sec", VariableType.Argument, p => p.SetValue(TimeSpan.FromSeconds(3)));
-        workflowEditor.AddStep<WaitStep>(s => s.Time.ChangetToVariable("myVariable"));
-        return (await workflowEditor.BuildWorkflowAsync()).Value!;
     }
 }

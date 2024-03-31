@@ -1,0 +1,82 @@
+{
+  "description": "My first workflow from a file",
+  "steps": [
+    {
+      "id": "subworkflowStep1",
+      "type": "SubworkflowStep",
+      "parameters": [
+        {
+          "name": "Subworkflow",
+          "type": "value",
+          "value": "sub1"
+        },
+        {
+          "name": "myVariable",
+          "type": "value",
+          "value": "00:00:10"
+        }
+      ]
+    },
+    {
+      "type": "SubworkflowStep",
+      "parameters": [
+        {
+          "name": "Subworkflow",
+          "type": "value",
+          "value": "sub1"
+        },
+        {
+          "name": "myVariable",
+          "type": "value",
+          "value": "00:00:06"
+        }
+      ]
+    },
+    {
+      "type": "SubworkflowStep",
+      "parameters": [
+        {
+          "name": "Subworkflow",
+          "type": "value",
+          "value": "sub1"
+        },
+        {
+          "name": "myVariable",
+          "type": "value",
+          "value": "00:00:03"
+        }
+      ]
+    }
+  ],
+  "subworkflows": {
+    "sub1": {
+      "description": "My first subworkflow",
+      "author": "",
+      "createdAt": "2024-03-03T20:37:08.4608206+01:00",
+      "updatedAt": "2024-03-03T20:37:08.482176+01:00",
+      "variables": [
+        {
+          "name": "myVariable",
+          "unit": "sec",
+          "variableType": "argument",
+          "dataType": "TimeParameter",
+          "value": "00:00:03"
+        }
+      ],
+      "steps": [
+        {
+          "id": "wait1",
+          "type": "WaitStep",
+          "parameters": [
+            {
+              "name": "Time",
+              "type": "variable",
+              "value": "myVariable"
+            }
+          ]
+        }
+      ],
+      "subworkflows": {}
+    }
+  }
+}

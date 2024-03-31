@@ -1,31 +1,26 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using KlabTestFramework.Workflow.Lib.Specifications;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace KlabTestFramework.Workflow.Lib;
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Implementation of <see cref="IVariableReplacer"/>
 /// </summary>
 public class VariableReplacer : IVariableReplacer
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly ConcurrentDictionary<Type, IVariableParameterReplaceHandler> _variableHandlers = new();
+    private readonly VariableFactory _variableFactory;
 
-    public VariableReplacer(IServiceProvider serviceProvider)
+    public VariableReplacer(VariableFactory variableFactory)
     {
-        _serviceProvider = serviceProvider;
+        _variableFactory = variableFactory;
     }
 
     public async Task ReplaceVariablesWithTheParametersAsync(IWorkflow workflow)
     {
         await ReplaceStepsWithVariables(workflow.Steps, workflow.Variables);
     }
-
 
     private async Task ReplaceStepsWithVariables(IEnumerable<IStep> steps, IEnumerable<IVariable> variables)
     {
@@ -68,19 +63,7 @@ public class VariableReplacer : IVariableReplacer
         }
 
         // find correct variable handler and store it in cache (faster resolving later)
-        IVariableParameterReplaceHandler variableHandler = _variableHandlers.GetOrAdd(parameter.ParameterContentType, requestType =>
-        {
-            Type genericVariableHandlerType = typeof(IVariableParameterReplaceHandler<>).MakeGenericType(requestType);
-            object? foundVariableHandler = _serviceProvider.GetService(genericVariableHandlerType);
-            if (foundVariableHandler is null)
-            {
-                Type defaultVariableHandlerType = typeof(DefaultVariableParameterReplace<>).MakeGenericType(requestType);
-                return (IVariableParameterReplaceHandler)_serviceProvider.GetRequiredService(defaultVariableHandlerType);
-            }
-
-            return (IVariableParameterReplaceHandler)foundVariableHandler;
-        });
-
+        IVariableParameterReplaceHandler variableHandler = _variableFactory.CreateVariableReplaceHandler(parameter.ParameterContentType);
         IVariable variable = variables.Single(v => v.Name == variableName);
         await variableHandler.ReplaceAsync(variable, parameter);
 
