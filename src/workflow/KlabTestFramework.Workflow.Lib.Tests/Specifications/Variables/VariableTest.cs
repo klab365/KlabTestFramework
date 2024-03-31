@@ -91,12 +91,15 @@ public class VariableTests
         ServiceProvider serviceProvider = ServiceProviderTestHelper.GetServiceProvider();
         ParameterFactory parameterFactory = serviceProvider.GetRequiredService<ParameterFactory>();
         SelectableParameter<StringParameter> parameter = parameterFactory.CreateParameterType<SelectableParameter<StringParameter>>();
-        parameter.SetValue(new StringParameter());
+        StringParameter selectedParameter = new();
+        selectedParameter.SetValue("SelectedValue");
+        parameter.SetValue(selectedParameter);
         Variable<SelectableParameter<StringParameter>> variable = new();
         variable.Init(parameter);
 
         VariableData data = variable.ToData();
 
         data.DataType.Should().Be("SelectableParameter<StringParameter>");
+        data.Value.Should().Be("SelectedValue");
     }
 }

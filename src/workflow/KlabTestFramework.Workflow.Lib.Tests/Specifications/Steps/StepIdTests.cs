@@ -11,6 +11,6 @@ public class StepIdTests
 
         sut.AddRoute("route-id");
 
-        sut.Value.Should().Be("route-idstep-id");
+        sut.TotalId.Should().Be("/route-id/step-id");
     }
 }

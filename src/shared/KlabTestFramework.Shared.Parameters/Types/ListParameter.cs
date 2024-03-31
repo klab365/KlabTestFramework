@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace KlabTestFramework.Shared.Parameters.Types;
 
@@ -11,7 +12,8 @@ public class ListParameter<TParameterType>(ParameterFactory parameterFactory) : 
 
     public override string AsString()
     {
-        return string.Join(Separator, Value);
+        IEnumerable<string> values = Value.Select(v => v.AsString() ?? string.Empty);
+        return string.Join(Separator, values);
     }
 
     public override void FromString(string data)
