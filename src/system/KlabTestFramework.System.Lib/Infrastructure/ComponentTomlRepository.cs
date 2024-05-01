@@ -1,11 +1,13 @@
 ﻿
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using KlabTestFramework.System.Lib.Specifications;
 using Tomlyn;
 using Tomlyn.Model;
 
-namespace KlabTestFramework.System.Lib.Specifications.Adapter;
+namespace KlabTestFramework.System.Lib.Infrastructure;
 
 public class ComponentTomlRepository : IComponentRepository
 {
@@ -31,10 +33,12 @@ public class ComponentTomlRepository : IComponentRepository
 
     private static ComponentData HandleComponent(TomlTable table)
     {
-        ComponentData component = new();
-        component.Id = (string)table["id"];
-        component.Name = (string)table["name"];
-        component.Type = (string)table["type"];
+        ComponentData component = new()
+        {
+            Id = (string)table["id"],
+            Name = (string)table["name"],
+            Type = (string)table["type"]
+        };
 
         if (table.TryGetValue("parameters", out object? parameters) && parameters is TomlArray parametersArray)
         {
@@ -45,12 +49,24 @@ public class ComponentTomlRepository : IComponentRepository
                     continue;
                 }
 
-                ParameterData parameterData = new()
+                string? key = parameterTable.Keys.FirstOrDefault();
+                if (key is null)
                 {
-                    Name = (string)parameterTable["name"],
-                    Value = (string)parameterTable["value"]
-                };
-                component.Parameters.Add(parameterData);
+                    continue;
+                }
+
+                string value = (string)parameterTable[key];
+                component.Parameters.Add(key, value);
+            }
+        }
+
+        if (table.TryGetValue("children", out object? children) && children is TomlTableArray childrenTableArray)
+        {
+            foreach (TomlTable child in childrenTableArray)
+            {
+                component.Children ??= [];
+                ComponentData childComponent = HandleComponent(child);
+                component.Children.Add(childComponent);
             }
         }
 

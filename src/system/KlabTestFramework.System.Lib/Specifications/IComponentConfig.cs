@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using KlabTestFramework.Shared.Parameters;
 
 namespace KlabTestFramework.System.Lib.Specifications;
 
@@ -11,7 +12,7 @@ public interface IComponentConfig
 
     string ImagePath { get; set; }
 
-    IEnumerable<IParameter> Parameters { get; }
+    IEnumerable<IParameterType> Parameters { get; }
 
     IEnumerable<IComponentConfig> Children { get; }
 
@@ -26,9 +27,12 @@ public interface IComponentConfig
 public record ComponentId
 {
     public string Value { get; }
+
     public static ComponentId Empty => new(string.Empty);
 
-    public ComponentId(string value)
+    public static ComponentId Create(string value) => new(value);
+
+    private ComponentId(string value)
     {
         Value = value;
     }

@@ -1,4 +1,7 @@
-﻿using Klab.Toolkit.Results;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Klab.Toolkit.Results;
+using KlabTestFramework.Shared.Parameters;
 
 namespace KlabTestFramework.System.Lib.Specifications;
 
@@ -14,16 +17,9 @@ public static class ComponentConfigExtensions
             Type = config.GetType().Name,
         };
 
-        foreach (IParameter parameter in config.Parameters)
+        foreach (IParameterType parameter in config.Parameters)
         {
-            var parameterData = new ParameterData
-            {
-                Name = parameter.Name,
-                Value = parameter.Value,
-                Unit = parameter.Unit,
-            };
-
-            componentData.Parameters.Add(parameterData);
+            componentData.Parameters.Add(parameter.Name, parameter.AsString());
         }
 
         foreach (IComponentConfig child in config.Children)
@@ -37,19 +33,19 @@ public static class ComponentConfigExtensions
 
     public static Result FromData(this IComponentConfig config, ComponentData data)
     {
-        config.Id = new ComponentId(data.Id);
+        config.Id = ComponentId.Create(data.Id);
         config.Name = data.Name;
         config.ImagePath = data.ImagePath;
 
-        foreach (IParameter parameter in config.Parameters)
+        foreach (IParameterType parameter in config.Parameters)
         {
-            ParameterData? parameterData = data.Parameters.Find(p => p.Name == parameter.Name);
-            if (parameterData is null)
+            KeyValuePair<string, string> foundParameter = data.Parameters.First(p => p.Key == parameter.Name);
+            if (foundParameter.Value is null)
             {
-                return new Error(1, "Parameter not found");
+                return SystemSpecificationErrors.ParameterNotFound;
             }
 
-            parameter.Value = parameterData.Value;
+            parameter.FromString(foundParameter.Value);
         }
 
         foreach (IComponentConfig child in config.Children)

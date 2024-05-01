@@ -1,34 +1,38 @@
 [[components]]
-id = "my-component"
-name = "my-component"
+id = "test-component"
+name = "Test Component"
 type = "wago-bus"
 parameters = [
-    { name = "ip-address", value = "127.0.0.1" },
+  { ip="127.0.0.1" }
 ]
 
-[[components]]
-id = "my-component-child"
-name = "my-component-child"
+[[components.children]]
+id = "test-child"
+name = "Test Child"
+type = "wago-do"
+parameters = [
+    { address = "1" },
+]
+
+[[components.children]]
+id = "test-child-2"
+name = "Test Child 2"
 type = "wago-ao"
 parameters = [
-    { name = "address", value = "1" },
-    { name = "gain", value="1" },
-    { name = "offset", value="0" },
-    { name = "unit", value="mV" },
+    { address = "2" },
+    { gain = "1.0" },
+    { offset = "0.0" }
 ]
 
 [[components]]
-id = "my-component-child2"
-name = "my-component-child2"
-type = "wago-ao"
+id = "el2"
+name = "electrical safety"
+type = "superduper-safety"
+
+[[components]]
+id = "usv"
+name = "USV"
+type = "sentinel-usv"
 parameters = [
-    { name = "address", value = "2" },
-    { name = "gain", value="1" },
-    { name = "offset", value="0" },
-    { name = "unit", value="mV" },
+  { ip = "127.0.0.1" }
 ]
-
-[[components]]
-id = "my-component-2"
-name = "my-component-2"
-type = "usv"
