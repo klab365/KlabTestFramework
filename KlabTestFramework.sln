@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "system", "system", "{BC3210
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemConsoleExample", "samples\system\SystemConsoleExample\SystemConsoleExample.csproj", "{B4C09B4F-4D66-4D5F-AB77-80F0BEBDD841}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KlabTestFramework.System.Abstractions", "src\system\KlabTestFramework.System.Abstractions\KlabTestFramework.System.Abstractions.csproj", "{795F606A-E731-45FE-92E9-220938E01432}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,6 +141,18 @@ Global
 		{B4C09B4F-4D66-4D5F-AB77-80F0BEBDD841}.Release|x64.Build.0 = Release|x64
 		{B4C09B4F-4D66-4D5F-AB77-80F0BEBDD841}.Release|x86.ActiveCfg = Release|x64
 		{B4C09B4F-4D66-4D5F-AB77-80F0BEBDD841}.Release|x86.Build.0 = Release|x64
+		{795F606A-E731-45FE-92E9-220938E01432}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{795F606A-E731-45FE-92E9-220938E01432}.Debug|Any CPU.Build.0 = Debug|x64
+		{795F606A-E731-45FE-92E9-220938E01432}.Debug|x64.ActiveCfg = Debug|x64
+		{795F606A-E731-45FE-92E9-220938E01432}.Debug|x64.Build.0 = Debug|x64
+		{795F606A-E731-45FE-92E9-220938E01432}.Debug|x86.ActiveCfg = Debug|x64
+		{795F606A-E731-45FE-92E9-220938E01432}.Debug|x86.Build.0 = Debug|x64
+		{795F606A-E731-45FE-92E9-220938E01432}.Release|Any CPU.ActiveCfg = Release|x64
+		{795F606A-E731-45FE-92E9-220938E01432}.Release|Any CPU.Build.0 = Release|x64
+		{795F606A-E731-45FE-92E9-220938E01432}.Release|x64.ActiveCfg = Release|x64
+		{795F606A-E731-45FE-92E9-220938E01432}.Release|x64.Build.0 = Release|x64
+		{795F606A-E731-45FE-92E9-220938E01432}.Release|x86.ActiveCfg = Release|x64
+		{795F606A-E731-45FE-92E9-220938E01432}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -157,5 +171,6 @@ Global
 		{9F117828-210B-4D87-9B8B-A10EDA25B77A} = {B9BA4018-CE64-442A-A0AD-3C0508FB5C69}
 		{BC3210BE-4B0C-423E-B067-17A941595904} = {116279CD-FAB6-410E-89AE-49E25CE34363}
 		{B4C09B4F-4D66-4D5F-AB77-80F0BEBDD841} = {BC3210BE-4B0C-423E-B067-17A941595904}
+		{795F606A-E731-45FE-92E9-220938E01432} = {B9BA4018-CE64-442A-A0AD-3C0508FB5C69}
 	EndGlobalSection
 EndGlobal

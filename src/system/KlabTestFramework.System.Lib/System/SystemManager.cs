@@ -1,12 +1,11 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 using KlabTestFramework.System.Lib.Specifications;
 
 namespace KlabTestFramework.System.Lib.System;
 
-public class SystemManager
+internal class SystemManager
 {
     private readonly IComponentRepository _repository;
     private readonly ComponentFactory _componentFactory;
@@ -48,38 +47,6 @@ public class SystemManager
         _components.Clear();
         _components.AddRange(components);
         return Result.Success();
-    }
-
-    public async Task<Result> ResetAsync()
-    {
-        foreach (IComponent component in _components)
-        {
-            await component.ResetAsync();
-        }
-
-        return Result.Success();
-    }
-
-    public Result<TComponent> GetComponentById<TComponent>(string id) where TComponent : IComponent
-    {
-        IComponent? component = _components.Find(c => c.GetConfig().Id.Value == id);
-        if (component is null)
-        {
-            return SystemManagerErrors.ComponentNotFound;
-        }
-
-        if (component is not TComponent tComponent)
-        {
-            return SystemManagerErrors.ComponentTypeMismatch;
-        }
-
-        return tComponent;
-    }
-
-    public Result<TComponent[]> GetAllComponents<TComponent>() where TComponent : IComponent
-    {
-        TComponent[] components = _components.OfType<TComponent>().ToArray();
-        return components;
     }
 }
 
