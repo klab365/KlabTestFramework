@@ -32,7 +32,7 @@ internal class SystemManager
         }
 
         ComponentData[] componentData = await _repository.GetComponentAsync(_options.Path);
-        List<IComponent> components = new();
+        _components.Clear();
         foreach (ComponentData data in componentData)
         {
             Result<IComponent> res = await _componentFactory.CreateComponentAsync(data);
@@ -41,11 +41,9 @@ internal class SystemManager
                 return res.Error;
             }
 
-            components.Add(res.Value!);
+            _components.Add(res.Value!);
         }
 
-        _components.Clear();
-        _components.AddRange(components);
         return Result.Success();
     }
 }
