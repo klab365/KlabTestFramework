@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemConsoleExample", "sam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KlabTestFramework.System.Abstractions", "src\system\KlabTestFramework.System.Abstractions\KlabTestFramework.System.Abstractions.csproj", "{795F606A-E731-45FE-92E9-220938E01432}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KlabTestFramework.System.Types.Dummy", "src\system\KlabTestFramework.System.Types.Dummy\KlabTestFramework.System.Types.Dummy.csproj", "{341F3D7C-43D5-4575-92CC-DC3AA75C706B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -153,6 +155,18 @@ Global
 		{795F606A-E731-45FE-92E9-220938E01432}.Release|x64.Build.0 = Release|x64
 		{795F606A-E731-45FE-92E9-220938E01432}.Release|x86.ActiveCfg = Release|x64
 		{795F606A-E731-45FE-92E9-220938E01432}.Release|x86.Build.0 = Release|x64
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B}.Debug|Any CPU.Build.0 = Debug|x64
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B}.Debug|x64.ActiveCfg = Debug|x64
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B}.Debug|x64.Build.0 = Debug|x64
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B}.Debug|x86.ActiveCfg = Debug|x64
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B}.Debug|x86.Build.0 = Debug|x64
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B}.Release|Any CPU.ActiveCfg = Release|x64
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B}.Release|Any CPU.Build.0 = Release|x64
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B}.Release|x64.ActiveCfg = Release|x64
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B}.Release|x64.Build.0 = Release|x64
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B}.Release|x86.ActiveCfg = Release|x64
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -172,5 +186,6 @@ Global
 		{BC3210BE-4B0C-423E-B067-17A941595904} = {116279CD-FAB6-410E-89AE-49E25CE34363}
 		{B4C09B4F-4D66-4D5F-AB77-80F0BEBDD841} = {BC3210BE-4B0C-423E-B067-17A941595904}
 		{795F606A-E731-45FE-92E9-220938E01432} = {B9BA4018-CE64-442A-A0AD-3C0508FB5C69}
+		{341F3D7C-43D5-4575-92CC-DC3AA75C706B} = {B9BA4018-CE64-442A-A0AD-3C0508FB5C69}
 	EndGlobalSection
 EndGlobal

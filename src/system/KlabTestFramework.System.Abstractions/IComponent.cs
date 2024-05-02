@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace KlabTestFramework.System.Lib.Specifications;
+namespace KlabTestFramework.System.Abstractions;
 
 public interface IComponent : IAsyncDisposable
 {

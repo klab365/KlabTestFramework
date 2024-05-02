@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="../KlabTestFramework.System.Abstractions/KlabTestFramework.System.Abstractions.csproj"/>
+    </ItemGroup>
+
+</Project>

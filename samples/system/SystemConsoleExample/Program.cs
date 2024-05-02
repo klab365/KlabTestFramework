@@ -1,34 +1,37 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System;
+using System.Threading;
+using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Parameters;
-using KlabTestFramework.System.Lib.Infrastructure;
-using KlabTestFramework.System.Lib.Specifications;
+using KlabTestFramework.System.Abstractions;
+using KlabTestFramework.System.Lib;
+using KlabTestFramework.System.Types.Dummy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 IHostBuilder builder = Host.CreateDefaultBuilder(args);
 builder.ConfigureServices(services =>
 {
-    services.AddTransient<IComponentRepository, ComponentTomlRepository>();
+    services.UseSystemLib(cfg =>
+    {
+        cfg.Submodules.Add(new DummySystemModule());
+    });
     services.UseParameters();
 });
 IHost host = builder.Build();
 
+// start...
 const string path = "sample.toml";
-IComponentRepository repository = host.Services.GetRequiredService<IComponentRepository>();
-ComponentData[] components = await repository.GetComponentAsync(path);
-
-foreach (ComponentData component in components)
+ISystemManager systemManager = host.Services.GetRequiredService<ISystemManager>();
+Result res = await systemManager.InitializeAsync(path, CancellationToken.None);
+if (res.IsFailure)
 {
-    Console.WriteLine($"{component.Name}");
+    Console.WriteLine(res.Error);
+    return;
+}
 
-    if (component.Children?.Count > 0)
-    {
-        foreach (ComponentData child in component.Children)
-        {
-            Console.WriteLine($"  {child.Name}");
-        }
-    }
-
+foreach (IComponent component in systemManager.Components)
+{
+    Console.WriteLine($"{component.GetConfig().Name}");
 }
 

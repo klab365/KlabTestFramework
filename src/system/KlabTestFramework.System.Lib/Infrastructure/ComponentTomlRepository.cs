@@ -9,7 +9,7 @@ using Tomlyn.Model;
 
 namespace KlabTestFramework.System.Lib.Infrastructure;
 
-public class ComponentTomlRepository : IComponentRepository
+internal sealed class ComponentTomlRepository : IComponentRepository
 {
     public async Task<ComponentData[]> GetComponentAsync(string path)
     {

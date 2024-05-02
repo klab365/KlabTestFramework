@@ -2,7 +2,7 @@
 
 namespace KlabTestFramework.System.Lib.Specifications;
 
-public interface IComponentRepository
+internal interface IComponentRepository
 {
     Task<ComponentData[]> GetComponentAsync(string path);
 }

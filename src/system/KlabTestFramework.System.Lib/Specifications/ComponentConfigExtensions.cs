@@ -2,10 +2,11 @@
 using System.Linq;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Parameters;
+using KlabTestFramework.System.Abstractions;
 
 namespace KlabTestFramework.System.Lib.Specifications;
 
-public static class ComponentConfigExtensions
+internal static class ComponentConfigExtensions
 {
     public static ComponentData ToData(this IComponentConfig config)
     {

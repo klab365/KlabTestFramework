@@ -1,38 +1,8 @@
 [[components]]
 id = "test-component"
 name = "Test Component"
-type = "wago-bus"
+type = "DummyComponent"
 parameters = [
   { ip="127.0.0.1" }
 ]
 
-[[components.children]]
-id = "test-child"
-name = "Test Child"
-type = "wago-do"
-parameters = [
-    { address = "1" },
-]
-
-[[components.children]]
-id = "test-child-2"
-name = "Test Child 2"
-type = "wago-ao"
-parameters = [
-    { address = "2" },
-    { gain = "1.0" },
-    { offset = "0.0" }
-]
-
-[[components]]
-id = "el2"
-name = "electrical safety"
-type = "superduper-safety"
-
-[[components]]
-id = "usv"
-name = "USV"
-type = "sentinel-usv"
-parameters = [
-  { ip = "127.0.0.1" }
-]

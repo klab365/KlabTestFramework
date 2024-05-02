@@ -1,23 +1,28 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
+using KlabTestFramework.System.Abstractions;
 
 namespace KlabTestFramework.System.Lib.Specifications;
 
-public class ComponentFactory
+internal sealed class ComponentFactory
 {
-    private readonly IEnumerable<ComponentFactorySpecification> _specifications;
+    private readonly IEnumerable<ComponentSpecification>? _specifications;
 
-    public ComponentFactory(IEnumerable<ComponentFactorySpecification> specifications)
+    public ComponentFactory(IEnumerable<ComponentSpecification>? specifications)
     {
         _specifications = specifications;
     }
 
     public async Task<Result<IComponent>> CreateComponentAsync(ComponentData componentData)
     {
-        ComponentFactorySpecification? specification = _specifications.FirstOrDefault(s => s.Type == componentData.Type);
+        if (_specifications is null)
+        {
+            return SystemSpecificationErrors.NoComponentSpecifications;
+        }
+
+        ComponentSpecification? specification = _specifications.FirstOrDefault(s => s.Type == componentData.Type);
         if (specification is null)
         {
             return SystemSpecificationErrors.ComponentTypeNotFound;
@@ -32,13 +37,9 @@ public class ComponentFactory
 
         IComponent component = specification.CreateComponent();
         await component.InitializerAsync(config);
+
+        //FIXME: The cast not work yet...
         Result<IComponent> resCreation = (Result<IComponent>)component;
         return resCreation;
     }
 }
-
-public record ComponentFactorySpecification(
-    string Type,
-    Func<IComponentConfig> CreateConfig,
-    Func<IComponent> CreateComponent
-);

@@ -2,7 +2,7 @@
 
 namespace KlabTestFramework.System.Lib.Specifications;
 
-public record ComponentData
+internal sealed record ComponentData
 {
     public string Id { get; set; } = string.Empty;
 

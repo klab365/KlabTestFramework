@@ -7,4 +7,6 @@ public static class SystemSpecificationErrors
     public static Error ComponentTypeNotFound => new(1, "Component type not found");
 
     public static Error ParameterNotFound => new(2, "Parameter not found", "Check the parameter name and value");
+
+    public static Error NoComponentSpecifications => new(3, "No component specifications found");
 }

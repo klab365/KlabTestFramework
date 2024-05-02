@@ -1,37 +1,41 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
+using KlabTestFramework.System.Abstractions;
 using KlabTestFramework.System.Lib.Specifications;
 
 namespace KlabTestFramework.System.Lib.System;
 
-internal class SystemManager
+internal sealed class SystemManager : ISystemManager
 {
     private readonly IComponentRepository _repository;
     private readonly ComponentFactory _componentFactory;
-    private readonly SystemManagerOptions _options;
     private readonly List<IComponent> _components = new();
 
     public IEnumerable<IComponent> Components => _components;
 
     public SystemManager(
-        SystemManagerOptions options,
         IComponentRepository repository,
         ComponentFactory componentFactory)
     {
         _repository = repository;
         _componentFactory = componentFactory;
-        _options = options;
     }
 
-    public async Task<Result> InitializeAsync()
+    public async Task<Result> InitializeAsync(string path, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(_options.Path))
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return SystemManagerErrors.Cancled;
+        }
+
+        if (string.IsNullOrWhiteSpace(path))
         {
             return SystemManagerErrors.PathIsRequired;
         }
 
-        ComponentData[] componentData = await _repository.GetComponentAsync(_options.Path);
+        ComponentData[] componentData = await _repository.GetComponentAsync(path);
         _components.Clear();
         foreach (ComponentData data in componentData)
         {
@@ -46,9 +50,4 @@ internal class SystemManager
 
         return Result.Success();
     }
-}
-
-public record SystemManagerOptions
-{
-    public string Path { get; set; } = string.Empty;
 }

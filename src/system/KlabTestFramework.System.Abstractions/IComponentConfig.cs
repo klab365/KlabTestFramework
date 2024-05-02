@@ -2,7 +2,7 @@
 using System.Linq;
 using KlabTestFramework.Shared.Parameters;
 
-namespace KlabTestFramework.System.Lib.Specifications;
+namespace KlabTestFramework.System.Abstractions;
 
 public interface IComponentConfig
 {
