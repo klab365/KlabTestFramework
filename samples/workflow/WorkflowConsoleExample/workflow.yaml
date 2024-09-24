@@ -10,6 +10,7 @@ Steps:
   - Name: myVariable
     Type: Value
     Value: 00:00:10
+
 - Id: /SubworkflowStep_611ab2eb-2bfc-4237-ba87-4db0e80e2bde
   Type: SubworkflowStep
   Parameters:
@@ -19,6 +20,7 @@ Steps:
   - Name: myVariable
     Type: Value
     Value: 00:00:06
+
 - Id: /SubworkflowStep_13ec8695-1fdb-4789-9bad-9de15cfb9639
   Type: SubworkflowStep
   Parameters:
@@ -28,6 +30,7 @@ Steps:
   - Name: myVariable
     Type: Value
     Value: 00:00:03
+
 Subworkflows:
   sub1:
     Description: My first subworkflow

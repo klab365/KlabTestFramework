@@ -92,13 +92,13 @@ public class WorkflowEditor : IWorkflowEditor
         int foundIndex = _steps.FindIndex(s => s.Id == step.Id);
         if (foundIndex == -1)
         {
-            return WorkflowEditorErrors.StepNotFound;
+            return Result.Failure(WorkflowEditorErrors.StepNotFound);
         }
 
         bool isStepAtEndPosition = foundIndex == _steps.Count - 1;
         if (isStepAtEndPosition)
         {
-            return WorkflowEditorErrors.StepIsAtEndPosition;
+            return Result.Failure(WorkflowEditorErrors.StepIsAtEndPosition);
         }
 
         IStep previousStep = _steps[foundIndex - 1];
@@ -112,19 +112,19 @@ public class WorkflowEditor : IWorkflowEditor
         int foundParentIndex = _steps.FindIndex(s => s.Id == parentStep.Id);
         if (foundParentIndex == -1)
         {
-            return WorkflowEditorErrors.StepNotFound;
+            return Result.Failure(WorkflowEditorErrors.StepNotFound);
         }
 
         int foundChildIndex = parentStep.Children.FindIndex(s => s.Id == childStep.Id);
         if (foundChildIndex == -1)
         {
-            return WorkflowEditorErrors.StepNotFound;
+            return Result.Failure(WorkflowEditorErrors.StepNotFound);
         }
 
         bool isStepAtEndPosition = foundChildIndex == parentStep.Children.Count - 1;
         if (isStepAtEndPosition)
         {
-            return WorkflowEditorErrors.StepIsAtEndPosition;
+            return Result.Failure(WorkflowEditorErrors.StepIsAtEndPosition);
         }
 
         IStep previousStep = parentStep.Children[foundChildIndex - 1];
@@ -138,13 +138,13 @@ public class WorkflowEditor : IWorkflowEditor
         int foundIndex = _steps.FindIndex(s => s.Id == step.Id);
         if (foundIndex == -1)
         {
-            return WorkflowEditorErrors.StepNotFound;
+            return Result.Failure(WorkflowEditorErrors.StepNotFound);
         }
 
         bool isStepAtFirstPosition = foundIndex == 0;
         if (isStepAtFirstPosition)
         {
-            return WorkflowEditorErrors.StepIsAtFirstPosition;
+            return Result.Failure(WorkflowEditorErrors.StepIsAtFirstPosition);
         }
 
         IStep nextStep = _steps[foundIndex + 1];
@@ -158,19 +158,19 @@ public class WorkflowEditor : IWorkflowEditor
         int foundIndex = _steps.FindIndex(s => s.Id == parentStep.Id);
         if (foundIndex == -1)
         {
-            return WorkflowEditorErrors.StepNotFound;
+            return Result.Failure(WorkflowEditorErrors.StepNotFound);
         }
 
         int foundChildIndex = parentStep.Children.FindIndex(s => s.Id == childStep.Id);
         if (foundChildIndex == -1)
         {
-            return WorkflowEditorErrors.StepNotFound;
+            return Result.Failure(WorkflowEditorErrors.StepNotFound);
         }
 
         bool isStepAtFirstPosition = foundChildIndex == 0;
         if (isStepAtFirstPosition)
         {
-            return WorkflowEditorErrors.StepIsAtFirstPosition;
+            return Result.Failure(WorkflowEditorErrors.StepIsAtFirstPosition);
         }
 
         IStep nextStep = parentStep.Children[foundChildIndex + 1];
@@ -208,7 +208,7 @@ public class WorkflowEditor : IWorkflowEditor
         AssignIdsToSteps(_steps);
         IWorkflow workflow = CreateWorkflowByEditedData();
         Specifications.Workflow workflow1 = (Specifications.Workflow)workflow;
-        Result<IWorkflow> result = workflow1;
+        Result<IWorkflow> result = Result.Success<IWorkflow>(workflow1);
         return Task.FromResult(result);
     }
 
@@ -228,7 +228,7 @@ public class WorkflowEditor : IWorkflowEditor
         Result<IWorkflow> buildWorkflowResult = await BuildWorkflowAsync();
         if (buildWorkflowResult.IsFailure)
         {
-            return WorkflowEditorErrors.WorkflowIsNotValid;
+            return Result.Failure(WorkflowEditorErrors.WorkflowIsNotValid);
         }
 
         IWorkflow workflow = buildWorkflowResult.Value!;

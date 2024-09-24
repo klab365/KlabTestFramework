@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="Tomlyn" Version="0.17.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../shared/KlabTestFramework.Shared.Parameters/KlabTestFramework.Shared.Parameters.csproj" />
+        <ProjectReference Include="../KlabTestFramework.System.Abstractions/KlabTestFramework.System.Abstractions.csproj"/>
+    </ItemGroup>
+</Project>

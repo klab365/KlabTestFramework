@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Specifications;
 using Moq;
 
@@ -35,12 +34,10 @@ public class WorkflowValidatorTests
             .ReturnsAsync([]);
 
         // Act
-        Result<WorkflowValidatorResult> result = await _validator.ValidateAsync(workflowMock.Object);
+        WorkflowValidatorResult result = await _validator.ValidateAsync(workflowMock.Object);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().NotBeNull();
-        result.Value!.Errors.Should().BeEmpty();
     }
 
     [Fact]

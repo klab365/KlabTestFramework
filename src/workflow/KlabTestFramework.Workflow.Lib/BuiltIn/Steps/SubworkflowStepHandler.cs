@@ -19,12 +19,12 @@ public class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
     {
         if (step.SelectedSubworkflow.Content.Value == SubworkflowStep.NoneSelected)
         {
-            return Result.Failure(new Error(0, string.Empty));
+            return Result.Failure(new InformativeError(string.Empty, string.Empty));
         }
 
         if (step.Subworkflow == null)
         {
-            return Result.Failure(new Error(0, string.Empty));
+            return Result.Failure(new InformativeError(string.Empty, string.Empty));
         }
 
         await _workflowRunner.RunSubworkflowAsync(step, context);

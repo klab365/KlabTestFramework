@@ -23,6 +23,13 @@
       "problemMatcher": "$msCompile"
     },
     {
+      "label": "build_systemconsoleexample",
+      "command": "just",
+      "type": "process",
+      "args": [ "build_systemex" ],
+      "problemMatcher": "$msCompile"
+    },
+    {
         "label": "publish",
         "command": "dotnet",
         "type": "process",

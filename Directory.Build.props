@@ -25,6 +25,10 @@
 
   <!-- common packages  -->
   <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
+    <PackageReference Include="Klab.Toolkit.Results" Version="2.2.2" />
+    <PackageReference Include="Klab.Toolkit.Event" Version="2.2.2" />
+    <PackageReference Include="Klab.Toolkit.Common" Version="2.2.2" />
+
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

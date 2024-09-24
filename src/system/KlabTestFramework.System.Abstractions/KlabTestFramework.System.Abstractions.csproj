@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="../../shared/KlabTestFramework.Shared.Parameters/KlabTestFramework.Shared.Parameters.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="UnitsNet" Version="5.58.0" />
+    </ItemGroup>
+
+</Project>
