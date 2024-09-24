@@ -39,12 +39,12 @@ public class SelectableParameter<TParameterType> : BaseParameterType<TParameterT
         Options.Add(option);
     }
 
-    public void AddOptions(string[] subworkflowNames)
+    public void AddOptions(string[] options)
     {
-        foreach (string subworkflowName in subworkflowNames)
+        foreach (string option in options)
         {
             TParameterType parameter = _parameterFactory.CreateParameterType<TParameterType>();
-            parameter.FromString(subworkflowName);
+            parameter.FromString(option);
             Options.Add(parameter);
         }
     }

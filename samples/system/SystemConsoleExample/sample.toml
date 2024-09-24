@@ -1,0 +1,15 @@
+[[components]]
+id = "test-component"
+name = "Test Component"
+type = "DummyComponent"
+parameters = [
+  { ip="127.0.0.1" }
+]
+
+[[components.children]]
+id = "test-children1"
+name = "Children Component"
+type = "DummyChildComponent"
+parameters = [
+  { DummyParameter="127.0.0.1" }
+]

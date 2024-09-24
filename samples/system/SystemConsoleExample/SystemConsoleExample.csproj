@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\system\KlabTestFramework.System.Lib\KlabTestFramework.System.Lib.csproj" />
+    <ProjectReference Include="../../../src/system/KlabTestFramework.System.Types.Dummy/KlabTestFramework.System.Types.Dummy.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="sample.toml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

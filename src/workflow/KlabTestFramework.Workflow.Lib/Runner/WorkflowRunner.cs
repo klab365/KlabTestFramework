@@ -101,7 +101,7 @@ public class WorkflowRunner : IWorkflowRunner
         WorkflowValidatorResult res = await _validator.ValidateAsync(workflow);
         if (res.Errors.Count != 0)
         {
-            return WorkflowRunnerErrors.WorkflowHasErrors;
+            return Result.Failure(WorkflowRunnerErrors.WorkflowHasErrors);
         }
 
         return Result.Success();
@@ -122,7 +122,7 @@ public class WorkflowRunner : IWorkflowRunner
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while handling step {Type}", step.GetType());
-            return WorkflowRunnerErrors.ErrorWhileHandlingStep;
+            return Result.Failure(WorkflowRunnerErrors.ErrorWhileHandlingStep);
         }
     }
 }

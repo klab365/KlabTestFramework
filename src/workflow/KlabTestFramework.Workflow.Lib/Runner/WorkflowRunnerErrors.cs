@@ -4,7 +4,7 @@ namespace KlabTestFramework.Workflow.Lib;
 
 public static class WorkflowRunnerErrors
 {
-    public static Error WorkflowHasErrors => new(10, "Workflow has errors");
+    public static InformativeError WorkflowHasErrors => new(string.Empty, "Workflow has errors");
 
-    public static Error ErrorWhileHandlingStep => new(11, "Error while handling step");
+    public static InformativeError ErrorWhileHandlingStep => new(string.Empty, "Error while handling step");
 }
