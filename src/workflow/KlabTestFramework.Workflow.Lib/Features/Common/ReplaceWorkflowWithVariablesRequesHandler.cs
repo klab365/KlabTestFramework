@@ -1,28 +1,31 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Klab.Toolkit.Event;
+using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications;
+namespace KlabTestFramework.Workflow.Lib.Features.Common;
 
-/// <summary>
-/// Implementation of <see cref="IVariableReplacer"/>
-/// </summary>
-public class VariableReplacer : IVariableReplacer
+internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandler<ReplaceWorkflowWithVariablesRequest>
 {
     private readonly VariableFactory _variableFactory;
 
-    public VariableReplacer(VariableFactory variableFactory)
+    public ReplaceWorkflowWithVariablesRequesHandler(VariableFactory variableFactory)
     {
         _variableFactory = variableFactory;
     }
 
-    public async Task ReplaceVariablesWithTheParametersAsync(Specifications.Workflow workflow)
+    public async Task<Result> HandleAsync(ReplaceWorkflowWithVariablesRequest request, CancellationToken cancellationToken)
     {
+        var workflow = request.Workflow;
         await ReplaceStepsWithVariables(workflow.Steps, workflow.Variables);
+        return Result.Success();
     }
 
-    private async Task ReplaceStepsWithVariables(IEnumerable<IStep> steps, IEnumerable<IVariable> variables)
+     private async Task ReplaceStepsWithVariables(IEnumerable<IStep> steps, IEnumerable<IVariable> variables)
     {
         foreach (IStep step in steps)
         {
@@ -74,3 +77,5 @@ public class VariableReplacer : IVariableReplacer
         return variables.Any(v => v.Name == variableName);
     }
 }
+
+public record ReplaceWorkflowWithVariablesRequest(Specifications.Workflow Workflow) : IRequest;

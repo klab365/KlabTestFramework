@@ -2,7 +2,7 @@
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
-public static class StepExtensions
+internal static class StepExtensions
 {
     public static void FromData(this IStep step, StepData stepData)
     {

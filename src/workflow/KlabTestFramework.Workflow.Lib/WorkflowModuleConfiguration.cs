@@ -39,7 +39,7 @@ public class WorkflowModuleConfiguration
         _stepTypes.Add(new(typeof(TStep), typeof(TStepHandler)));
     }
 
-    public void AddVariableHandlerType<TParameter, TVariableHandler>() where TParameter : IParameterType where TVariableHandler : IVariableParameterReplaceHandler<TParameter>
+    public void AddVariableHandlerType<TParameter, TVariableHandler>() where TParameter : IParameterType where TVariableHandler : IVariableParameterReplaceHandler
     {
         VariableReplaceHandlerType variableHandlerType = new(typeof(TParameter), typeof(TVariableHandler));
         _variableHandlerTypes.Add(variableHandlerType);

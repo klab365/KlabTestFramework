@@ -8,7 +8,7 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 /// <summary>
 /// Extension methods for working with <see cref="ParameterData"/>.
 /// </summary>
-public static class ParameterExtensions
+internal static class ParameterExtensions
 {
     /// <summary>
     /// Finds a <see cref="ParameterData"/> object by its name in the specified collection of <see cref="ParameterData"/>.

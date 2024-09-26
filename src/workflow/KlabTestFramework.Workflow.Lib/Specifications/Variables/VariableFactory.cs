@@ -48,7 +48,7 @@ public class VariableFactory
             return variableParameterReplaceHandler;
         }
 
-        object? createdDefaultVariableReplaceHandler = Activator.CreateInstance(typeof(DefaultVariableParameterReplace<>).MakeGenericType(parameterType));
+        object? createdDefaultVariableReplaceHandler = Activator.CreateInstance(typeof(DefaultVariableParameterReplace));
         if (createdDefaultVariableReplaceHandler is not IVariableParameterReplaceHandler defaultVariableReplaceHandler)
         {
             throw new InvalidOperationException($"Failed to create variable replace handler for type {parameterType.Name}");

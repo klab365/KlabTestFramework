@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Lib.Features.Common;
 using KlabTestFramework.Workflow.Lib.Features.Validator;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -11,17 +12,15 @@ namespace KlabTestFramework.Workflow.Lib.Features.Runner;
 internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, WorkflowResult>
 {
     private readonly IEventBus _eventBus;
-    private readonly IVariableReplacer _variableReplacer;
 
-    public RunWorkflowRequestHandler(IEventBus eventBus, IVariableReplacer variableReplacer)
+    public RunWorkflowRequestHandler(IEventBus eventBus)
     {
         _eventBus = eventBus;
-        _variableReplacer = variableReplacer;
     }
 
     public async Task<Result<WorkflowResult>> HandleAsync(RunWorkflowRequest request, CancellationToken cancellationToken)
     {
-        await _variableReplacer.ReplaceVariablesWithTheParametersAsync(request.Workflow);
+        await _eventBus.SendAsync(new ReplaceWorkflowWithVariablesRequest(request.Workflow), cancellationToken);
 
         Result<WorkflowValidatorResult> resValidation = await _eventBus.SendAsync<ValidateWorkflowRequest, WorkflowValidatorResult>(new ValidateWorkflowRequest(request.Workflow), cancellationToken);
         if (resValidation.IsFailure)
@@ -49,8 +48,6 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
 
 public record RunWorkflowRequest(Specifications.Workflow Workflow, WorkflowContext Context, IProgress<WorkflowStatusEvent> Progress) : IRequest;
 
-
-
 public record WorkflowResult(bool IsSuccess);
 
 public record WorkflowStatusEvent(WorkflowStatus Status);
@@ -62,6 +59,3 @@ public enum WorkflowStatus
     Paused,
     Completed
 }
-
-
-

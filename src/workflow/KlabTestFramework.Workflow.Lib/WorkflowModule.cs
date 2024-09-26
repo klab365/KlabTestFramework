@@ -100,8 +100,7 @@ public static class WorkflowModule
     private static void AddVariables(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
         services.AddTransient<VariableFactory>();
-        services.AddTransient(typeof(DefaultVariableParameterReplace<>));
-        services.AddTransient<IVariableReplacer, VariableReplacer>();
+        services.AddTransient<IVariableParameterReplaceHandler, DefaultVariableParameterReplace>();
 
         foreach (VariableReplaceHandlerType item in configuration.VariableHandlerTypes)
         {
@@ -111,9 +110,9 @@ public static class WorkflowModule
 
     private static void RegisterVariableReplaceHandler(this IServiceCollection services, Type parameterType, Type variableHandlerType)
     {
-        Type genericVariableHandlerType = typeof(IVariableParameterReplaceHandler<>).MakeGenericType(parameterType);
+        Type genericVariableHandlerType = typeof(IVariableParameterReplaceHandler);
         Type variableType = typeof(Variable<>).MakeGenericType(parameterType);
-        services.AddTransient(genericVariableHandlerType, variableHandlerType);
+        services.AddTransient(typeof(IVariableParameterReplaceHandler), variableHandlerType);
         services.AddTransient(variableType);
 
         services.AddTransient(provider =>
