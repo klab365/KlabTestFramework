@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib.Features.Editor;
+namespace KlabTestFramework.Workflow.Lib.Ports;
 
 /// <summary>
 /// Represents a repository for managing workflows.
