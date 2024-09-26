@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Services;
-using KlabTestFramework.Workflow.Lib.Runner;
+using KlabTestFramework.Workflow.Lib.Features.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 
@@ -21,13 +22,13 @@ public class WaitStepHandler : IStepHandler<WaitStep>
     }
 
     /// <inheritdoc/>
-    public async Task<Result> HandleAsync(WaitStep step, IWorkflowContext context)
+    public async Task<Result> HandleAsync(WaitStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
         TimeSpan remainingTime = step.Time.Content.Value;
-        while (!context.CancellationToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
-            PublishRemainingTime(step, context, remainingTime);
-            await _threadProvider.DelayAsync(TimeSpan.FromSeconds(1), context.CancellationToken);
+            PublishRemainingTime(step, remainingTime);
+            await _threadProvider.DelayAsync(TimeSpan.FromSeconds(1), cancellationToken);
             remainingTime -= TimeSpan.FromSeconds(1);
             if (remainingTime <= TimeSpan.Zero)
             {
@@ -35,12 +36,12 @@ public class WaitStepHandler : IStepHandler<WaitStep>
             }
         }
 
-        PublishRemainingTime(step, context, TimeSpan.Zero);
+        PublishRemainingTime(step, TimeSpan.Zero);
         return Result.Success();
     }
 
-    private static void PublishRemainingTime(WaitStep step, IWorkflowContext context, TimeSpan remainingTime)
+    private static void PublishRemainingTime(WaitStep step, TimeSpan remainingTime)
     {
-        context.PublishMessage(step, $"{remainingTime.TotalSeconds} sec");
+        Console.WriteLine($"Remaining time for step {step.Id}: {remainingTime}");
     }
 }

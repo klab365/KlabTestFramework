@@ -1,9 +1,10 @@
 ﻿using System;
+using Klab.Toolkit.Event;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
-using KlabTestFramework.Workflow.Lib.Editor;
-using KlabTestFramework.Workflow.Lib.Runner;
+using KlabTestFramework.Workflow.Lib.BuiltIn.Validator;
+using KlabTestFramework.Workflow.Lib.Features.Editor;
+using KlabTestFramework.Workflow.Lib.Features.Validator;
 using KlabTestFramework.Workflow.Lib.Specifications;
-using KlabTestFramework.Workflow.Lib.Validator;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace KlabTestFramework.Workflow.Lib;
@@ -29,27 +30,27 @@ public static class WorkflowModule
 
         services.AddWorkflowspecification(configuration);
         services.AddWorkflowEditor(configuration);
-        services.AddWorkflowRunner(configuration);
         services.AddWorkflowValidator();
+
+        services.RegisterFeatures();
+
         return services;
+    }
+
+    private static void RegisterFeatures(this IServiceCollection services)
+    {
+        services.AddRequestResponseHandler<QueryWorkflowRequest, IWorkflow, QueryWorkflowHandler>();
+        services.AddRequestHandler<SaveWorkflowRequest, SaveWorkflowRequestHandler>();
     }
 
     private static void AddWorkflowValidator(this IServiceCollection services)
     {
-        services.AddTransient<IWorkflowValidator, WorkflowValidator>();
         services.AddTransient<IStepValidatorHandler, ParameterValidator>();
     }
 
     private static void AddWorkflowEditor(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
         services.AddTransient(typeof(IWorkflowRepository), _ => configuration.DefaultWorkflowRepositoryFactory());
-        services.AddTransient<IWorkflowEditor, WorkflowEditor>();
-    }
-
-    private static void AddWorkflowRunner(this IServiceCollection services, WorkflowModuleConfiguration configuration)
-    {
-        services.AddTransient(typeof(IWorkflowContext), configuration.WorkflowContextType);
-        services.AddTransient<IWorkflowRunner, WorkflowRunner>();
     }
 
     private static void AddWorkflowspecification(this IServiceCollection services, WorkflowModuleConfiguration configuration)

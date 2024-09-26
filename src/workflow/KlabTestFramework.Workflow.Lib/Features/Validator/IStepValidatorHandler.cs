@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib.Validator;
+namespace KlabTestFramework.Workflow.Lib.Features.Validator;
 
 /// <summary>
 /// Represents a handler for validating workflow steps.

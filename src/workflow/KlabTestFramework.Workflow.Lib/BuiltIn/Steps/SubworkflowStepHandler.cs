@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
-using KlabTestFramework.Workflow.Lib.Runner;
+using KlabTestFramework.Workflow.Lib.Features.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 
@@ -8,14 +10,14 @@ namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 
 public class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
 {
-    private readonly IWorkflowRunner _workflowRunner;
+    private readonly IEventBus _eventBus;
 
-    public SubworkflowStepHandler(IWorkflowRunner workflowRunner)
+    public SubworkflowStepHandler(IEventBus eventBus)
     {
-        _workflowRunner = workflowRunner;
+        _eventBus = eventBus;
     }
 
-    public async Task<Result> HandleAsync(SubworkflowStep step, IWorkflowContext context)
+    public async Task<Result> HandleAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
         if (step.SelectedSubworkflow.Content.Value == SubworkflowStep.NoneSelected)
         {
@@ -27,7 +29,11 @@ public class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
             return Result.Failure(new InformativeError(string.Empty, string.Empty));
         }
 
-        await _workflowRunner.RunSubworkflowAsync(step, context);
+        foreach (IStep child in step.Children)
+        {
+            await _eventBus.SendAsync<RunSingleStepRequest, WorkflowStepStatusEvent>(new RunSingleStepRequest(child, context), cancellationToken);
+        }
+
         return Result.Success();
     }
 }

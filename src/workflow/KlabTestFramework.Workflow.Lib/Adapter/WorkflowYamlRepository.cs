@@ -1,5 +1,7 @@
 ﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
+using KlabTestFramework.Workflow.Lib.Features.Editor;
 using KlabTestFramework.Workflow.Lib.Specifications;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -8,7 +10,7 @@ namespace KlabTestFramework.Workflow.Lib.Editor.Adapter;
 
 public class WorkflowYamlRepository : IWorkflowRepository
 {
-    public Task<WorkflowData> GetWorkflowAsync(string path)
+    public Task<WorkflowData> GetWorkflowAsync(string path, CancellationToken cancellationToken = default)
     {
         var deserializerBuilder = new DeserializerBuilder();
         ConfigureBuilder(deserializerBuilder);
@@ -19,7 +21,7 @@ public class WorkflowYamlRepository : IWorkflowRepository
         return Task.FromResult(workflow);
     }
 
-    public Task SaveWorkflowAsync(string path, WorkflowData workflow)
+    public Task SaveWorkflowAsync(string path, WorkflowData workflow, CancellationToken cancellationToken = default)
     {
         var serializerBuilder = new SerializerBuilder();
         ConfigureBuilder(serializerBuilder);

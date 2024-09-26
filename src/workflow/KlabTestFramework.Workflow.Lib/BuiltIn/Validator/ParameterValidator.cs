@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using KlabTestFramework.Workflow.Lib.Features.Validator;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib.Validator;
+namespace KlabTestFramework.Workflow.Lib.BuiltIn.Validator;
 
 /// <summary>
 /// Validate if the parameters of a step are valid

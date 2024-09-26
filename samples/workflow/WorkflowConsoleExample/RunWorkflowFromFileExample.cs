@@ -3,9 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
-using KlabTestFramework.Workflow.Lib.Editor;
-using KlabTestFramework.Workflow.Lib.Runner;
+using KlabTestFramework.Workflow.Lib.Features.Editor;
+using KlabTestFramework.Workflow.Lib.Features.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,22 +20,20 @@ public class RunWorkflowFromFileExample : IRunExample
         string workflowPath = Assembly.GetExecutingAssembly().Location;
         workflowPath = Path.Join(Path.GetDirectoryName(workflowPath)!, workflowName);
         Console.WriteLine($"Running workflow from {workflowName} in {workflowPath}");
-        IWorkflowEditor workflowEditor = services.GetRequiredService<IWorkflowEditor>();
+        IEventBus eventBus = services.GetRequiredService<IEventBus>();
 
         // run workflow.json
         Stopwatch watch = Stopwatch.StartNew();
         watch.Restart();
-        Result resultReadWorkflow = await workflowEditor.LoadWorkflowFromFileAsync(workflowPath);
+        Result<IWorkflow> resultReadWorkflow = await eventBus.SendAsync<QueryWorkflowRequest, IWorkflow>(new QueryWorkflowRequest(workflowPath));
         if (resultReadWorkflow.IsFailure)
         {
             Console.WriteLine($"Failed to load workflow from {workflowName}");
             return;
         }
 
-        IWorkflowRunner runner = services.GetRequiredService<IWorkflowRunner>();
-        IWorkflowContext context = services.GetRequiredService<IWorkflowContext>();
-        Result<IWorkflow> workflow = await workflowEditor.BuildWorkflowAsync();
-        await runner.RunAsync(workflow.Value!, context);
+        await eventBus.SendAsync<RunWorkflowRequest, WorkflowResult>(new RunWorkflowRequest(resultReadWorkflow.Value, new WorkflowContext(), new Progress<WorkflowStatusEvent>()));
+
         watch.Stop();
         Console.WriteLine($"Workflow executed in {watch.Elapsed.TotalMilliseconds}ms");
     }

@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Klab.Toolkit.Results;
-using KlabTestFramework.Workflow.Lib.Runner;
+using KlabTestFramework.Workflow.Lib.Features.Runner;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -15,7 +16,7 @@ public interface IStepHandler
     /// <param name="step">The step to handle.</param>
     /// <param name="context">The context of the workflow.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task<Result> HandleAsync(IStep step, IWorkflowContext context);
+    Task<Result> HandleAsync(IStep step, WorkflowContext context, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -30,11 +31,11 @@ public interface IStepHandler<in TStep> : IStepHandler where TStep : IStep
     /// <param name="step">The step to handle.</param>
     /// <param name="context">The context of the workflow.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task<Result> HandleAsync(TStep step, IWorkflowContext context);
+    Task<Result> HandleAsync(TStep step, WorkflowContext context, CancellationToken cancellationToken = default);
 
     /// <inheritdoc/>
-    Task<Result> IStepHandler.HandleAsync(IStep step, IWorkflowContext context)
+    Task<Result> IStepHandler.HandleAsync(IStep step, WorkflowContext context, CancellationToken cancellationToken)
     {
-        return HandleAsync((TStep)step, context);
+        return HandleAsync((TStep)step, context, cancellationToken);
     }
 }

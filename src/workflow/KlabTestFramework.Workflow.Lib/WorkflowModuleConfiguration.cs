@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using KlabTestFramework.Shared.Parameters;
-using KlabTestFramework.Workflow.Lib.Editor;
 using KlabTestFramework.Workflow.Lib.Editor.Adapter;
-using KlabTestFramework.Workflow.Lib.Runner;
+using KlabTestFramework.Workflow.Lib.Features.Editor;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib;
@@ -30,27 +29,12 @@ public class WorkflowModuleConfiguration
     /// Default workflow repository type.
     /// </summary>
     /// <value></value>
-    public Func<IWorkflowRepository> DefaultWorkflowRepositoryFactory { get; set; } = () => new WorkflowJsonRepository();
-
-    /// <summary>
-    /// Type for the workflow context.
-    /// </summary>
-    /// <returns></returns>
-    public Type WorkflowContextType { get; private set; } = typeof(DefaultWorkflowContext);
+    public Func<IWorkflowRepository> DefaultWorkflowRepositoryFactory { get; set; } = () => new WorkflowYamlRepository();
 
     /// <summary>
     /// Variable handler types.
     /// </summary>
     public IEnumerable<VariableReplaceHandlerType> VariableHandlerTypes => _variableHandlerTypes;
-
-    /// <summary>
-    /// Configure the workflow context type.
-    /// </summary>
-    /// <typeparam name="TWorkflowContext"></typeparam>
-    public void ConfigureWorkflowContext<TWorkflowContext>() where TWorkflowContext : IWorkflowContext
-    {
-        WorkflowContextType = typeof(TWorkflowContext);
-    }
 
     /// <summary>
     /// Add step type

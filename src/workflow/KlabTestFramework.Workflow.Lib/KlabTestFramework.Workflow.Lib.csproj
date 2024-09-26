@@ -8,6 +8,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\KlabTestFramework.Workflow.Abstractions\KlabTestFramework.Workflow.Abstractions.csproj" />
       <ProjectReference Include="..\..\shared\KlabTestFramework.Shared.Parameters\KlabTestFramework.Shared.Parameters.csproj" />
       <ProjectReference Include="..\..\shared\KlabTestFramework.Shared.Services\KlabTestFramework.Shared.Services.csproj" />
     </ItemGroup>

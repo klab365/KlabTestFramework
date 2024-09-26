@@ -1,10 +1,12 @@
 ﻿using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
+using KlabTestFramework.Workflow.Lib.Features.Editor;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib.Editor.Adapter;
+namespace KlabTestFramework.Workflow.Lib.Adapter;
 
 /// <summary>
 /// Json implementation of <see cref="IWorkflowRepository"/>.
@@ -28,10 +30,10 @@ public class WorkflowJsonRepository : IWorkflowRepository
         };
     }
 
-    public async Task<WorkflowData> GetWorkflowAsync(string path)
+    public async Task<WorkflowData> GetWorkflowAsync(string path, CancellationToken cancellationToken = default)
     {
         using FileStream readStream = File.OpenRead(path);
-        WorkflowData? data = await JsonSerializer.DeserializeAsync<WorkflowData>(readStream, _jsonSerializerOptions);
+        WorkflowData? data = await JsonSerializer.DeserializeAsync<WorkflowData>(readStream, _jsonSerializerOptions, cancellationToken);
         if (data is null)
         {
             throw new InvalidDataException("Failed to deserialize workflow data.");
@@ -40,9 +42,9 @@ public class WorkflowJsonRepository : IWorkflowRepository
         return data;
     }
 
-    public async Task SaveWorkflowAsync(string path, WorkflowData workflow)
+    public async Task SaveWorkflowAsync(string path, WorkflowData workflow, CancellationToken cancellationToken = default)
     {
         using FileStream createStream = File.Create(path);
-        await JsonSerializer.SerializeAsync(createStream, workflow, _jsonSerializerOptions);
+        await JsonSerializer.SerializeAsync(createStream, workflow, _jsonSerializerOptions, cancellationToken);
     }
 }
