@@ -11,17 +11,17 @@ public interface IVariable
     /// <summary>
     /// Gets the name of the variable.
     /// </summary>
-    string Name { get; }
+    string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the unit of the variable.
     /// </summary>
-    string Unit { get; }
+    string Unit { get; set; }
 
     /// <summary>
     /// Gets or sets the type of the variable.
     /// </summary>
-    VariableType VariableType { get; }
+    VariableType VariableType { get; set; }
 
     /// <summary>
     /// Gets the data type of the variable.
@@ -42,20 +42,14 @@ public interface IVariable
     void UpdateValue(string value);
 
     /// <summary>
-    /// Initializes the variable from the specified data.
-    /// </summary>
-    /// <param name="data">The data to initialize the variable from.</param>
-    void FromData(VariableData data);
-
-    /// <summary>
-    /// Converts the variable to its data representation.
-    /// </summary>
-    /// <returns>The data representation of the variable.</returns>
-    VariableData ToData();
-
-    /// <summary>
     /// Get the parameter type
     /// </summary>
     /// <returns></returns>
     IParameterType GetParameterType();
+}
+
+public enum VariableType
+{
+    Constant,
+    Argument,
 }

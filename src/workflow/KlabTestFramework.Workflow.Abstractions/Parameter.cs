@@ -9,16 +9,16 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 public class Parameter<TParameter> : IParameter where TParameter : IParameterType
 {
     /// <inheritdoc/>
-    public string Name => Content.Name;
+    public string Name { get; set; } = string.Empty;
 
     /// <inheritdoc/>
-    public string Unit => Content.Unit;
+    public string Unit { get; set; } = string.Empty;
 
     /// <inheritdoc/>
-    public string VariableName { get; private set; } = string.Empty;
+    public string VariableName { get; set; } = string.Empty;
 
     /// <inheritdoc/>
-    public ParameterValueType ParameterType { get; private set; }
+    public ParameterValueType ParameterType { get; set; }
 
     /// <summary>
     /// Content of the parameter.
@@ -73,35 +73,6 @@ public class Parameter<TParameter> : IParameter where TParameter : IParameterTyp
     public bool IsValid()
     {
         return Content.IsValid();
-    }
-
-    /// <inheritdoc/>
-    public ParameterData ToData()
-    {
-        ParameterData data = new()
-        {
-            Name = Name,
-            Type = ParameterType,
-            Value = ContentAsString()
-        };
-
-        return data;
-    }
-
-    /// <inheritdoc/>
-    public void FromData(ParameterData data)
-    {
-        Content.Name = data.Name;
-        ParameterType = data.Type;
-
-        if (IsVariable())
-        {
-            VariableName = data.Value;
-        }
-        else
-        {
-            Content.FromString(data.Value);
-        }
     }
 
     public bool IsVariable()

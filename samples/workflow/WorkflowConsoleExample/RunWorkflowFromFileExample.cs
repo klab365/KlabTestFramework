@@ -25,7 +25,7 @@ public class RunWorkflowFromFileExample : IRunExample
         // run workflow.json
         Stopwatch watch = Stopwatch.StartNew();
         watch.Restart();
-        Result<IWorkflow> resultReadWorkflow = await eventBus.SendAsync<QueryWorkflowRequest, IWorkflow>(new QueryWorkflowRequest(workflowPath));
+        Result<Workflow> resultReadWorkflow = await eventBus.SendAsync<QueryWorkflowRequest, Workflow>(new QueryWorkflowRequest(workflowPath));
         if (resultReadWorkflow.IsFailure)
         {
             Console.WriteLine($"Failed to load workflow from {workflowName}");

@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
-using KlabTestFramework.Workflow.Lib.Features.Runner;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -38,4 +37,13 @@ public interface IStepHandler<in TStep> : IStepHandler where TStep : IStep
     {
         return HandleAsync((TStep)step, context, cancellationToken);
     }
+}
+
+/// <summary>
+/// Default implementation of <see cref="IWorkflowContext"/> interface.
+/// </summary>
+public class WorkflowContext
+{
+    /// <inheritdoc/>
+    public IVariable[] Variables { get; set; } = [];
 }

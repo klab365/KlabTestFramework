@@ -7,7 +7,7 @@ namespace KlabTestFramework.Workflow.Lib.Ports;
 /// <summary>
 /// Represents a repository for managing workflows.
 /// </summary>
-public interface IWorkflowRepository
+internal interface IWorkflowRepository
 {
     /// <summary>
     /// Retrieves a workflow from the repository asynchronously.

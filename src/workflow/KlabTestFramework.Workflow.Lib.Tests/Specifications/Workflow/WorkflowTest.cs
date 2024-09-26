@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Moq;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications.Tests;
@@ -24,7 +22,9 @@ public class WorkflowTests
         ];
 
         // Act
-        Workflow workflow = new(steps, variables, new Dictionary<string, IWorkflow>());
+        Workflow workflow = new();
+        workflow.Steps.AddRange(steps);
+        workflow.Variables.AddRange(variables);
 
         // Assert
         workflow.Steps.Should().HaveCount(2);
@@ -36,9 +36,11 @@ public class WorkflowTests
     {
         // Arrange
         // Act
-        Workflow workflow = new(Array.Empty<IStep>(), Array.Empty<IVariable>(), new Dictionary<string, IWorkflow>());
+        Workflow workflow = new();
 
         // Assert
-        workflow.Metadata.Should().NotBeNull();
+        workflow.Steps.Should().BeEmpty();
+        workflow.Variables.Should().BeEmpty();
+        workflow.Subworkflows.Should().BeEmpty();
     }
 }

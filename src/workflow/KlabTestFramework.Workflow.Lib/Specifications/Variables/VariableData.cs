@@ -16,8 +16,4 @@ public class VariableData
     public string Value { get; set; } = string.Empty;
 }
 
-public enum VariableType
-{
-    Constant,
-    Argument,
-}
+

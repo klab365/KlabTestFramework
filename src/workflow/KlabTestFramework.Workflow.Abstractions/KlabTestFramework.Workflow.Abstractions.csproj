@@ -1,2 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared\KlabTestFramework.Shared.Parameters\KlabTestFramework.Shared.Parameters.csproj" />
+    </ItemGroup>
 </Project>

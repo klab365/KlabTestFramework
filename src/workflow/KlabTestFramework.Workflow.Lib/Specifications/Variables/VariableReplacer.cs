@@ -17,7 +17,7 @@ public class VariableReplacer : IVariableReplacer
         _variableFactory = variableFactory;
     }
 
-    public async Task ReplaceVariablesWithTheParametersAsync(IWorkflow workflow)
+    public async Task ReplaceVariablesWithTheParametersAsync(Specifications.Workflow workflow)
     {
         await ReplaceStepsWithVariables(workflow.Steps, workflow.Variables);
     }
@@ -46,7 +46,7 @@ public class VariableReplacer : IVariableReplacer
 
     private static void ReplaceSubworkflowVariableWithTheArgumentsOfSubworkflowStep(ISubworkflowStep subworkflowStep)
     {
-        IWorkflow subworkflow = subworkflowStep.Subworkflow!;
+        Specifications.Workflow subworkflow = subworkflowStep.Subworkflow!;
         foreach (IParameter parameter in subworkflowStep.Arguments)
         {
             IVariable subworkflowVariable = subworkflow.Variables.Single(v => v.VariableType == VariableType.Argument && v.Name == parameter.Name);

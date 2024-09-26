@@ -9,7 +9,7 @@ using KlabTestFramework.Workflow.Lib.Specifications;
 namespace KlabTestFramework.Workflow.Lib.Features.Validator;
 
 /// <summary>
-/// Implementation of <see cref="IWorkflowValidator"/>.
+/// Implementation of <see cref=" Specifications.WorkflowValidator"/>.
 /// </summary>
 internal class ValidateWorkflowRequestHandler : IRequestHandler<ValidateWorkflowRequest, WorkflowValidatorResult>
 {
@@ -49,7 +49,7 @@ internal class ValidateWorkflowRequestHandler : IRequestHandler<ValidateWorkflow
     }
 }
 
-public record ValidateWorkflowRequest(IWorkflow Workflow) : IRequest;
+public record ValidateWorkflowRequest(Specifications.Workflow Workflow) : IRequest;
 
 /// <summary>
 /// Represents the result of a workflow validation.

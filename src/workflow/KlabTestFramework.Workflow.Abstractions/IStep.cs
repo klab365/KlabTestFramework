@@ -31,7 +31,7 @@ public interface ISubworkflowStep : IStepWithChildren
 
     event Action<string>? SubworkflowSelected;
 
-    IWorkflow? Subworkflow { get; set; }
+    Workflow Subworkflow { get; set; }
 
     List<IParameter> Arguments { get; }
 }

@@ -38,7 +38,7 @@ public record StepId
     {
         if (Routes.Count == 0)
         {
-            return $"/{Value}";
+            return $"{Value}";
         }
 
         return $"/{string.Join("/", Routes)}/{Value}";

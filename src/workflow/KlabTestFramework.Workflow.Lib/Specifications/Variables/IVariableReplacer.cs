@@ -12,5 +12,5 @@ public interface IVariableReplacer
     /// </summary>
     /// <param name="workflow"></param>
     /// <returns></returns>
-    Task ReplaceVariablesWithTheParametersAsync(IWorkflow workflow);
+    Task ReplaceVariablesWithTheParametersAsync(Workflow workflow);
 }

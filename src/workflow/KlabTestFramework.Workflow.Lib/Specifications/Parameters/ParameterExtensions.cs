@@ -47,4 +47,33 @@ public static class ParameterExtensions
 
         return new Parameter<TParameter>(name, unit, parameter);
     }
+
+    /// <inheritdoc/>
+    public static ParameterData ToData(this IParameter parameter)
+    {
+        ParameterData data = new()
+        {
+            Name = parameter.Name,
+            Type = parameter.ParameterType,
+            Value = parameter.ContentAsString()
+        };
+
+        return data;
+    }
+
+    /// <inheritdoc/>
+    public static void FromData(this IParameter parameter, ParameterData data)
+    {
+        parameter.Name = data.Name;
+        parameter.ParameterType = data.Type;
+
+        if (parameter.IsVariable())
+        {
+            parameter.VariableName = data.Value;
+        }
+        else
+        {
+            parameter.GetParameterType().FromString(data.Value);
+        }
+    }
 }

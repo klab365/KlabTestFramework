@@ -20,8 +20,8 @@ public class SubworkflowStep : ISubworkflowStep
 
     public List<IParameter> Arguments { get; private set; } = new();
 
-    private IWorkflow? _subworkflow;
-    public IWorkflow? Subworkflow
+    private Specifications.Workflow _subworkflow = new();
+    public Specifications.Workflow Subworkflow
     {
         get => _subworkflow;
         set

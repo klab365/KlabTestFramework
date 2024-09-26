@@ -9,9 +9,9 @@ using KlabTestFramework.Workflow.Lib.Specifications;
 namespace KlabTestFramework.Workflow.Lib.Adapter;
 
 /// <summary>
-/// Json implementation of <see cref="IWorkflowRepository"/>.
+/// Json implementation of <see cref=" Specifications.WorkflowRepository"/>.
 /// </summary>
-public class WorkflowJsonRepository : IWorkflowRepository
+internal class WorkflowJsonRepository : IWorkflowRepository
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions;
 

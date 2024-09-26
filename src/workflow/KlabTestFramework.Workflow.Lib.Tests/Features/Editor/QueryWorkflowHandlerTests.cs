@@ -24,10 +24,10 @@ public class QueryWorkflowHandlerTests
     {
         var req = new QueryWorkflowRequest("assets/workflow.json");
 
-        Result<Specifications.IWorkflow> result = await _sut.HandleAsync(req, CancellationToken.None);
+        Result<Specifications.Workflow> result = await _sut.HandleAsync(req, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        Specifications.IWorkflow workflow = result.Value;
+        Specifications.Workflow workflow = result.Value;
         workflow.Steps.Should().HaveCount(2);
         workflow.Subworkflows.Should().HaveCount(1);
         workflow.Variables.Should().HaveCount(0);

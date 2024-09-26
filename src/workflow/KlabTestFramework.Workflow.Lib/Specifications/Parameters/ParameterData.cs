@@ -21,18 +21,3 @@ public class ParameterData
     public string Value { get; set; } = string.Empty;
 }
 
-/// <summary>
-/// Represents the type of a parameter value.
-/// </summary>
-public enum ParameterValueType
-{
-    /// <summary>
-    /// Represents a parameter with a specific value.
-    /// </summary>
-    Value,
-
-    /// <summary>
-    /// Represents a parameter wich is a variable.
-    /// </summary>
-    Variable,
-}

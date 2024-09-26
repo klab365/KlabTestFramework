@@ -11,21 +11,21 @@ public interface IParameter
     /// <summary>
     /// Gets the name of the parameter.
     /// </summary>
-    string Name { get; }
+    string Name { get; set; }
 
     /// <summary>
     /// Gets the unit of the parameter.
     /// </summary>
-    string Unit { get; }
+    string Unit { get; set; }
 
     /// <summary>
     /// Gets or sets the variable name of the parameter.
     /// </summary>
-    string VariableName { get; }
+    string VariableName { get; set; }
 
     /// <summary>
     /// Gets a value indicating what type of parameter it is.
-    ParameterValueType ParameterType { get; }
+    ParameterValueType ParameterType { get; set; }
 
     /// <summary>
     /// Parameter content type
@@ -68,19 +68,24 @@ public interface IParameter
     bool IsValue() => !IsVariable();
 
     /// <summary>
-    /// Get the data representation of the parameter.
-    /// </summary>
-    /// <returns></returns>
-    ParameterData ToData();
-
-    /// <summary>
-    /// Fill the parameter with data.
-    /// </summary>
-    void FromData(ParameterData data);
-
-    /// <summary>
     /// Get the parameter type
     /// </summary>
     /// <returns></returns>
     IParameterType GetParameterType();
+}
+
+/// <summary>
+/// Represents the type of a parameter value.
+/// </summary>
+public enum ParameterValueType
+{
+    /// <summary>
+    /// Represents a parameter with a specific value.
+    /// </summary>
+    Value,
+
+    /// <summary>
+    /// Represents a parameter wich is a variable.
+    /// </summary>
+    Variable,
 }

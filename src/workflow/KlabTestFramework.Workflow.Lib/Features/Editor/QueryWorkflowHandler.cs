@@ -13,7 +13,7 @@ namespace KlabTestFramework.Workflow.Lib.Features.Editor;
 /// <summary>
 /// Handler for querying a workflow.
 /// </summary>
-internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowRequest, IWorkflow>
+internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowRequest, Specifications.Workflow>
 {
     private readonly IWorkflowRepository _workflowRepository;
     private readonly StepFactory _stepFactory;
@@ -26,28 +26,35 @@ internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowReques
         _variableFactory = variableFactory;
     }
 
-    public async Task<Result<IWorkflow>> HandleAsync(QueryWorkflowRequest request, CancellationToken cancellationToken)
+    public async Task<Result<Specifications.Workflow>> HandleAsync(QueryWorkflowRequest request, CancellationToken cancellationToken)
     {
         if (!Path.Exists(request.FilePath))
         {
-            return Result.Failure<IWorkflow>(WorkflowModuleErrors.WorkflowNotFound(request.FilePath));
+            return Result.Failure<Specifications.Workflow>(WorkflowModuleErrors.WorkflowNotFound(request.FilePath));
         }
 
         WorkflowData data = await _workflowRepository.GetWorkflowAsync(request.FilePath, cancellationToken);
-        IWorkflow workflow = CreateWorkflowFromData(new KeyValuePair<string, WorkflowData>(string.Empty, data));
+        Specifications.Workflow workflow = CreateWorkflowFromData(new KeyValuePair<string, WorkflowData>(string.Empty, data));
 
         return Result.Success(workflow);
     }
 
-    private IWorkflow CreateWorkflowFromData(KeyValuePair<string, WorkflowData> data)
+    private Specifications.Workflow CreateWorkflowFromData(KeyValuePair<string, WorkflowData> data)
     {
         WorkflowData wfData = data.Value;
 
-        Dictionary<string, IWorkflow> subworkflows = LoadSubworkflows(wfData);
+        Dictionary<string, Specifications.Workflow> subworkflows = LoadSubworkflows(wfData);
         IVariable[] variables = LoadVariables(wfData);
         IStep[] steps = LoadSteps(wfData, subworkflows);
 
-        IWorkflow workflow = new Specifications.Workflow(steps, variables, subworkflows) { Metadata = wfData };
+        Specifications.Workflow workflow = new();
+        workflow.Variables.AddRange(variables);
+        workflow.Steps.AddRange(steps);
+        foreach (KeyValuePair<string, Specifications.Workflow> subworkflow in subworkflows)
+        {
+            workflow.Subworkflows.Add(subworkflow.Key, subworkflow.Value);
+        }
+
         return workflow;
     }
 
@@ -58,7 +65,7 @@ internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowReques
             .ToArray() ?? [];
     }
 
-    private IStep[] LoadSteps(WorkflowData wfData, Dictionary<string, IWorkflow> subworkflows)
+    private IStep[] LoadSteps(WorkflowData wfData, Dictionary<string, Specifications.Workflow> subworkflows)
     {
         List<IStep> steps = new();
         foreach (StepData stepData in wfData.Steps)
@@ -79,10 +86,10 @@ internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowReques
         return steps.ToArray();
     }
 
-    private Dictionary<string, IWorkflow> LoadSubworkflows(WorkflowData wfData)
+    private Dictionary<string, Specifications.Workflow> LoadSubworkflows(WorkflowData wfData)
     {
         return wfData.Subworkflows?
-            .Select(s => new KeyValuePair<string, IWorkflow>(s.Key, CreateWorkflowFromData(s)))
+            .Select(s => new KeyValuePair<string, Specifications.Workflow>(s.Key, CreateWorkflowFromData(s)))
             .ToDictionary(k => k.Key, v => v.Value) ?? [];
     }
 }

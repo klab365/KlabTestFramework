@@ -2,6 +2,7 @@
 using Klab.Toolkit.Event;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
 using KlabTestFramework.Workflow.Lib.BuiltIn.Validator;
+using KlabTestFramework.Workflow.Lib.Editor.Adapter;
 using KlabTestFramework.Workflow.Lib.Features.Editor;
 using KlabTestFramework.Workflow.Lib.Features.Validator;
 using KlabTestFramework.Workflow.Lib.Ports;
@@ -30,7 +31,7 @@ public static class WorkflowModule
         configurationCallback?.Invoke(configuration); // apply configuration if provided ;)
 
         services.AddWorkflowspecification(configuration);
-        services.AddWorkflowEditor(configuration);
+        services.AddWorkflowRepository();
         services.AddWorkflowValidator();
 
         services.RegisterFeatures();
@@ -40,7 +41,7 @@ public static class WorkflowModule
 
     private static void RegisterFeatures(this IServiceCollection services)
     {
-        services.AddRequestResponseHandler<QueryWorkflowRequest, IWorkflow, QueryWorkflowHandler>();
+        services.AddRequestResponseHandler<QueryWorkflowRequest, Specifications.Workflow, QueryWorkflowHandler>();
         services.AddRequestHandler<SaveWorkflowRequest, SaveWorkflowRequestHandler>();
     }
 
@@ -49,9 +50,9 @@ public static class WorkflowModule
         services.AddTransient<IStepValidatorHandler, ParameterValidator>();
     }
 
-    private static void AddWorkflowEditor(this IServiceCollection services, WorkflowModuleConfiguration configuration)
+    private static void AddWorkflowRepository(this IServiceCollection services)
     {
-        services.AddTransient(typeof(IWorkflowRepository), _ => configuration.DefaultWorkflowRepositoryFactory());
+        services.AddTransient(typeof(IWorkflowRepository), typeof(WorkflowYamlRepository));
     }
 
     private static void AddWorkflowspecification(this IServiceCollection services, WorkflowModuleConfiguration configuration)

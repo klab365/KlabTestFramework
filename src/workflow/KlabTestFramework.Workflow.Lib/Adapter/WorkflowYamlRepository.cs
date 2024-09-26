@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using KlabTestFramework.Workflow.Lib.Features.Editor;
 using KlabTestFramework.Workflow.Lib.Ports;
 using KlabTestFramework.Workflow.Lib.Specifications;
 using YamlDotNet.Serialization;
@@ -9,7 +8,7 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace KlabTestFramework.Workflow.Lib.Editor.Adapter;
 
-public class WorkflowYamlRepository : IWorkflowRepository
+internal class WorkflowYamlRepository : IWorkflowRepository
 {
     public Task<WorkflowData> GetWorkflowAsync(string path, CancellationToken cancellationToken = default)
     {

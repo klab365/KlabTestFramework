@@ -33,7 +33,7 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
         return Result.Success(wflResult);
     }
 
-    private async Task<WorkflowResult> HandleWorkflowAsync(IWorkflow workflow, WorkflowContext context, IProgress<WorkflowStatusEvent> progress, CancellationToken cancellationToken)
+    private async Task<WorkflowResult> HandleWorkflowAsync(Specifications.Workflow workflow, WorkflowContext context, IProgress<WorkflowStatusEvent> progress, CancellationToken cancellationToken)
     {
         progress.Report(new(WorkflowStatus.Running));
 
@@ -47,16 +47,9 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
     }
 }
 
-public record RunWorkflowRequest(IWorkflow Workflow, WorkflowContext Context, IProgress<WorkflowStatusEvent> Progress) : IRequest;
+public record RunWorkflowRequest(Specifications.Workflow Workflow, WorkflowContext Context, IProgress<WorkflowStatusEvent> Progress) : IRequest;
 
-/// <summary>
-/// Default implementation of <see cref="IWorkflowContext"/> interface.
-/// </summary>
-public class WorkflowContext
-{
-    /// <inheritdoc/>
-    public IVariable[] Variables { get; set; } = Array.Empty<IVariable>();
-}
+
 
 public record WorkflowResult(bool IsSuccess);
 
