@@ -49,7 +49,7 @@ internal class ValidateWorkflowRequestHandler : IRequestHandler<ValidateWorkflow
     }
 }
 
-public record ValidateWorkflowRequest(Specifications.Workflow Workflow) : IRequest;
+public record ValidateWorkflowRequest(Specifications.Workflow Workflow) : IRequest<WorkflowValidatorResult>;
 
 /// <summary>
 /// Represents the result of a workflow validation.

@@ -94,4 +94,4 @@ internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowReques
     }
 }
 
-public record QueryWorkflowRequest(string FilePath) : IRequest;
+public record QueryWorkflowRequest(string FilePath) : IRequest<Specifications.Workflow>;

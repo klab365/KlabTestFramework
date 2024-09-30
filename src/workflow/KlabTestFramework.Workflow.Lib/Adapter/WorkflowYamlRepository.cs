@@ -10,15 +10,16 @@ namespace KlabTestFramework.Workflow.Lib.Editor.Adapter;
 
 internal class WorkflowYamlRepository : IWorkflowRepository
 {
-    public Task<WorkflowData> GetWorkflowAsync(string path, CancellationToken cancellationToken = default)
+    public async Task<WorkflowData> GetWorkflowAsync(string path, CancellationToken cancellationToken = default)
     {
         var deserializerBuilder = new DeserializerBuilder();
         ConfigureBuilder(deserializerBuilder);
         IDeserializer deserializer = deserializerBuilder.Build();
 
         using StreamReader reader = new(path);
-        WorkflowData workflow = deserializer.Deserialize<WorkflowData>(reader);
-        return Task.FromResult(workflow);
+        string content = await reader.ReadToEndAsync(cancellationToken);
+        WorkflowData workflow = deserializer.Deserialize<WorkflowData>(content);
+        return workflow;
     }
 
     public Task SaveWorkflowAsync(string path, WorkflowData workflow, CancellationToken cancellationToken = default)

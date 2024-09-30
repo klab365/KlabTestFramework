@@ -65,7 +65,7 @@ public record PumpVolumeRequest(string Id, VolumeFlow VolumeFlow, Volume Volume)
 /// Request to query the volume flow of a pump.
 /// </summary>
 /// <param name="Id"></param>
-public record QueryPumpVolumeFlowRequest(string Id) : IRequest;
+public record QueryPumpVolumeFlowRequest(string Id) : IRequest<QueryPumpVolumeFlowResponse>;
 
 /// <summary>
 /// Response to a query for the volume flow of a pump.

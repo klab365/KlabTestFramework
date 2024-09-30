@@ -35,4 +35,4 @@ public interface IAnalogInput : IComponent
 /// Query request to get the value of an analog input.
 /// </summary>
 /// <param name="Id"></param>
-public record QueryAnalogInputRequest(string Id) : IRequest;
+public record QueryAnalogInputRequest(string Id) : IRequest<double>;

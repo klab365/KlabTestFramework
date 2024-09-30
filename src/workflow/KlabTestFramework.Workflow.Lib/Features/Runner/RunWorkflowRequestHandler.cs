@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
@@ -20,7 +19,11 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
 
     public async Task<Result<WorkflowResult>> HandleAsync(RunWorkflowRequest request, CancellationToken cancellationToken)
     {
-        await _eventBus.SendAsync(new ReplaceWorkflowWithVariablesRequest(request.Workflow), cancellationToken);
+        Result resReplaceVariable = await _eventBus.SendAsync(new ReplaceWorkflowWithVariablesRequest(request.Workflow), cancellationToken);
+        if (resReplaceVariable.IsFailure)
+        {
+            return Result.Failure<WorkflowResult>(resReplaceVariable.Error);
+        }
 
         Result<WorkflowValidatorResult> resValidation = await _eventBus.SendAsync<ValidateWorkflowRequest, WorkflowValidatorResult>(new ValidateWorkflowRequest(request.Workflow), cancellationToken);
         if (resValidation.IsFailure)
@@ -28,15 +31,12 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
             return Result.Failure<WorkflowResult>(resValidation.Error);
         }
 
-        WorkflowResult wflResult = await HandleWorkflowAsync(request.Workflow, request.Context, request.Progress, cancellationToken);
+        WorkflowResult wflResult = await HandleWorkflowAsync(request.Workflow, request.Context, cancellationToken);
         return Result.Success(wflResult);
     }
 
-    private async Task<WorkflowResult> HandleWorkflowAsync(Specifications.Workflow workflow, WorkflowContext context, IProgress<WorkflowStatusEvent> progress, CancellationToken cancellationToken)
+    private async Task<WorkflowResult> HandleWorkflowAsync(Specifications.Workflow workflow, WorkflowContext context, CancellationToken cancellationToken)
     {
-        progress.Report(new(WorkflowStatus.Running));
-
-
         foreach (IStep step in workflow.Steps)
         {
             await _eventBus.SendAsync<RunSingleStepRequest, WorkflowStepStatusEvent>(new RunSingleStepRequest(step, context), cancellationToken);
@@ -46,7 +46,7 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
     }
 }
 
-public record RunWorkflowRequest(Specifications.Workflow Workflow, WorkflowContext Context, IProgress<WorkflowStatusEvent> Progress) : IRequest;
+public record RunWorkflowRequest(Specifications.Workflow Workflow, WorkflowContext Context) : IRequest<WorkflowResult>;
 
 public record WorkflowResult(bool IsSuccess);
 

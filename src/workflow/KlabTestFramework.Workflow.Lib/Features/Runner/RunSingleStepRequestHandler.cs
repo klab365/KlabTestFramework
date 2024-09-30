@@ -24,7 +24,7 @@ internal class RunSingleStepRequestHandler : IRequestHandler<RunSingleStepReques
     }
 }
 
-public record RunSingleStepRequest(IStep Step, WorkflowContext Context) : IRequest;
+public record RunSingleStepRequest(IStep Step, WorkflowContext Context) : IRequest<WorkflowStepStatusEvent>;
 
 /// <summary>
 /// Provides data for the StepStatusChanged event.

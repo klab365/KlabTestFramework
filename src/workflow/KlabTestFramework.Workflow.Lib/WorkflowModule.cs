@@ -33,7 +33,6 @@ public static class WorkflowModule
         services.AddWorkflowspecification(configuration);
         services.AddWorkflowRepository();
         services.AddWorkflowValidator();
-
         services.RegisterFeatures();
 
         return services;

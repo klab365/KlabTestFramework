@@ -16,7 +16,7 @@ public class RunWorkflowFromFileExample : IRunExample
 {
     public async Task Run(IServiceProvider services)
     {
-        const string workflowName = "workflow.json";
+        const string workflowName = "workflow.yaml";
         string workflowPath = Assembly.GetExecutingAssembly().Location;
         workflowPath = Path.Join(Path.GetDirectoryName(workflowPath)!, workflowName);
         Console.WriteLine($"Running workflow from {workflowName} in {workflowPath}");
@@ -32,7 +32,7 @@ public class RunWorkflowFromFileExample : IRunExample
             return;
         }
 
-        await eventBus.SendAsync<RunWorkflowRequest, WorkflowResult>(new RunWorkflowRequest(resultReadWorkflow.Value, new WorkflowContext(), new Progress<WorkflowStatusEvent>()));
+        await eventBus.SendAsync<RunWorkflowRequest, WorkflowResult>(new RunWorkflowRequest(resultReadWorkflow.Value, new WorkflowContext()));
 
         watch.Stop();
         Console.WriteLine($"Workflow executed in {watch.Elapsed.TotalMilliseconds}ms");

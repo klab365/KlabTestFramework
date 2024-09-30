@@ -1,7 +1,5 @@
-Description: My first workflow from a file
-Variables: 
 Steps:
-- Id: /subworkflowstep1
+- Id: subworkflowstep1
   Type: SubworkflowStep
   Parameters:
   - Name: Subworkflow
@@ -11,7 +9,7 @@ Steps:
     Type: Value
     Value: 00:00:10
 
-- Id: /SubworkflowStep_611ab2eb-2bfc-4237-ba87-4db0e80e2bde
+- Id: SubworkflowStep_611ab2eb-2bfc-4237-ba87-4db0e80e2bde
   Type: SubworkflowStep
   Parameters:
   - Name: Subworkflow
@@ -21,7 +19,7 @@ Steps:
     Type: Value
     Value: 00:00:06
 
-- Id: /SubworkflowStep_13ec8695-1fdb-4789-9bad-9de15cfb9639
+- Id: SubworkflowStep_13ec8695-1fdb-4789-9bad-9de15cfb9639
   Type: SubworkflowStep
   Parameters:
   - Name: Subworkflow
@@ -33,7 +31,6 @@ Steps:
 
 Subworkflows:
   sub1:
-    Description: My first subworkflow
     Variables:
     - Name: myVariable
       Unit: sec
@@ -41,10 +38,10 @@ Subworkflows:
       DataType: TimeParameter
       Value: 00:00:03
     Steps:
-    - Id: /WaitStep_7714f40c-b4bb-4e8e-9d63-0cf36dbfbe3f
+    - Id: WaitStep_7714f40c-b4bb-4e8e-9d63-0cf36dbfbe3f
       Type: WaitStep
       Parameters:
       - Name: Time
         Type: Variable
         Value: myVariable
-    Subworkflows: 
+    Subworkflows:
