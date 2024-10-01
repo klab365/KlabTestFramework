@@ -46,7 +46,7 @@ public static class WorkflowModule
         services.AddRequestResponseHandler<QueryWorkflowRequestByData, Specifications.Workflow, QueryWorkflowHandler>();
         services.AddRequestHandler<SaveWorkflowRequest, SaveWorkflowRequestHandler>();
         services.AddRequestResponseHandler<RunWorkflowRequest, WorkflowResult, RunWorkflowRequestHandler>();
-        services.AddRequestResponseHandler<RunSingleStepRequest, WorkflowStepStatusEvent, RunSingleStepRequestHandler>();
+        services.AddRequestResponseHandler<RunSingleStepRequest, StepResult, RunSingleStepRequestHandler>();
         services.AddRequestResponseHandler<ValidateWorkflowRequest, WorkflowValidatorResult, ValidateWorkflowRequestHandler>();
         services.AddRequestHandler<ReplaceWorkflowWithVariablesRequest, ReplaceWorkflowWithVariablesRequesHandler>();
     }

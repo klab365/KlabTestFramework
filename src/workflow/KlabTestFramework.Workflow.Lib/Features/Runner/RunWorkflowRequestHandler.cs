@@ -39,7 +39,7 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
     {
         foreach (IStep step in workflow.Steps)
         {
-            await _eventBus.SendAsync<RunSingleStepRequest, WorkflowStepStatusEvent>(new RunSingleStepRequest(step, context), cancellationToken);
+            await _eventBus.SendAsync<RunSingleStepRequest, StepResult>(new RunSingleStepRequest(step, context), cancellationToken);
         }
 
         return new WorkflowResult(true);
