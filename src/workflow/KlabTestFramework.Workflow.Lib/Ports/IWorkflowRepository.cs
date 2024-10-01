@@ -23,4 +23,11 @@ internal interface IWorkflowRepository
     /// <param name="workflow">The workflow to be saved.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task SaveWorkflowAsync(string path, WorkflowData workflow, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Copies a workflow asynchronously.
+    /// </summary>
+    /// <param name="wfData"></param>
+    /// <returns></returns>
+    public Task<WorkflowData> CopyAsync(WorkflowData wfData, CancellationToken cancellationToken = default);
 }

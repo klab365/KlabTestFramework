@@ -43,6 +43,7 @@ public static class WorkflowModule
     private static void RegisterFeatures(this IServiceCollection services)
     {
         services.AddRequestResponseHandler<QueryWorkflowRequest, Specifications.Workflow, QueryWorkflowHandler>();
+        services.AddRequestResponseHandler<QueryWorkflowRequestByData, Specifications.Workflow, QueryWorkflowHandler>();
         services.AddRequestHandler<SaveWorkflowRequest, SaveWorkflowRequestHandler>();
         services.AddRequestResponseHandler<RunWorkflowRequest, WorkflowResult, RunWorkflowRequestHandler>();
         services.AddRequestResponseHandler<RunSingleStepRequest, WorkflowStepStatusEvent, RunSingleStepRequestHandler>();

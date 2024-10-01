@@ -9,10 +9,10 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 public class Parameter<TParameter> : IParameter where TParameter : IParameterType
 {
     /// <inheritdoc/>
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; }
 
     /// <inheritdoc/>
-    public string Unit { get; set; } = string.Empty;
+    public string Unit { get; set; }
 
     /// <inheritdoc/>
     public string VariableName { get; set; } = string.Empty;
@@ -41,8 +41,8 @@ public class Parameter<TParameter> : IParameter where TParameter : IParameterTyp
     public Parameter(string name, string unit, TParameter content)
     {
         Content = content;
-        Content.Name = name;
-        Content.Unit = unit;
+        Name = name;
+        Unit = unit;
     }
 
     /// <inheritdoc/>

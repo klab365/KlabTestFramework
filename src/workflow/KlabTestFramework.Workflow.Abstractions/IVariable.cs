@@ -28,6 +28,9 @@ public interface IVariable
     /// </summary>
     string DataType { get; }
 
+    /// <summary>
+    /// Flag indicating if the variable is an argument.
+    /// </summary>
     bool IsArgument => VariableType == VariableType.Argument;
 
     /// <summary>

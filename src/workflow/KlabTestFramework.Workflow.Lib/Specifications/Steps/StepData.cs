@@ -22,4 +22,9 @@ public class StepData
     /// Parameters of the step, if any
     /// </summary>
     public List<ParameterData> Parameters { get; set; } = [];
+
+    /// <summary>
+    /// Children of the step, if any
+    /// </summary>
+    public List<StepData>? Children { get; set; }
 }

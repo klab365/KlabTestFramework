@@ -8,7 +8,7 @@ using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 
-public class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
+internal class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
 {
     private readonly IEventBus _eventBus;
 
@@ -29,7 +29,7 @@ public class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
             return Result.Failure(new InformativeError(string.Empty, string.Empty));
         }
 
-        foreach (IStep child in step.Children)
+        foreach (IStep child in step.Subworkflow.Steps)
         {
             await _eventBus.SendAsync<RunSingleStepRequest, WorkflowStepStatusEvent>(new RunSingleStepRequest(child, context), cancellationToken);
         }

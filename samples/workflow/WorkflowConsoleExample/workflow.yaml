@@ -1,6 +1,5 @@
 steps:
-- id: subworkflowstep1
-  type: SubworkflowStep
+- type: SubworkflowStep
   parameters:
   - name: Subworkflow
     type: Value

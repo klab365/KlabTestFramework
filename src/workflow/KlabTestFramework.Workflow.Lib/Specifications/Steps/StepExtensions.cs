@@ -19,13 +19,12 @@ internal static class StepExtensions
         }
         step.Id = StepId.Create(stepData.Id);
 
-
-        foreach ((int index, IParameter parameter) in step.GetParameters().Select((parameter, index) => (index, parameter)))
+        foreach (ParameterData parameterData in stepData.Parameters)
         {
-            ParameterData? parameterData = stepData.Parameters.ElementAtOrDefault(index);
-            if (parameterData is null)
+            IParameter? parameter = step.GetParameters().FirstOrDefault(p => p.Name == parameterData.Name);
+            if (parameter is null)
             {
-                continue; // No data for this parameter
+                throw new InvalidOperationException($"Parameter {parameterData.Name} not found in step {step.GetType().Name}");
             }
 
             parameter.FromData(parameterData);

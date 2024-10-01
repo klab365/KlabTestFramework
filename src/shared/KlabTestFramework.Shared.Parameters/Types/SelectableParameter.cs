@@ -49,6 +49,20 @@ public class SelectableParameter<TParameterType> : BaseParameterType<TParameterT
         }
     }
 
+    public void RemoveOptions(params string[] options)
+    {
+        foreach (string option in options)
+        {
+            TParameterType? op = Options.Find(o => o.AsString() == option);
+            if (op is null)
+            {
+                continue;
+            }
+
+            Options.Remove(op);
+        }
+    }
+
     public void SelectOption(TParameterType option)
     {
         SetValue(option);

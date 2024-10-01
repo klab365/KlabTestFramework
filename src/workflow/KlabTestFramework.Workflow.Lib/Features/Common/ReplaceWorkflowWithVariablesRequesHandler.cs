@@ -20,7 +20,7 @@ internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandle
 
     public async Task<Result> HandleAsync(ReplaceWorkflowWithVariablesRequest request, CancellationToken cancellationToken)
     {
-        var workflow = request.Workflow;
+        Specifications.Workflow workflow = request.Workflow;
         await ReplaceStepsWithVariables(workflow.Steps, workflow.Variables);
         return Result.Success();
     }
@@ -42,14 +42,14 @@ internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandle
             if (step is ISubworkflowStep subworkflowStep && subworkflowStep.Subworkflow != null)
             {
                 ReplaceSubworkflowVariableWithTheArgumentsOfSubworkflowStep(subworkflowStep);
-                await ReplaceStepsWithVariables(subworkflowStep.Children, subworkflowStep.Subworkflow.Variables);
+                await ReplaceStepsWithVariables(subworkflowStep.Steps, subworkflowStep.Subworkflow.Variables);
             }
         }
     }
 
     private static void ReplaceSubworkflowVariableWithTheArgumentsOfSubworkflowStep(ISubworkflowStep subworkflowStep)
     {
-        Specifications.Workflow subworkflow = subworkflowStep.Subworkflow!;
+        Specifications.Workflow subworkflow = subworkflowStep.Subworkflow;
         foreach (IParameter parameter in subworkflowStep.Arguments)
         {
             IVariable subworkflowVariable = subworkflow.Variables.Single(v => v.VariableType == VariableType.Argument && v.Name == parameter.Name);

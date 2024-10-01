@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Lib.BuiltIn;
 using KlabTestFramework.Workflow.Lib.Ports;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -13,7 +14,9 @@ namespace KlabTestFramework.Workflow.Lib.Features.Editor;
 /// <summary>
 /// Handler for querying a workflow.
 /// </summary>
-internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowRequest, Specifications.Workflow>
+internal sealed class QueryWorkflowHandler : 
+    IRequestHandler<QueryWorkflowRequest, Specifications.Workflow>,
+    IRequestHandler<QueryWorkflowRequestByData, Specifications.Workflow>
 {
     private readonly IWorkflowRepository _workflowRepository;
     private readonly StepFactory _stepFactory;
@@ -26,6 +29,12 @@ internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowReques
         _variableFactory = variableFactory;
     }
 
+    /// <summary>
+    /// Handle the request to query a workflow with a file path as input
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<Result<Specifications.Workflow>> HandleAsync(QueryWorkflowRequest request, CancellationToken cancellationToken)
     {
         if (!Path.Exists(request.FilePath))
@@ -34,18 +43,30 @@ internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowReques
         }
 
         WorkflowData data = await _workflowRepository.GetWorkflowAsync(request.FilePath, cancellationToken);
-        Specifications.Workflow workflow = CreateWorkflowFromData(new KeyValuePair<string, WorkflowData>(string.Empty, data));
+        Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(data, cancellationToken);
 
         return Result.Success(workflow);
     }
 
-    private Specifications.Workflow CreateWorkflowFromData(KeyValuePair<string, WorkflowData> data)
+    /// <summary>
+    /// Handle the request to query a workflow with data as input
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<Result<Specifications.Workflow>> HandleAsync(QueryWorkflowRequestByData request, CancellationToken cancellationToken)
     {
-        WorkflowData wfData = data.Value;
+        // clone the data to avoid modifying the original data
+        WorkflowData copy = await _workflowRepository.CopyAsync(request.Data, cancellationToken);
+        Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(copy, cancellationToken);
+        return Result.Success(workflow);
+    }
 
-        Dictionary<string, Specifications.Workflow> subworkflows = LoadSubworkflows(wfData);
-        IVariable[] variables = LoadVariables(wfData);
-        IStep[] steps = LoadSteps(wfData);
+    private async Task<Specifications.Workflow> CreateWorkflowFromDataAsync(WorkflowData data, CancellationToken cancellationToken)
+    {
+        Dictionary<string, Specifications.Workflow> subworkflows = await LoadSubworkflowsAsync(data, cancellationToken);
+        IVariable[] variables = LoadVariables(data);
+        IStep[] steps = await LoadStepsAsync(data, cancellationToken);
 
         Specifications.Workflow workflow = new();
         workflow.Variables.AddRange(variables);
@@ -65,18 +86,30 @@ internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowReques
             .ToArray() ?? [];
     }
 
-    private IStep[] LoadSteps(WorkflowData wfData)
+    private async Task<IStep[]> LoadStepsAsync(WorkflowData wfData, CancellationToken cancellationToken)
     {
         List<IStep> steps = new();
         foreach (StepData stepData in wfData.Steps)
         {
             IStep step = _stepFactory.CreateStep(stepData);
-            step.FromData(stepData);
 
-            if (step is ISubworkflowStep subworkflowStep)
+            // handle subworkflow step
+            if (step is SubworkflowStep subworkflowStep)
             {
-                string subworkflowName = subworkflowStep.SelectedSubworkflow.Content.Value.Value;
+                subworkflowStep.WorkflowData = wfData.Subworkflows ?? new();
+                string subworkflowName = stepData.Parameters?.Find(p => p.Name == "Subworkflow")?.Value ?? string.Empty;
+                subworkflowStep.SelectedSubworkflow.Content.AddOptions(wfData.Subworkflows?.Keys.ToArray() ?? []);
+                WorkflowData? subworkflowData = wfData.Subworkflows?.GetValueOrDefault(subworkflowName);
+                if (subworkflowData is null)
+                {
+                    continue;
+                }
+
+                subworkflowStep.AddSubworkflowOptions(wfData.Subworkflows?.Keys.ToArray() ?? []);
+                await subworkflowStep.UpdateSubworkflowAsync(subworkflowName, cancellationToken);
             }
+
+            AssignDataToStep(step, stepData);
 
             steps.Add(step);
         }
@@ -84,12 +117,25 @@ internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowReques
         return steps.ToArray();
     }
 
-    private Dictionary<string, Specifications.Workflow> LoadSubworkflows(WorkflowData wfData)
+    private static void AssignDataToStep(IStep step, StepData stepData)
     {
-        return wfData.Subworkflows?
-            .Select(s => new KeyValuePair<string, Specifications.Workflow>(s.Key, CreateWorkflowFromData(s)))
-            .ToDictionary(k => k.Key, v => v.Value) ?? [];
+        step.FromData(stepData);
+    }
+
+    private async Task<Dictionary<string, Specifications.Workflow>> LoadSubworkflowsAsync(WorkflowData wfData, CancellationToken cancellationToken)
+    {
+        Dictionary<string, Specifications.Workflow> subworkflows = new();
+
+        foreach (KeyValuePair<string, WorkflowData> subworkflow in wfData.Subworkflows ?? new())
+        {
+            Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(subworkflow.Value, cancellationToken);
+            subworkflows.Add(subworkflow.Key, workflow);
+        }
+
+        return subworkflows;
     }
 }
 
 public record QueryWorkflowRequest(string FilePath) : IRequest<Specifications.Workflow>;
+
+public record QueryWorkflowRequestByData(WorkflowData Data) : IRequest<Specifications.Workflow>;

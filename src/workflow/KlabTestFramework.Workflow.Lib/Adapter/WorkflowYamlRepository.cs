@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using KlabTestFramework.Workflow.Lib.Ports;
@@ -33,6 +31,23 @@ internal class WorkflowYamlRepository : IWorkflowRepository
         using StreamWriter writer = new(path);
         serializer.Serialize(writer, workflow);
         return Task.CompletedTask;
+    }
+
+    public Task<WorkflowData> CopyAsync(WorkflowData wfData, CancellationToken cancellationToken = default)
+    {
+        var serializerBuilder = new SerializerBuilder();
+        ConfigureBuilder(serializerBuilder);
+        ISerializer serializer = serializerBuilder.Build();
+
+        using StringWriter writer = new();
+        serializer.Serialize(writer, wfData);
+        
+        var deserializerBuilder = new DeserializerBuilder();
+        ConfigureBuilder(deserializerBuilder);
+        IDeserializer deserializer = deserializerBuilder.Build();
+        WorkflowData res = deserializer.Deserialize<WorkflowData>(writer.ToString());
+
+        return Task.FromResult(res);
     }
 
     private static void ConfigureBuilder<TBuilder>(BuilderSkeleton<TBuilder> builder) where TBuilder : BuilderSkeleton<TBuilder>
