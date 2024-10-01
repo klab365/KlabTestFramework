@@ -5,7 +5,7 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 /// <summary>
 /// Data for the step
 /// </summary>
-internal class StepData
+public class StepData
 {
     /// <summary>
     /// Id of the step
@@ -21,5 +21,5 @@ internal class StepData
     /// <summary>
     /// Parameters of the step, if any
     /// </summary>
-    public List<ParameterData>? Parameters { get; set; }
+    public List<ParameterData> Parameters { get; set; } = [];
 }

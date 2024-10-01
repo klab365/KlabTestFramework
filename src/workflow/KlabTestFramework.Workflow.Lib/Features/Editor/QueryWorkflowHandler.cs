@@ -45,7 +45,7 @@ internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowReques
 
         Dictionary<string, Specifications.Workflow> subworkflows = LoadSubworkflows(wfData);
         IVariable[] variables = LoadVariables(wfData);
-        IStep[] steps = LoadSteps(wfData, subworkflows);
+        IStep[] steps = LoadSteps(wfData);
 
         Specifications.Workflow workflow = new();
         workflow.Variables.AddRange(variables);
@@ -65,21 +65,19 @@ internal sealed class QueryWorkflowHandler : IRequestHandler<QueryWorkflowReques
             .ToArray() ?? [];
     }
 
-    private IStep[] LoadSteps(WorkflowData wfData, Dictionary<string, Specifications.Workflow> subworkflows)
+    private IStep[] LoadSteps(WorkflowData wfData)
     {
         List<IStep> steps = new();
         foreach (StepData stepData in wfData.Steps)
         {
             IStep step = _stepFactory.CreateStep(stepData);
+            step.FromData(stepData);
+
             if (step is ISubworkflowStep subworkflowStep)
             {
-                ParameterData parameterData = stepData.Parameters!.FoundParameterDataByName(subworkflowStep.SelectedSubworkflow.Name);
-                string subworkflowName = parameterData.Value;
-                subworkflowStep.SelectedSubworkflow.Content.AddOptions(subworkflows.Keys.ToArray());
-                subworkflowStep.Subworkflow = subworkflows[subworkflowName];
+                string subworkflowName = subworkflowStep.SelectedSubworkflow.Content.Value.Value;
             }
 
-            step.FromData(stepData);
             steps.Add(step);
         }
 

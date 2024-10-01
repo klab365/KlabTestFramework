@@ -3,7 +3,7 @@
 /// <summary>
 /// Data class for a parameter
 /// </summary>
-internal class ParameterData
+public class ParameterData
 {
     /// <summary>
     /// Name of the parameter

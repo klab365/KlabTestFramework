@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using KlabTestFramework.Shared.Parameters.Types;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
@@ -29,9 +28,7 @@ public interface ISubworkflowStep : IStepWithChildren
 {
     Parameter<SelectableParameter<StringParameter>> SelectedSubworkflow { get; }
 
-    event Action<string>? SubworkflowSelected;
-
-    Workflow Subworkflow { get; set; }
+    Workflow Subworkflow { get; }
 
     List<IParameter> Arguments { get; }
 }

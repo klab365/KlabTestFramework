@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using KlabTestFramework.Workflow.Lib.Ports;
@@ -10,16 +12,16 @@ namespace KlabTestFramework.Workflow.Lib.Editor.Adapter;
 
 internal class WorkflowYamlRepository : IWorkflowRepository
 {
-    public async Task<WorkflowData> GetWorkflowAsync(string path, CancellationToken cancellationToken = default)
+    public Task<WorkflowData> GetWorkflowAsync(string path, CancellationToken cancellationToken = default)
     {
         var deserializerBuilder = new DeserializerBuilder();
         ConfigureBuilder(deserializerBuilder);
         IDeserializer deserializer = deserializerBuilder.Build();
 
         using StreamReader reader = new(path);
-        string content = await reader.ReadToEndAsync(cancellationToken);
-        WorkflowData workflow = deserializer.Deserialize<WorkflowData>(content);
-        return workflow;
+        WorkflowData res = deserializer.Deserialize<WorkflowData>(reader);
+
+        return Task.FromResult(res);
     }
 
     public Task SaveWorkflowAsync(string path, WorkflowData workflow, CancellationToken cancellationToken = default)
@@ -35,7 +37,7 @@ internal class WorkflowYamlRepository : IWorkflowRepository
 
     private static void ConfigureBuilder<TBuilder>(BuilderSkeleton<TBuilder> builder) where TBuilder : BuilderSkeleton<TBuilder>
     {
-        builder.WithNamingConvention(LowerCaseNamingConvention.Instance);
+        builder.WithNamingConvention(CamelCaseNamingConvention.Instance);
     }
 }
 

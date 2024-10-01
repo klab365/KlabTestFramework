@@ -3,7 +3,9 @@ using Klab.Toolkit.Event;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
 using KlabTestFramework.Workflow.Lib.BuiltIn.Validator;
 using KlabTestFramework.Workflow.Lib.Editor.Adapter;
+using KlabTestFramework.Workflow.Lib.Features.Common;
 using KlabTestFramework.Workflow.Lib.Features.Editor;
+using KlabTestFramework.Workflow.Lib.Features.Runner;
 using KlabTestFramework.Workflow.Lib.Features.Validator;
 using KlabTestFramework.Workflow.Lib.Ports;
 using KlabTestFramework.Workflow.Lib.Specifications;
@@ -42,6 +44,10 @@ public static class WorkflowModule
     {
         services.AddRequestResponseHandler<QueryWorkflowRequest, Specifications.Workflow, QueryWorkflowHandler>();
         services.AddRequestHandler<SaveWorkflowRequest, SaveWorkflowRequestHandler>();
+        services.AddRequestResponseHandler<RunWorkflowRequest, WorkflowResult, RunWorkflowRequestHandler>();
+        services.AddRequestResponseHandler<RunSingleStepRequest, WorkflowStepStatusEvent, RunSingleStepRequestHandler>();
+        services.AddRequestResponseHandler<ValidateWorkflowRequest, WorkflowValidatorResult, ValidateWorkflowRequestHandler>();
+        services.AddRequestHandler<ReplaceWorkflowWithVariablesRequest, ReplaceWorkflowWithVariablesRequesHandler>();
     }
 
     private static void AddWorkflowValidator(this IServiceCollection services)

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -17,9 +19,15 @@ internal static class StepExtensions
         }
         step.Id = StepId.Create(stepData.Id);
 
-        foreach (IParameter parameter in step.GetParameters())
+
+        foreach ((int index, IParameter parameter) in step.GetParameters().Select((parameter, index) => (index, parameter)))
         {
-            ParameterData parameterData = stepData.Parameters.FoundParameterDataByName(parameter.Name);
+            ParameterData? parameterData = stepData.Parameters.ElementAtOrDefault(index);
+            if (parameterData is null)
+            {
+                continue; // No data for this parameter
+            }
+
             parameter.FromData(parameterData);
         }
     }

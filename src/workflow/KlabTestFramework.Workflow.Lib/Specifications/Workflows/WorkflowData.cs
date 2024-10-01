@@ -5,7 +5,7 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 /// <summary>
 /// Represents the data of workflow data.
 /// </summary>
-internal class WorkflowData
+public class WorkflowData
 {
     /// <summary>
     /// Variables used in the workflow, if any

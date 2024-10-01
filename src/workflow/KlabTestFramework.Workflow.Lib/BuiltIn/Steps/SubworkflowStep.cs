@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Shared.Parameters.Types;
@@ -8,7 +7,7 @@ using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 
-public class SubworkflowStep : ISubworkflowStep
+internal class SubworkflowStep : ISubworkflowStep
 {
     public static readonly StringParameter NoneSelected = new() { Name = "none" };
     public StepId Id { get; set; } = StepId.Empty;
@@ -19,11 +18,9 @@ public class SubworkflowStep : ISubworkflowStep
 
     public List<IParameter> Arguments { get; private set; } = new();
 
-    public Specifications.Workflow Subworkflow { get; set; } = new(); 
+    public Specifications.Workflow Subworkflow { get; } = new(); 
 
-    public event Action<string>? SubworkflowSelected;
-
-    public SubworkflowStep(ParameterFactory parameterFactory)
+    public SubworkflowStep(ParameterFactory parameterFactory, StepFactory stepFactory)
     {
         SelectedSubworkflow = parameterFactory.CreateParameter<SelectableParameter<StringParameter>>
         (
@@ -31,8 +28,6 @@ public class SubworkflowStep : ISubworkflowStep
             string.Empty,
             p => p.SetValue(NoneSelected)
         );
-
-        SelectedSubworkflow.Content.ValueChanged += OnSelectedSubworkflowChanged;
     }
 
     public IEnumerable<IParameter> GetParameters()
@@ -57,8 +52,10 @@ public class SubworkflowStep : ISubworkflowStep
         SelectedSubworkflow.Content.SelectOption(parameter);
     }
 
-    private void OnSelectedSubworkflowChanged(StringParameter parameter)
+    public void SelectWorkflow(WorkflowData wfData)
     {
-        SubworkflowSelected?.Invoke(parameter.Value);
+        
+
+
     }
 }
