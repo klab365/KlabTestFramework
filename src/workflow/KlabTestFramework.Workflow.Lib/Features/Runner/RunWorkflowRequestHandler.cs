@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Features.Common;
-using KlabTestFramework.Workflow.Lib.Features.Validator;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Features.Runner;
