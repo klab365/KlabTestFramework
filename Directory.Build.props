@@ -22,13 +22,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <KlabToolkitVersion>2.2.4</KlabToolkitVersion>
+    <KlabToolkitVersion>2.3.0</KlabToolkitVersion>
   </PropertyGroup>
 
   <!-- common packages  -->
   <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
     <PackageReference Include="Klab.Toolkit.Results" Version="$(KlabToolkitVersion)" />
     <PackageReference Include="Klab.Toolkit.Event" Version="$(KlabToolkitVersion)" />
+    <PackageReference Include="Klab.Toolkit.Event.Abstractions" Version="$(KlabToolkitVersion)" />
     <PackageReference Include="Klab.Toolkit.Common" Version="$(KlabToolkitVersion)" />
 
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">

@@ -106,7 +106,7 @@ public static class WorkflowModule
     private static void AddVariables(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
         services.AddTransient<VariableFactory>();
-        services.AddTransient<IVariableParameterReplaceHandler, DefaultVariableParameterReplace>();
+        services.AddTransient<DefaultVariableParameterReplace>();
 
         foreach (VariableReplaceHandlerType item in configuration.VariableHandlerTypes)
         {

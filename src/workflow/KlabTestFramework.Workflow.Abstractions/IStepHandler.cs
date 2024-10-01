@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
@@ -16,7 +17,7 @@ public interface IStepHandler
     /// <param name="step">The step to handle.</param>
     /// <param name="context">The context of the workflow.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task<StepResults> HandleAsync(IStep step, WorkflowContext context, CancellationToken cancellationToken = default);
+    Task<StepResult> HandleAsync(IStep step, WorkflowContext context, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -31,14 +32,20 @@ public interface IStepHandler<in TStep> : IStepHandler where TStep : IStep
     /// <param name="step">The step to handle.</param>
     /// <param name="context">The context of the workflow.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task<StepResults> HandleAsync(TStep step, WorkflowContext context, CancellationToken cancellationToken = default);
+    Task<StepResult> HandleAsync(TStep step, WorkflowContext context, CancellationToken cancellationToken = default);
 
-    /// <inheritdoc/>
-    Task<StepResults> IStepHandler.HandleAsync(IStep step, WorkflowContext context, CancellationToken cancellationToken)
+    /// <summary>
+    /// Simple wrapper to cast to the correct type and call the actual implementation.
+    /// </summary>
+    /// <param name="step"></param>
+    /// <param name="context"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<StepResult> IStepHandler.HandleAsync(IStep step, WorkflowContext context, CancellationToken cancellationToken)
     {
         if (step is not TStep castedStep)
         {
-            StepResults res = StepResults.Result(StepResult.Failure(step, Result.Failure(WorkflowModuleErrors.StepNotFound)));
+            StepResult res = StepResult.Failure(step, WorkflowModuleErrors.StepNotFound);
             return Task.FromResult(res);
         }
 
@@ -53,106 +60,49 @@ public class WorkflowContext
 {
     /// <inheritdoc/>
     public IVariable[] Variables { get; set; } = [];
-
-    public IProgress<StepFeedback> Progress { get; set; } = new Progress<StepFeedback>();
-}
-
-public record StepResults
-{
-    public StepResult[] Results { get; }
-
-    public bool IsSuccess => Array.TrueForAll(Results, r => r.Result.IsSuccess);
-
-    public static StepResults Result(params StepResult[] results)
-    {
-        return new StepResults(results);
-    }
-
-    private StepResults(StepResult[] results)
-    {
-        Results = results;
-    }
 }
 
 /// <summary>
 /// Object representing the result of a step.
 /// </summary>
-public record StepResult
+public record StepResult : IResult
 {
     public IStep Step { get; }
-    public Result Result { get; }
-    public StepStatus Status { get;} 
-    public IVariable[] OutputVariables { get; }
+    public StepResult[] Children { get; }
 
-    public static StepResult Success(IStep step, params IVariable[] outputVariables)
+    public bool IsSuccess { get; }
+
+    public bool IsFailure => !IsSuccess;
+
+    public IError Error { get; }
+
+    public static StepResult Success(IStep step, params StepResult[] children)
     {
-        return new StepResult(step, Result.Success(), StepStatus.Completed, outputVariables);
+        return new StepResult(step, true, new ErrorNone(), children);
     }
 
-    public static StepResult Failure(IStep step, Result result)
+    public static StepResult Failure(IStep step, IError error, params StepResult[] children)
     {
-        return new StepResult(step, result, StepStatus.Failed, []);
+        return new StepResult(step, false, error, children);
     }
 
-    private StepResult(IStep step, Result result, StepStatus status, IVariable[] outputVariables)
+    public static StepResult Collect(IStep step, StepResult[] stepResults)
     {
-        Step = step;
-        Result = result;
-        Status = status;
-        OutputVariables = outputVariables;
-    }
-}
-
-public record StepFeedback
-{
-    public IStep Step { get; }
-
-    public StepStatus Status { get; }
-
-    public string Message { get; }
-
-    public static StepFeedback Running(IStep step, string message = "")
-    {
-        return new StepFeedback(step, StepStatus.Running, message);
+        if (Array.Exists(stepResults, r => r.IsFailure))
+        {
+            return Failure(step, new InformativeError("", ""), stepResults.ToArray());
+        }
+        else
+        {
+            return Success(step, stepResults.ToArray());
+        }
     }
 
-    public static StepFeedback Completed(IStep step, string message = "")
-    {
-        return new StepFeedback(step, StepStatus.Completed, message);
-    }
-
-    public static StepFeedback Idle(IStep step, string message = "")
-    {
-        return new StepFeedback(step, StepStatus.Idle, message);
-    }
-
-    private StepFeedback(IStep step, StepStatus status, string message)
+    private StepResult(IStep step, bool isSuccess, IError error, StepResult[] children)
     {
         Step = step;
-        Status = status;
-        Message = message;
+        IsSuccess = isSuccess;
+        Error = error;
+        Children = children;
     }
-}
-
-/// <summary>
-/// Represents the status of a workflow step.
-/// </summary>
-public enum StepStatus
-{
-    ///
-    /// Idle,
-    Idle,
-
-    /// <summary>
-    /// The step is running.
-    /// </summary>
-    Running,
-
-    /// <summary>
-    /// The step is completed.
-    /// </summary>
-    Completed,
-
-    /// <summary>
-    Failed,
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -25,7 +25,7 @@ internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandle
         return Result.Success();
     }
 
-     private async Task ReplaceStepsWithVariables(IEnumerable<IStep> steps, IEnumerable<IVariable> variables)
+    private async Task ReplaceStepsWithVariables(IEnumerable<IStep> steps, IEnumerable<IVariable> variables)
     {
         foreach (IStep step in steps)
         {
@@ -69,7 +69,6 @@ internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandle
         IVariableParameterReplaceHandler variableHandler = _variableFactory.CreateVariableReplaceHandler(parameter.ParameterContentType);
         IVariable variable = variables.Single(v => v.Name == variableName);
         await variableHandler.ReplaceAsync(variable, parameter);
-
     }
 
     private static bool ContainVariable(IEnumerable<IVariable> variables, string variableName)

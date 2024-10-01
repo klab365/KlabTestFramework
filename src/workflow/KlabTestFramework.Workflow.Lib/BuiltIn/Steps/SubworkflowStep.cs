@@ -58,7 +58,7 @@ internal class SubworkflowStep : ISubworkflowStep
         SelectedSubworkflow.Content.SelectOption(parameter);
     }
 
-    public async Task<Result> UpdateSubworkflowAsync(string wfName, CancellationToken cancellationToken = default)
+    public async Task<IResult> UpdateSubworkflowAsync(string wfName, CancellationToken cancellationToken = default)
     {
         WorkflowData? wfData = WorkflowData.GetValueOrDefault(wfName);
         if (wfData is null)
@@ -67,7 +67,7 @@ internal class SubworkflowStep : ISubworkflowStep
         }
 
         QueryWorkflowRequestByData req = new(wfData);
-        Result<Specifications.Workflow> res = await _eventBus.SendAsync<QueryWorkflowRequestByData, Specifications.Workflow>(req, cancellationToken);
+        IResult<Specifications.Workflow> res = await _eventBus.SendAsync<QueryWorkflowRequestByData, Specifications.Workflow>(req, cancellationToken);
         if (res.IsFailure)
         {
             return res;

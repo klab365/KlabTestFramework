@@ -18,5 +18,13 @@ public static class WorkflowModuleErrors
 
     public static InformativeError SubworkflowNotFound(string wfName) => new("Workflow", $"Subworkflow {wfName} not found");
 
+    public static InformativeError WorkflowLoadError(string filePath, Exception ex)
+    {
+        string message = $"Error loading workflow at {filePath}: {ex.Message}";
+        var err = new InformativeError("Workflow", message);
+        err.StackTrace = ex.StackTrace?.ToString() ?? string.Empty;
+        return err;
+    }
+
     public static InformativeError WorkflowNotFound(string filePath) => new("Workflow", $"Workflow not found at {filePath}");
 }

@@ -19,9 +19,11 @@ internal class RunSingleStepRequestHandler : IRequestHandler<RunSingleStepReques
     public async Task<Result<StepResult>> HandleAsync(RunSingleStepRequest request, CancellationToken cancellationToken)
     {
         IStepHandler stepHandler = _stepFactory.CreateStepHandler(request.Step);
-        Result res = await stepHandler.HandleAsync(request.Step, request.Context, cancellationToken);
-        return Result.Success(new StepResult(request.Step, res.IsSuccess ? StepStatus.Completed : StepStatus.Idle));
+
+        StepResult res = await stepHandler.HandleAsync(request.Step, request.Context, cancellationToken);
+
+        return Result.Success(res); // allways success , because we need the content of stepresults object
     }
 }
 
-public record RunSingleStepRequest(IStep Step, WorkflowContext Context) : IRequest<StepResults>;
+public record RunSingleStepRequest(IStep Step, WorkflowContext Context) : IRequest<StepResult>;

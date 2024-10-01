@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
@@ -19,13 +21,13 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
 
     public async Task<Result<WorkflowResult>> HandleAsync(RunWorkflowRequest request, CancellationToken cancellationToken)
     {
-        Result resReplaceVariable = await _eventBus.SendAsync(new ReplaceWorkflowWithVariablesRequest(request.Workflow), cancellationToken);
+        IResult resReplaceVariable = await _eventBus.SendAsync(new ReplaceWorkflowWithVariablesRequest(request.Workflow), cancellationToken);
         if (resReplaceVariable.IsFailure)
         {
             return Result.Failure<WorkflowResult>(resReplaceVariable.Error);
         }
 
-        Result<WorkflowValidatorResult> resValidation = await _eventBus.SendAsync<ValidateWorkflowRequest, WorkflowValidatorResult>(new ValidateWorkflowRequest(request.Workflow), cancellationToken);
+        IResult<WorkflowValidatorResult> resValidation = await _eventBus.SendAsync<ValidateWorkflowRequest, WorkflowValidatorResult>(new ValidateWorkflowRequest(request.Workflow), cancellationToken);
         if (resValidation.IsFailure)
         {
             return Result.Failure<WorkflowResult>(resValidation.Error);
@@ -37,25 +39,47 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
 
     private async Task<WorkflowResult> HandleWorkflowAsync(Specifications.Workflow workflow, WorkflowContext context, CancellationToken cancellationToken)
     {
+        List<StepResult> stepResults = new();
         foreach (IStep step in workflow.Steps)
         {
-            await _eventBus.SendAsync<RunSingleStepRequest, StepResult>(new RunSingleStepRequest(step, context), cancellationToken);
+            IResult<StepResult> res = await _eventBus.SendAsync<RunSingleStepRequest, StepResult>(new RunSingleStepRequest(step, context), cancellationToken);
+            if (res.IsFailure)
+            {
+                throw new InvalidOperationException("Workflow can not run and don't return any results...");
+            }
+
+            stepResults.Add(res.Value);
         }
 
-        return new WorkflowResult(true);
+        return new WorkflowResult(stepResults.ToArray());
     }
 }
 
 public record RunWorkflowRequest(Specifications.Workflow Workflow, WorkflowContext Context) : IRequest<WorkflowResult>;
 
-public record WorkflowResult(bool IsSuccess);
-
-public record WorkflowStatusEvent(WorkflowStatus Status);
-
-public enum WorkflowStatus
+public record WorkflowResult(StepResult[] Results)
 {
-    Idle,
-    Running,
-    Paused,
-    Completed
+    public bool IsSuccess()
+    {
+        return Array.TrueForAll(Results, IsSuccess);
+    }
+
+    private static bool IsSuccess(StepResult result)
+    {
+        bool isSuccess = true;
+        if (!result.IsSuccess)
+        {
+            isSuccess = false;
+        }
+
+        foreach (StepResult child in result.Children)
+        {
+            if (!IsSuccess(child))
+            {
+                isSuccess = false;
+            }
+        }
+
+        return isSuccess;
+    }
 }

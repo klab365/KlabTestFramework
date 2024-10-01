@@ -47,7 +47,7 @@ public interface ISubworkflowStep : IStep
     /// <param name="wfName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<Result> UpdateSubworkflowAsync(string wfName, CancellationToken cancellationToken = default);
+    Task<IResult> UpdateSubworkflowAsync(string wfName, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// simple wrapper

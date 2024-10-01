@@ -2,7 +2,7 @@ set quiet
 
 # add projects to solution
 slnadd:
-    find . -name "*.csproj" -print0 | xargs -0 dotnet sln add
+    dotnet sln add ls -r **/*.csproj
 
 # build the solution
 build:

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Services;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -21,7 +20,7 @@ public class WaitStepHandler : IStepHandler<WaitStep>
     }
 
     /// <inheritdoc/>
-    public async Task<Result> HandleAsync(WaitStep step, WorkflowContext context, CancellationToken cancellationToken = default)
+    public async Task<StepResult> HandleAsync(WaitStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
         TimeSpan remainingTime = step.Time.Content.Value;
         while (!cancellationToken.IsCancellationRequested)
@@ -36,7 +35,7 @@ public class WaitStepHandler : IStepHandler<WaitStep>
         }
 
         PublishRemainingTime(step, TimeSpan.Zero);
-        return Result.Success();
+        return StepResult.Success(step);
     }
 
     private static void PublishRemainingTime(WaitStep step, TimeSpan remainingTime)

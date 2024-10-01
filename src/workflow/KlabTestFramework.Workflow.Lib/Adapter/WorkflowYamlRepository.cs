@@ -41,7 +41,7 @@ internal class WorkflowYamlRepository : IWorkflowRepository
 
         using StringWriter writer = new();
         serializer.Serialize(writer, wfData);
-        
+
         var deserializerBuilder = new DeserializerBuilder();
         ConfigureBuilder(deserializerBuilder);
         IDeserializer deserializer = deserializerBuilder.Build();

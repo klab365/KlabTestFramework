@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
@@ -17,23 +18,25 @@ internal class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
         _eventBus = eventBus;
     }
 
-    public async Task<Result> HandleAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
+    public async Task<StepResult> HandleAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
         if (step.SelectedSubworkflow.Content.Value == SubworkflowStep.NoneSelected)
         {
-            return Result.Failure(new InformativeError(string.Empty, string.Empty));
+            return StepResult.Failure(step, new InformativeError(string.Empty, string.Empty));
         }
 
         if (step.Subworkflow == null)
         {
-            return Result.Failure(new InformativeError(string.Empty, string.Empty));
+            return StepResult.Failure(step, new InformativeError(string.Empty, string.Empty));
         }
 
+        List<StepResult> stepResults = new();
         foreach (IStep child in step.Subworkflow.Steps)
         {
-            await _eventBus.SendAsync<RunSingleStepRequest, WorkflowStepStatusEvent>(new RunSingleStepRequest(child, context), cancellationToken);
+            IResult<StepResult> res = await _eventBus.SendAsync<RunSingleStepRequest, StepResult>(new RunSingleStepRequest(child, context), cancellationToken);
+            stepResults.Add(res.Value);
         }
 
-        return Result.Success();
+        return StepResult.Collect(step, stepResults.ToArray());
     }
 }

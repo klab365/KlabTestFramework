@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Shared.Parameters.Types;
 using KlabTestFramework.Workflow.Lib.Specifications;

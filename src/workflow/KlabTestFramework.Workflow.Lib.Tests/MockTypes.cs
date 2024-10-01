@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Shared.Parameters.Types;
 using KlabTestFramework.Workflow.Lib.Specifications;
@@ -33,9 +32,9 @@ public class MockStep : IStep
 
 public class MockStepHandler : IStepHandler<MockStep>
 {
-    public Task<Result> HandleAsync(MockStep step, WorkflowContext context, CancellationToken cancellationToken = default)
+    public Task<StepResult> HandleAsync(MockStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
         step.Counter.Content.SetValue(step.Counter.Content.Value + 1);
-        return Task.FromResult(Result.Success());
+        return Task.FromResult(StepResult.Success(step));
     }
 }

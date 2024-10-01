@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -14,7 +15,7 @@ namespace KlabTestFramework.Workflow.Lib.Features.Editor;
 /// <summary>
 /// Handler for querying a workflow.
 /// </summary>
-internal sealed class QueryWorkflowHandler : 
+internal sealed class QueryWorkflowHandler :
     IRequestHandler<QueryWorkflowRequest, Specifications.Workflow>,
     IRequestHandler<QueryWorkflowRequestByData, Specifications.Workflow>
 {
@@ -42,10 +43,16 @@ internal sealed class QueryWorkflowHandler :
             return Result.Failure<Specifications.Workflow>(WorkflowModuleErrors.WorkflowNotFound(request.FilePath));
         }
 
-        WorkflowData data = await _workflowRepository.GetWorkflowAsync(request.FilePath, cancellationToken);
-        Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(data, cancellationToken);
-
-        return Result.Success(workflow);
+        try
+        {
+            WorkflowData data = await _workflowRepository.GetWorkflowAsync(request.FilePath, cancellationToken);
+            Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(data, cancellationToken);
+            return Result.Success(workflow);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<Specifications.Workflow>(WorkflowModuleErrors.WorkflowLoadError(request.FilePath, ex));
+        }
     }
 
     /// <summary>
