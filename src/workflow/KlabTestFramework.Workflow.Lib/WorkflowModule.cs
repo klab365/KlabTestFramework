@@ -44,6 +44,7 @@ public static class WorkflowModule
     {
         services.AddRequestResponseHandler<QueryWorkflowRequest, Specifications.Workflow, QueryWorkflowHandler>();
         services.AddRequestResponseHandler<QueryWorkflowRequestByData, Specifications.Workflow, QueryWorkflowHandler>();
+        services.AddRequestResponseHandler<CloneWorkflowRequest, Specifications.Workflow, QueryWorkflowHandler>();
         services.AddRequestHandler<SaveWorkflowRequest, SaveWorkflowRequestHandler>();
         services.AddRequestResponseHandler<RunWorkflowRequest, WorkflowResult, RunWorkflowRequestHandler>();
         services.AddRequestResponseHandler<RunSingleStepRequest, StepResult, RunSingleStepRequestHandler>();
@@ -79,6 +80,7 @@ public static class WorkflowModule
         {
             configuration.AddStepType<WaitStep, WaitStepHandler>();
             configuration.AddStepType<SubworkflowStep, SubworkflowStepHandler>();
+            configuration.AddStepType<LoopStep, LoopStepHandler>();
         }
 
         foreach (StepType stepType in configuration.StepTypes)

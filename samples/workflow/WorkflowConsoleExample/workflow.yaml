@@ -6,7 +6,7 @@ steps:
     value: "sub1"
   - name: myVariable
     type: Value
-    value: 00:00:10
+    value: 00:00:02
 
 - type: SubworkflowStep
   parameters:
@@ -16,6 +16,18 @@ steps:
   - name: myVariable
     type: Value
     value: 00:00:04
+
+- type: LoopStep
+  parameters:
+  - name: IterationCount
+    type: Value
+    value: 2
+  children:
+  - type: WaitStep
+    parameters:
+    - name: Time
+      type: Value
+      value: 00:00:01
 
 subworkflows:
   sub1:

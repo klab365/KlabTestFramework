@@ -16,6 +16,11 @@ public interface IStep
     IEnumerable<IParameter> GetParameters();
 }
 
+public interface IStepWithChildren : IStep
+{
+    List<IStep> Children { get; }
+}
+
 /// <summary>
 /// Represents a step in a workflow that is a subworkflow.
 /// </summary>

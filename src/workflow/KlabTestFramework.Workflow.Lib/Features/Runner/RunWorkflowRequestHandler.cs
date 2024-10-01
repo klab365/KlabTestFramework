@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Features.Common;
+using KlabTestFramework.Workflow.Lib.Features.Editor;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Features.Runner;
@@ -20,19 +21,27 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
 
     public async Task<Result<WorkflowResult>> HandleAsync(RunWorkflowRequest request, CancellationToken cancellationToken)
     {
-        IResult resReplaceVariable = await _eventBus.SendAsync(new ReplaceWorkflowWithVariablesRequest(request.Workflow), cancellationToken);
+        IResult<Specifications.Workflow> resClonedWorkflow = await _eventBus.SendAsync<CloneWorkflowRequest, Specifications.Workflow>(new CloneWorkflowRequest(request.Workflow), cancellationToken);
+        if (resClonedWorkflow.IsFailure)
+        {
+            return Result.Failure<WorkflowResult>(resClonedWorkflow.Error);
+        }
+        Specifications.Workflow workflow = resClonedWorkflow.Value;
+
+
+        IResult resReplaceVariable = await _eventBus.SendAsync(new ReplaceWorkflowWithVariablesRequest(workflow), cancellationToken);
         if (resReplaceVariable.IsFailure)
         {
             return Result.Failure<WorkflowResult>(resReplaceVariable.Error);
         }
 
-        IResult<WorkflowValidatorResult> resValidation = await _eventBus.SendAsync<ValidateWorkflowRequest, WorkflowValidatorResult>(new ValidateWorkflowRequest(request.Workflow), cancellationToken);
+        IResult<WorkflowValidatorResult> resValidation = await _eventBus.SendAsync<ValidateWorkflowRequest, WorkflowValidatorResult>(new ValidateWorkflowRequest(workflow), cancellationToken);
         if (resValidation.IsFailure)
         {
             return Result.Failure<WorkflowResult>(resValidation.Error);
         }
 
-        WorkflowResult wflResult = await HandleWorkflowAsync(request.Workflow, request.Context, cancellationToken);
+        WorkflowResult wflResult = await HandleWorkflowAsync(workflow, request.Context, cancellationToken);
         return Result.Success(wflResult);
     }
 

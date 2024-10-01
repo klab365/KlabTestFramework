@@ -17,7 +17,8 @@ namespace KlabTestFramework.Workflow.Lib.Features.Editor;
 /// </summary>
 internal sealed class QueryWorkflowHandler :
     IRequestHandler<QueryWorkflowRequest, Specifications.Workflow>,
-    IRequestHandler<QueryWorkflowRequestByData, Specifications.Workflow>
+    IRequestHandler<QueryWorkflowRequestByData, Specifications.Workflow>,
+    IRequestHandler<CloneWorkflowRequest, Specifications.Workflow>
 {
     private readonly IWorkflowRepository _workflowRepository;
     private readonly StepFactory _stepFactory;
@@ -69,6 +70,13 @@ internal sealed class QueryWorkflowHandler :
         return Result.Success(workflow);
     }
 
+    public async Task<Result<Specifications.Workflow>> HandleAsync(CloneWorkflowRequest request, CancellationToken cancellationToken)
+    {
+        WorkflowData copy = await _workflowRepository.CopyAsync(request.Workflow.ToData(), cancellationToken);
+        Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(copy, cancellationToken);
+        return Result.Success(workflow);
+    }
+
     private async Task<Specifications.Workflow> CreateWorkflowFromDataAsync(WorkflowData data, CancellationToken cancellationToken)
     {
         Dictionary<string, Specifications.Workflow> subworkflows = await LoadSubworkflowsAsync(data, cancellationToken);
@@ -99,6 +107,16 @@ internal sealed class QueryWorkflowHandler :
         foreach (StepData stepData in wfData.Steps)
         {
             IStep step = _stepFactory.CreateStep(stepData);
+
+            if (step is IStepWithChildren stepWithChildren)
+            {
+                foreach (StepData childData in stepData.Children ?? new())
+                {
+                    IStep childStep = _stepFactory.CreateStep(childData);
+                    AssignDataToStep(childStep, childData);
+                    stepWithChildren.Children.Add(childStep);
+                }
+            }
 
             // handle subworkflow step
             if (step is SubworkflowStep subworkflowStep)
@@ -146,3 +164,5 @@ internal sealed class QueryWorkflowHandler :
 public record QueryWorkflowRequest(string FilePath) : IRequest<Specifications.Workflow>;
 
 public record QueryWorkflowRequestByData(WorkflowData Data) : IRequest<Specifications.Workflow>;
+
+public record CloneWorkflowRequest(Specifications.Workflow Workflow) : IRequest<Specifications.Workflow>;

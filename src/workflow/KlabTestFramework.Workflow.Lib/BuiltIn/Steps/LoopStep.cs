@@ -6,9 +6,9 @@ using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 
-internal class LoopStep : IStep
+internal class LoopStep : IStepWithChildren
 {
-    public List<IStep> Children => throw new System.NotImplementedException();
+    public List<IStep> Children { get; } = new();
 
     public StepId Id { get; set; } = StepId.Empty;
 
@@ -19,7 +19,7 @@ internal class LoopStep : IStep
         IterationCount = parameterFactory.CreateParameter<IntParameter>
         (
             "IterationCount",
-            "count",
+            "",
             p => p.SetValue(1),
             p => p.AddValidation(v => v > 0)
         );

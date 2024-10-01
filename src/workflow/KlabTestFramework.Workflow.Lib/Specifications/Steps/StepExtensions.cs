@@ -46,6 +46,11 @@ internal static class StepExtensions
             Parameters = parameters,
         };
 
+        if (step is IStepWithChildren stepWithChildren)
+        {
+            data.Children = stepWithChildren.Children.Select(c => c.ToData()).ToList();
+        }
+
         return data;
     }
 }
