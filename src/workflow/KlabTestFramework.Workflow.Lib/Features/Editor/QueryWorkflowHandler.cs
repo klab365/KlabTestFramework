@@ -81,7 +81,7 @@ internal sealed class QueryWorkflowHandler :
     {
         Dictionary<string, Specifications.Workflow> subworkflows = await LoadSubworkflowsAsync(data, cancellationToken);
         IVariable[] variables = LoadVariables(data);
-        IStep[] steps = await LoadStepsAsync(data, cancellationToken);
+        IStep[] steps = await LoadStepsAsync(data.Steps, data.Subworkflows ?? [], cancellationToken);
 
         Specifications.Workflow workflow = new();
         workflow.Variables.AddRange(variables);
@@ -101,37 +101,31 @@ internal sealed class QueryWorkflowHandler :
             .ToArray() ?? [];
     }
 
-    // todo: issue with load steps, if child step is a subworkflow step, it will not be loaded correctly...
-    // make it better and recursive ;)
-    private async Task<IStep[]> LoadStepsAsync(WorkflowData wfData, CancellationToken cancellationToken)
+    private async Task<IStep[]> LoadStepsAsync(IEnumerable<StepData> stepDatas, Dictionary<string, WorkflowData> subworkflows, CancellationToken cancellationToken)
     {
         List<IStep> steps = new();
-        foreach (StepData stepData in wfData.Steps)
+        foreach (StepData stepData in stepDatas)
         {
             IStep step = _stepFactory.CreateStep(stepData);
 
             if (step is IStepWithChildren stepWithChildren)
             {
-                foreach (StepData childData in stepData.Children ?? new())
-                {
-                    IStep childStep = _stepFactory.CreateStep(childData);
-                    stepWithChildren.Children.Add(childStep);
-                }
+                stepWithChildren.Children.AddRange(await LoadStepsAsync(stepData.Children ?? [], subworkflows ?? [], cancellationToken)); // recursive call
             }
 
             // handle subworkflow step
             if (step is SubworkflowStep subworkflowStep)
             {
-                subworkflowStep.WorkflowData = wfData.Subworkflows ?? new();
+                subworkflowStep.WorkflowData = subworkflows ?? [];
                 string subworkflowName = stepData.Parameters?.Find(p => p.Name == "Subworkflow")?.Value ?? string.Empty;
-                subworkflowStep.SelectedSubworkflow.Content.AddOptions(wfData.Subworkflows?.Keys.ToArray() ?? []);
-                WorkflowData? subworkflowData = wfData.Subworkflows?.GetValueOrDefault(subworkflowName);
+                subworkflowStep.SelectedSubworkflow.Content.AddOptions(subworkflows?.Keys.ToArray() ?? []);
+                WorkflowData? subworkflowData = subworkflows?.GetValueOrDefault(subworkflowName);
                 if (subworkflowData is null)
                 {
                     continue;
                 }
 
-                subworkflowStep.AddSubworkflowOptions(wfData.Subworkflows?.Keys.ToArray() ?? []);
+                subworkflowStep.AddSubworkflowOptions(subworkflows?.Keys.ToArray() ?? []);
                 await subworkflowStep.UpdateSubworkflowAsync(subworkflowName, cancellationToken);
             }
 
@@ -146,13 +140,32 @@ internal sealed class QueryWorkflowHandler :
     private static void AssignDataToStep(IStep step, StepData stepData)
     {
         step.FromData(stepData);
+
+        if (step is IStepWithChildren stepWithChildren)
+        {
+            if (stepData.Children?.Count != stepWithChildren.Children.Count)
+            {
+                throw new InvalidOperationException($"Mismatch between step data and step children for step {step.Id}");
+            }
+
+            for (int i = 0; i < stepWithChildren.Children.Count; i++)
+            {
+                StepData? data = stepData.Children?[i];
+                if (data is null)
+                {
+                    continue;
+                }
+
+                AssignDataToStep(stepWithChildren.Children[i], data);
+            }
+        }
     }
 
     private async Task<Dictionary<string, Specifications.Workflow>> LoadSubworkflowsAsync(WorkflowData wfData, CancellationToken cancellationToken)
     {
-        Dictionary<string, Specifications.Workflow> subworkflows = new();
+        Dictionary<string, Specifications.Workflow> subworkflows = [];
 
-        foreach (KeyValuePair<string, WorkflowData> subworkflow in wfData.Subworkflows ?? new())
+        foreach (KeyValuePair<string, WorkflowData> subworkflow in wfData.Subworkflows ?? [])
         {
             Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(subworkflow.Value, cancellationToken);
             subworkflows.Add(subworkflow.Key, workflow);

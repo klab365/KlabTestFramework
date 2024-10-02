@@ -14,6 +14,11 @@ public interface IStep
     StepId Id { get; set; }
 
     IEnumerable<IParameter> GetParameters();
+
+    string GetStepKey()
+    {
+        return GetType().Name;
+    }
 }
 
 public interface IStepWithChildren : IStep

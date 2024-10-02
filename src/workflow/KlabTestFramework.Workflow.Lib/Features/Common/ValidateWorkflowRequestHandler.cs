@@ -27,6 +27,14 @@ internal class ValidateWorkflowRequestHandler : IRequestHandler<ValidateWorkflow
         {
             await ValidateStepAsync(step, result);
 
+            if (step is IStepWithChildren stepWithChildren)
+            {
+                foreach (IStep childStep in stepWithChildren.Children)
+                {
+                    await ValidateStepAsync(childStep, result);
+                }
+            }
+
             if (step is ISubworkflowStep subworkflowStep)
             {
                 foreach (IStep childStep in subworkflowStep.Steps)

@@ -39,6 +39,11 @@ internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandle
                 await ReplaceVariablesAsync(parameter, variables);
             }
 
+            if (step is IStepWithChildren stepWithChildren)
+            {
+                await ReplaceStepsWithVariables(stepWithChildren.Children, variables);
+            }
+
             if (step is ISubworkflowStep subworkflowStep && subworkflowStep.Subworkflow != null)
             {
                 ReplaceSubworkflowVariableWithTheArgumentsOfSubworkflowStep(subworkflowStep);
