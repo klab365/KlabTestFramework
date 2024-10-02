@@ -67,7 +67,7 @@ internal class SubworkflowStep : ISubworkflowStep
         }
 
         QueryWorkflowRequestByData req = new(wfData);
-        IResult<Specifications.Workflow> res = await _eventBus.SendAsync<QueryWorkflowRequestByData, Specifications.Workflow>(req, cancellationToken);
+        Result<Specifications.Workflow> res = await _eventBus.SendAsync(req, cancellationToken);
         if (res.IsFailure)
         {
             return res;

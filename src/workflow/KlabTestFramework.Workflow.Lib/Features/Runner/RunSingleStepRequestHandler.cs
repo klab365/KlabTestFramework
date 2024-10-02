@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
-using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Features.Runner;
@@ -16,13 +15,13 @@ internal class RunSingleStepRequestHandler : IRequestHandler<RunSingleStepReques
         _stepFactory = stepFactory;
     }
 
-    public async Task<Result<StepResult>> HandleAsync(RunSingleStepRequest request, CancellationToken cancellationToken)
+    public async Task<StepResult> HandleAsync(RunSingleStepRequest request, CancellationToken cancellationToken)
     {
         IStepHandler stepHandler = _stepFactory.CreateStepHandler(request.Step);
 
         StepResult res = await stepHandler.HandleAsync(request.Step, request.Context, cancellationToken);
 
-        return Result.Success(res); // allways success , because we need the content of stepresults object
+        return res;
     }
 }
 

@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
-using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Features.Validator;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -21,7 +20,7 @@ internal class ValidateWorkflowRequestHandler : IRequestHandler<ValidateWorkflow
         _stepValidatorHandlers = stepValidatorHandlers;
     }
 
-    public async Task<Result<WorkflowValidatorResult>> HandleAsync(ValidateWorkflowRequest request, CancellationToken cancellationToken)
+    public async Task<WorkflowValidatorResult> HandleAsync(ValidateWorkflowRequest request, CancellationToken cancellationToken)
     {
         WorkflowValidatorResult result = new();
         foreach (IStep step in request.Workflow.Steps)
@@ -37,7 +36,7 @@ internal class ValidateWorkflowRequestHandler : IRequestHandler<ValidateWorkflow
             }
         }
 
-        return Result.Success(result);
+        return result;
     }
 
     private async Task ValidateStepAsync(IStep step, WorkflowValidatorResult result)

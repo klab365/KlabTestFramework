@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <KlabToolkitVersion>2.3.0</KlabToolkitVersion>
+    <KlabToolkitVersion>2.4.1</KlabToolkitVersion>
   </PropertyGroup>
 
   <!-- common packages  -->

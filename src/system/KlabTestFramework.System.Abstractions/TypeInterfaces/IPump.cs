@@ -37,13 +37,13 @@ public interface IPump : IComponent
 /// </summary>
 /// <param name="Id"></param>
 /// <param name="VolumeFlow"></param>
-public record PumpOnRequest(string Id, VolumeFlow VolumeFlow) : IRequest;
+public record PumpOnRequest(string Id, VolumeFlow VolumeFlow) : IRequest<Result>;
 
 /// <summary>
 /// Request to stop a pump.
 /// </summary>
 /// <param name="Id"></param>
-public record PumpOffRequest(string Id) : IRequest;
+public record PumpOffRequest(string Id) : IRequest<Result>;
 
 /// <summary>
 /// Request to start a pump for a specific duration.
@@ -51,7 +51,7 @@ public record PumpOffRequest(string Id) : IRequest;
 /// <param name="Id"></param>
 /// <param name="VolumeFlow"></param>
 /// <param name="Duration"></param>
-public record PumpDurationRequest(string Id, VolumeFlow VolumeFlow, TimeSpan Duration) : IRequest;
+public record PumpDurationRequest(string Id, VolumeFlow VolumeFlow, TimeSpan Duration) : IRequest<Result>;
 
 /// <summary>
 /// Request to start a pump for a specific volume.
@@ -59,13 +59,13 @@ public record PumpDurationRequest(string Id, VolumeFlow VolumeFlow, TimeSpan Dur
 /// <param name="Id"></param>
 /// <param name="VolumeFlow"></param>
 /// <param name="Volume"></param>
-public record PumpVolumeRequest(string Id, VolumeFlow VolumeFlow, Volume Volume) : IRequest;
+public record PumpVolumeRequest(string Id, VolumeFlow VolumeFlow, Volume Volume) : IRequest<Result>;
 
 /// <summary>
 /// Request to query the volume flow of a pump.
 /// </summary>
 /// <param name="Id"></param>
-public record QueryPumpVolumeFlowRequest(string Id) : IRequest<QueryPumpVolumeFlowResponse>;
+public record QueryPumpVolumeFlowRequest(string Id) : IRequest<Result<QueryPumpVolumeFlowResponse>>;
 
 /// <summary>
 /// Response to a query for the volume flow of a pump.

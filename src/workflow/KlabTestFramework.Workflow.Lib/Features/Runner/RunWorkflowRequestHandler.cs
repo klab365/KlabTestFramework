@@ -19,12 +19,12 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
         _eventBus = eventBus;
     }
 
-    public async Task<Result<WorkflowResult>> HandleAsync(RunWorkflowRequest request, CancellationToken cancellationToken)
+    public async Task<WorkflowResult> HandleAsync(RunWorkflowRequest request, CancellationToken cancellationToken)
     {
-        IResult<Specifications.Workflow> resClonedWorkflow = await _eventBus.SendAsync<CloneWorkflowRequest, Specifications.Workflow>(new CloneWorkflowRequest(request.Workflow), cancellationToken);
+        Result<Specifications.Workflow> resClonedWorkflow = await _eventBus.SendAsync(new CloneWorkflowRequest(request.Workflow), cancellationToken);
         if (resClonedWorkflow.IsFailure)
         {
-            return Result.Failure<WorkflowResult>(resClonedWorkflow.Error);
+            return new WorkflowResult(Array.Empty<StepResult>());
         }
         Specifications.Workflow workflow = resClonedWorkflow.Value;
 
@@ -32,17 +32,17 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
         IResult resReplaceVariable = await _eventBus.SendAsync(new ReplaceWorkflowWithVariablesRequest(workflow), cancellationToken);
         if (resReplaceVariable.IsFailure)
         {
-            return Result.Failure<WorkflowResult>(resReplaceVariable.Error);
+            return new WorkflowResult(Array.Empty<StepResult>());
         }
 
-        IResult<WorkflowValidatorResult> resValidation = await _eventBus.SendAsync<ValidateWorkflowRequest, WorkflowValidatorResult>(new ValidateWorkflowRequest(workflow), cancellationToken);
+        WorkflowValidatorResult resValidation = await _eventBus.SendAsync(new ValidateWorkflowRequest(workflow), cancellationToken);
         if (resValidation.IsFailure)
         {
-            return Result.Failure<WorkflowResult>(resValidation.Error);
+            return new WorkflowResult(Array.Empty<StepResult>());
         }
 
         WorkflowResult wflResult = await HandleWorkflowAsync(workflow, request.Context, cancellationToken);
-        return Result.Success(wflResult);
+        return wflResult;
     }
 
     private async Task<WorkflowResult> HandleWorkflowAsync(Specifications.Workflow workflow, WorkflowContext context, CancellationToken cancellationToken)
@@ -50,13 +50,8 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
         List<StepResult> stepResults = new();
         foreach (IStep step in workflow.Steps)
         {
-            IResult<StepResult> res = await _eventBus.SendAsync<RunSingleStepRequest, StepResult>(new RunSingleStepRequest(step, context), cancellationToken);
-            if (res.IsFailure)
-            {
-                throw new InvalidOperationException("Workflow can not run and don't return any results...");
-            }
-
-            stepResults.Add(res.Value);
+            StepResult res = await _eventBus.SendAsync(new RunSingleStepRequest(step, context), cancellationToken);
+            stepResults.Add(res);
         }
 
         return new WorkflowResult(stepResults.ToArray());

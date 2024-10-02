@@ -8,24 +8,18 @@ steps:
     type: Value
     value: 00:00:02
 
-- type: SubworkflowStep
-  parameters:
-  - name: Subworkflow
-    type: Value
-    value: "sub1"
-  - name: myVariable
-    type: Value
-    value: 00:00:04
-
 - type: LoopStep
   parameters:
   - name: IterationCount
     type: Value
     value: 2
   children:
-  - type: WaitStep
+  - type: SubworkflowStep
     parameters:
-    - name: Time
+    - name: Subworkflow
+      type: Value
+      value: "sub1"
+    - name: myVariable
       type: Value
       value: 00:00:01
 

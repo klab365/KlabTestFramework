@@ -21,4 +21,4 @@ public interface IAnalogOutput : IAnalogInput
 /// </summary>
 /// <param name="Id"></param>
 /// <param name="Value"></param>
-public record SetAnalogOutputCommandRequest(string Id, double Value) : IRequest;
+public record SetAnalogOutputCommandRequest(string Id, double Value) : IRequest<Result>;

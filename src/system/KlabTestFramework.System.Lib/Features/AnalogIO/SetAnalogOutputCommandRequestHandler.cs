@@ -7,7 +7,7 @@ using KlabTestFramework.System.Abstractions.TypeInterfaces;
 
 namespace KlabTestFramework.System.Lib.Features.AnalogIO;
 
-internal sealed class SetAnalogOutputCommandRequestHandler : IRequestHandler<SetAnalogOutputCommandRequest>
+internal sealed class SetAnalogOutputCommandRequestHandler : IRequestHandler<SetAnalogOutputCommandRequest, Result>
 {
     private readonly ISystemManager _systemManager;
 

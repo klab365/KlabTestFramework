@@ -8,7 +8,7 @@ using UnitsNet;
 
 namespace KlabTestFramework.System.Lib.Features.Pump;
 
-internal sealed class QueryPumpVolumeFlowRequestHandler : IRequestHandler<QueryPumpVolumeFlowRequest, QueryPumpVolumeFlowResponse>
+internal sealed class QueryPumpVolumeFlowRequestHandler : IRequestHandler<QueryPumpVolumeFlowRequest, Result<QueryPumpVolumeFlowResponse>>
 {
     private readonly ISystemManager _systemManager;
 

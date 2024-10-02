@@ -16,9 +16,9 @@ namespace KlabTestFramework.Workflow.Lib.Features.Editor;
 /// Handler for querying a workflow.
 /// </summary>
 internal sealed class QueryWorkflowHandler :
-    IRequestHandler<QueryWorkflowRequest, Specifications.Workflow>,
-    IRequestHandler<QueryWorkflowRequestByData, Specifications.Workflow>,
-    IRequestHandler<CloneWorkflowRequest, Specifications.Workflow>
+    IRequestHandler<QueryWorkflowRequest, Result<Specifications.Workflow>>,
+    IRequestHandler<QueryWorkflowRequestByData, Result<Specifications.Workflow>>,
+    IRequestHandler<CloneWorkflowRequest, Result<Specifications.Workflow>>
 {
     private readonly IWorkflowRepository _workflowRepository;
     private readonly StepFactory _stepFactory;
@@ -52,7 +52,7 @@ internal sealed class QueryWorkflowHandler :
         }
         catch (Exception ex)
         {
-            return Result.Failure<Specifications.Workflow>(WorkflowModuleErrors.WorkflowLoadError(request.FilePath, ex));
+            return Result.Failure<Specifications.Workflow>(InformativeError.FromException("Workflow", ex));
         }
     }
 
@@ -161,8 +161,8 @@ internal sealed class QueryWorkflowHandler :
     }
 }
 
-public record QueryWorkflowRequest(string FilePath) : IRequest<Specifications.Workflow>;
+public record QueryWorkflowRequest(string FilePath) : IRequest<Result<Specifications.Workflow>>;
 
-public record QueryWorkflowRequestByData(WorkflowData Data) : IRequest<Specifications.Workflow>;
+public record QueryWorkflowRequestByData(WorkflowData Data) : IRequest<Result<Specifications.Workflow>>;
 
-public record CloneWorkflowRequest(Specifications.Workflow Workflow) : IRequest<Specifications.Workflow>;
+public record CloneWorkflowRequest(Specifications.Workflow Workflow) : IRequest<Result<Specifications.Workflow>>;

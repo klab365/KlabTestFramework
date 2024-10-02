@@ -33,8 +33,8 @@ internal class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
         List<StepResult> stepResults = new();
         foreach (IStep child in step.Subworkflow.Steps)
         {
-            IResult<StepResult> res = await _eventBus.SendAsync<RunSingleStepRequest, StepResult>(new RunSingleStepRequest(child, context), cancellationToken);
-            stepResults.Add(res.Value);
+            StepResult res = await _eventBus.SendAsync(new RunSingleStepRequest(child, context), cancellationToken);
+            stepResults.Add(res);
         }
 
         return StepResult.Collect(step, stepResults.ToArray());

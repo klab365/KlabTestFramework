@@ -1,5 +1,6 @@
 ﻿using System;
 using Klab.Toolkit.Event;
+using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
 using KlabTestFramework.Workflow.Lib.BuiltIn.Validator;
 using KlabTestFramework.Workflow.Lib.Editor.Adapter;
@@ -42,14 +43,14 @@ public static class WorkflowModule
 
     private static void RegisterFeatures(this IServiceCollection services)
     {
-        services.AddRequestResponseHandler<QueryWorkflowRequest, Specifications.Workflow, QueryWorkflowHandler>();
-        services.AddRequestResponseHandler<QueryWorkflowRequestByData, Specifications.Workflow, QueryWorkflowHandler>();
-        services.AddRequestResponseHandler<CloneWorkflowRequest, Specifications.Workflow, QueryWorkflowHandler>();
-        services.AddRequestHandler<SaveWorkflowRequest, SaveWorkflowRequestHandler>();
+        services.AddRequestResponseHandler<QueryWorkflowRequest, Result<Specifications.Workflow>, QueryWorkflowHandler>();
+        services.AddRequestResponseHandler<QueryWorkflowRequestByData, Result<Specifications.Workflow>, QueryWorkflowHandler>();
+        services.AddRequestResponseHandler<CloneWorkflowRequest, Result<Specifications.Workflow>, QueryWorkflowHandler>();
+        services.AddRequestResponseHandler<SaveWorkflowRequest, Result, SaveWorkflowRequestHandler>();
         services.AddRequestResponseHandler<RunWorkflowRequest, WorkflowResult, RunWorkflowRequestHandler>();
         services.AddRequestResponseHandler<RunSingleStepRequest, StepResult, RunSingleStepRequestHandler>();
         services.AddRequestResponseHandler<ValidateWorkflowRequest, WorkflowValidatorResult, ValidateWorkflowRequestHandler>();
-        services.AddRequestHandler<ReplaceWorkflowWithVariablesRequest, ReplaceWorkflowWithVariablesRequesHandler>();
+        services.AddRequestResponseHandler<ReplaceWorkflowWithVariablesRequest, Result, ReplaceWorkflowWithVariablesRequesHandler>();
     }
 
     private static void AddWorkflowValidator(this IServiceCollection services)

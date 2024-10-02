@@ -10,7 +10,7 @@ using UnitsNet;
 
 namespace KlabTestFramework.System.Lib.Features.Pump;
 
-internal sealed class PumpVolumeRequestHandler : IRequestHandler<PumpVolumeRequest>
+internal sealed class PumpVolumeRequestHandler : IRequestHandler<PumpVolumeRequest, Result>
 {
     private readonly ISystemManager _systemManager;
     private readonly IEventBus _eventBus;

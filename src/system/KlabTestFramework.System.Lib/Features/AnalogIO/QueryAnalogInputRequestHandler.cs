@@ -7,7 +7,7 @@ using KlabTestFramework.System.Abstractions.TypeInterfaces;
 
 namespace KlabTestFramework.System.Lib.Features.AnalogIO;
 
-internal sealed class QueryAnalogInputRequestHandler : IRequestHandler<QueryAnalogInputRequest, double>
+internal sealed class QueryAnalogInputRequestHandler : IRequestHandler<QueryAnalogInputRequest, Result<double>>
 {
     private readonly ISystemManager _systemManager;
 

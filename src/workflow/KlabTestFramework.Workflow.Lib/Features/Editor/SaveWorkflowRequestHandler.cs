@@ -7,7 +7,7 @@ using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Features.Editor;
 
-internal sealed class SaveWorkflowRequestHandler : IRequestHandler<SaveWorkflowRequest>
+internal sealed class SaveWorkflowRequestHandler : IRequestHandler<SaveWorkflowRequest, Result>
 {
     private readonly IWorkflowRepository _repository;
 
@@ -24,4 +24,4 @@ internal sealed class SaveWorkflowRequestHandler : IRequestHandler<SaveWorkflowR
     }
 }
 
-public record SaveWorkflowRequest(string FilePath, Specifications.Workflow Workflow) : IRequest;
+public record SaveWorkflowRequest(string FilePath, Specifications.Workflow Workflow) : IRequest<Result>;

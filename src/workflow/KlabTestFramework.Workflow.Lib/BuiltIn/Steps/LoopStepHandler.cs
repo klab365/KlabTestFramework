@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
-using Klab.Toolkit.Results;
 using KlabTestFramework.Workflow.Lib.Features.Runner;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -25,8 +24,8 @@ internal class LoopStepHandler : IStepHandler<LoopStep>
         {
             foreach (IStep child in step.Children)
             {
-                IResult<StepResult> res = await _eventBus.SendAsync<RunSingleStepRequest, StepResult>(new RunSingleStepRequest(child, context), cancellationToken);
-                resChildren.Add(res.Value);
+                StepResult res = await _eventBus.SendAsync(new RunSingleStepRequest(child, context), cancellationToken);
+                resChildren.Add(res);
             }
         }
 

@@ -9,7 +9,7 @@ using UnitsNet;
 
 namespace KlabTestFramework.System.Lib.Features.Pump;
 
-internal sealed class PumpDurationRequestHandler : IRequestHandler<PumpDurationRequest>
+internal sealed class PumpDurationRequestHandler : IRequestHandler<PumpDurationRequest, Result>
 {
     private readonly ISystemManager _systemManager;
     private readonly IEventBus _eventBus;

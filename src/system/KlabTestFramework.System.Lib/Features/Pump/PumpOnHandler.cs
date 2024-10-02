@@ -11,7 +11,7 @@ namespace KlabTestFramework.System.Lib.Features.Pump;
 /// <summary>
 /// Handler for the <see cref="PumpOnRequest"/>.
 /// </summary>
-internal sealed class PumpOnHandler : IRequestHandler<PumpOnRequest>
+internal sealed class PumpOnHandler : IRequestHandler<PumpOnRequest, Result>
 {
     private readonly ISystemManager _systemManager;
     private readonly IEventBus _eventBus;

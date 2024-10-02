@@ -9,7 +9,7 @@ using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Features.Common;
 
-internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandler<ReplaceWorkflowWithVariablesRequest>
+internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandler<ReplaceWorkflowWithVariablesRequest, Result>
 {
     private readonly VariableFactory _variableFactory;
 
@@ -77,4 +77,4 @@ internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandle
     }
 }
 
-public record ReplaceWorkflowWithVariablesRequest(Specifications.Workflow Workflow) : IRequest;
+public record ReplaceWorkflowWithVariablesRequest(Specifications.Workflow Workflow) : IRequest<Result>;

@@ -9,7 +9,7 @@ using UnitsNet;
 
 namespace KlabTestFramework.System.Lib.Features.Pump;
 
-internal sealed class PumpOffHandler : IRequestHandler<PumpOffRequest>
+internal sealed class PumpOffHandler : IRequestHandler<PumpOffRequest, Result>
 {
     private readonly ISystemManager _systemManager;
     private readonly IEventBus _eventBus;
