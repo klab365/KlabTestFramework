@@ -101,6 +101,8 @@ internal sealed class QueryWorkflowHandler :
             .ToArray() ?? [];
     }
 
+    // todo: issue with load steps, if child step is a subworkflow step, it will not be loaded correctly...
+    // make it better and recursive ;)
     private async Task<IStep[]> LoadStepsAsync(WorkflowData wfData, CancellationToken cancellationToken)
     {
         List<IStep> steps = new();
@@ -113,7 +115,6 @@ internal sealed class QueryWorkflowHandler :
                 foreach (StepData childData in stepData.Children ?? new())
                 {
                     IStep childStep = _stepFactory.CreateStep(childData);
-                    AssignDataToStep(childStep, childData);
                     stepWithChildren.Children.Add(childStep);
                 }
             }
