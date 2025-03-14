@@ -11,5 +11,7 @@ namespace KlabTestFramework.System.Abstractions.Events;
 public record MeasurementEvent(string ComponentId, double Value) : IEvent
 {
     public Guid Id { get; } = Guid.NewGuid();
+
+    public DateTimeOffset CreatedAt { get; } = DateTimeOffset.Now;
 }
 

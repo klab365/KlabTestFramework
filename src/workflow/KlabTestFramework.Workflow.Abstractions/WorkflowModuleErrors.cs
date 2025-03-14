@@ -4,20 +4,20 @@ namespace KlabTestFramework.Workflow.Lib;
 
 public static class WorkflowModuleErrors
 {
-    public static InformativeError WorkflowHasErrors => new(string.Empty, "Workflow has errors");
+    public static Error WorkflowHasErrors => Error.Create("Workflow", "Workflow has errors");
 
-    public static InformativeError ErrorWhileHandlingStep => new(string.Empty, "Error while handling step");
-    public static InformativeError WorkflowIsNotValid => new("Workflow", "Workflow is not valid");
+    public static Error ErrorWhileHandlingStep => Error.Create("Workflow", "Error while handling step");
+    public static Error WorkflowIsNotValid => Error.Create("Workflow", "Workflow is not valid");
 
-    public static InformativeError StepNotFound => new("Workflow", "Step not found");
+    public static Error StepNotFound => Error.Create("Workflow", "Step not found");
 
-    public static InformativeError StepIsAtFirstPosition => new("Workflow", "Step is at first position");
+    public static Error StepIsAtFirstPosition => Error.Create("Workflow", "Step is at first position");
 
-    public static InformativeError StepIsAtEndPosition => new("Workflow", "Step is at last position");
+    public static Error StepIsAtEndPosition => Error.Create("Workflow", "Step is at last position");
 
-    public static InformativeError WorkflowValidationFailed => new("Workflow", "Workflow validation failed");
+    public static Error WorkflowValidationFailed => Error.Create("Workflow", "Workflow validation failed");
 
-    public static InformativeError SubworkflowNotFound(string wfName) => new("Workflow", $"Subworkflow {wfName} not found");
+    public static Error SubworkflowNotFound(string wfName) => Error.Create("Workflow", $"Subworkflow {wfName} not found");
 
-    public static InformativeError WorkflowNotFound(string filePath) => new("Workflow", $"Workflow not found at {filePath}");
+    public static Error WorkflowNotFound(string filePath) => Error.Create("Workflow", $"Workflow not found at {filePath}");
 }

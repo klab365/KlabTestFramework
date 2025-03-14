@@ -52,7 +52,7 @@ internal sealed class QueryWorkflowHandler :
         }
         catch (Exception ex)
         {
-            return Result.Failure<Specifications.Workflow>(InformativeError.FromException("Workflow", ex));
+            return Result.Failure<Specifications.Workflow>(Error.FromException("Workflow", ErrorType.Error, ex));
         }
     }
 

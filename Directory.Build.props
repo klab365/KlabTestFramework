@@ -6,7 +6,7 @@
     <Company>klab</Company>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisMode>Recommended</AnalysisMode>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Version>0.0.0</Version>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -22,7 +22,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <KlabToolkitVersion>2.4.1</KlabToolkitVersion>
+    <KlabToolkitVersion>2.5.1</KlabToolkitVersion>
+    <MicrosoftPackageVersion>9.0.2</MicrosoftPackageVersion>
   </PropertyGroup>
 
   <!-- common packages  -->
@@ -32,7 +33,7 @@
     <PackageReference Include="Klab.Toolkit.Event.Abstractions" Version="$(KlabToolkitVersion)" />
     <PackageReference Include="Klab.Toolkit.Common" Version="$(KlabToolkitVersion)" />
 
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -42,8 +43,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
 
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftPackageVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MicrosoftPackageVersion)" />
   </ItemGroup>
 
   <!-- Test projects -->

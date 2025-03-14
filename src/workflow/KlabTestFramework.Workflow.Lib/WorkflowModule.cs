@@ -60,7 +60,7 @@ public static class WorkflowModule
 
     private static void AddWorkflowRepository(this IServiceCollection services)
     {
-        services.AddTransient(typeof(IWorkflowRepository), typeof(WorkflowYamlRepository));
+        services.AddTransient<IWorkflowRepository, WorkflowYamlRepository>();
     }
 
     private static void AddWorkflowspecification(this IServiceCollection services, WorkflowModuleConfiguration configuration)

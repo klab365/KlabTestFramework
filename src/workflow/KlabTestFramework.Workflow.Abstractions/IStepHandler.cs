@@ -78,7 +78,7 @@ public record StepResult : IResult
 
     public static StepResult Success(IStep step, params StepResult[] children)
     {
-        return new StepResult(step, true, new ErrorNone(), children);
+        return new StepResult(step, true, Klab.Toolkit.Results.Error.None(), children);
     }
 
     public static StepResult Failure(IStep step, IError error, params StepResult[] children)
@@ -90,7 +90,7 @@ public record StepResult : IResult
     {
         if (Array.Exists(stepResults, r => r.IsFailure))
         {
-            return Failure(step, new InformativeError("", ""), stepResults.ToArray());
+            return Failure(step, Klab.Toolkit.Results.Error.Create("", ""), stepResults.ToArray());
         }
         else
         {

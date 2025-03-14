@@ -22,12 +22,12 @@ internal class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
     {
         if (step.SelectedSubworkflow.Content.Value == SubworkflowStep.NoneSelected)
         {
-            return StepResult.Failure(step, new InformativeError(string.Empty, string.Empty));
+            return StepResult.Failure(step, Error.Create(string.Empty, string.Empty));
         }
 
         if (step.Subworkflow == null)
         {
-            return StepResult.Failure(step, new InformativeError(string.Empty, string.Empty));
+            return StepResult.Failure(step, Error.Create(string.Empty, string.Empty));
         }
 
         List<StepResult> stepResults = new();

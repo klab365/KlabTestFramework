@@ -29,7 +29,7 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
         Specifications.Workflow workflow = resClonedWorkflow.Value;
 
 
-        IResult resReplaceVariable = await _eventBus.SendAsync(new ReplaceWorkflowWithVariablesRequest(workflow), cancellationToken);
+        Result resReplaceVariable = await _eventBus.SendAsync(new ReplaceWorkflowWithVariablesRequest(workflow), cancellationToken);
         if (resReplaceVariable.IsFailure)
         {
             return new WorkflowResult(Array.Empty<StepResult>());
