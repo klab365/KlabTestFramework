@@ -70,6 +70,7 @@ dotnet_diagnostic.CA1000.severity = none
 dotnet_diagnostic.SA1516.severity = silent
 dotnet_diagnostic.CA1707.severity = silent
 dotnet_diagnostic.CA1709.severity = silent
+dotnet_diagnostic.S2094.severity = silent
 
 ##########################################
 # .NET Language Conventions
