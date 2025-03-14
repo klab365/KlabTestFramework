@@ -9,24 +9,24 @@ using KlabTestFramework.System.Abstractions.TypeInterfaces;
 
 namespace KlabTestFramework.System.Lib.Features.AnalogIO;
 
-internal sealed class QueryAllAnalogInputsRequestHandler : IRequestHandler<AnalogInputRequests.QueryAllAnalogInputsRequest, Result<AnalogInputRequests.QueryAllAnalogInputsResponse[]>>
+internal sealed class GetAllAnalogInputsRequestHandler : IRequestHandler<AnalogInputRequests.GetAllAnalogInputsRequest, Result<AnalogInputRequests.GetAllAnalogInputsResponse[]>>
 {
     private readonly ISystemManager _systemManager;
     private readonly IEventBus _eventBus;
     private readonly object _lock = new();
 
-    public QueryAllAnalogInputsRequestHandler(ISystemManager systemManager, IEventBus eventBus)
+    public GetAllAnalogInputsRequestHandler(ISystemManager systemManager, IEventBus eventBus)
     {
         _systemManager = systemManager;
         _eventBus = eventBus;
     }
 
-    public async Task<Result<AnalogInputRequests.QueryAllAnalogInputsResponse[]>> HandleAsync(AnalogInputRequests.QueryAllAnalogInputsRequest request, CancellationToken cancellationToken)
+    public async Task<Result<AnalogInputRequests.GetAllAnalogInputsResponse[]>> HandleAsync(AnalogInputRequests.GetAllAnalogInputsRequest request, CancellationToken cancellationToken)
     {
         Result<IEnumerable<IAnalogInput>> analogInputs = await _systemManager.GetAllComponentsOfTypeAsync<IAnalogInput>(cancellationToken);
         if (analogInputs.IsFailure)
         {
-            return Result.Failure<AnalogInputRequests.QueryAllAnalogInputsResponse[]>(analogInputs.Error);
+            return Result.Failure<AnalogInputRequests.GetAllAnalogInputsResponse[]>(analogInputs.Error);
         }
 
         // first trigger all analog inputs
@@ -47,7 +47,7 @@ internal sealed class QueryAllAnalogInputsRequestHandler : IRequestHandler<Analo
         });
 
         // get the values in parallel
-        List<AnalogInputRequests.QueryAllAnalogInputsResponse> responses = new();
+        List<AnalogInputRequests.GetAllAnalogInputsResponse> responses = new();
         Parallel.ForEach(analogInputs.Value, async analogInput =>
         {
             string id = analogInput.GetConfig().Id;
@@ -61,7 +61,7 @@ internal sealed class QueryAllAnalogInputsRequestHandler : IRequestHandler<Analo
             {
                 lock (_lock)
                 {
-                    responses.Add(new AnalogInputRequests.QueryAllAnalogInputsResponse(id, value.Value));
+                    responses.Add(new AnalogInputRequests.GetAllAnalogInputsResponse(id, value.Value));
                 }
             }
         });

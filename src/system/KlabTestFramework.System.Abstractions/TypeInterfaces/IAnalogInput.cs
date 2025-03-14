@@ -19,9 +19,6 @@ public interface IAnalogInput : IComponent
 
     Task<Result<double>> GetValueAsync(CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Triggers the analog input to take a new measurement.
-    /// </summary>
     Task<Result> TriggerAsync(CancellationToken cancellationToken);
 }
 
@@ -31,9 +28,9 @@ public static class AnalogInputRequests
     /// <summary>
     /// Query request to get the value of an analog input.
     /// </summary>
-    public record QueryAnalogInputRequest(string Id) : IRequest<Result<double>>;
+    public record GetAnalogInputRequest(string Id) : IRequest<Result<double>>;
 
-    public record QueryAllAnalogInputsRequest(string Alorithm) : IRequest<Result<QueryAllAnalogInputsResponse[]>>;
+    public record GetAllAnalogInputsRequest(string Alorithm) : IRequest<Result<GetAllAnalogInputsResponse[]>>;
 
-    public record QueryAllAnalogInputsResponse(string ComponentId, double Value);
+    public record GetAllAnalogInputsResponse(string ComponentId, double Value);
 }
