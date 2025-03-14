@@ -11,7 +11,7 @@ namespace KlabTestFramework.System.Lib.Features.Pump;
 /// <summary>
 /// Handler for the <see cref="PumpOnRequest"/>.
 /// </summary>
-internal sealed class PumpOnHandler : IRequestHandler<PumpOnRequest, Result>
+internal sealed class PumpOnHandler : IRequestHandler<PumpRequests.PumpOnRequest, Result>
 {
     private readonly ISystemManager _systemManager;
     private readonly IEventBus _eventBus;
@@ -22,9 +22,9 @@ internal sealed class PumpOnHandler : IRequestHandler<PumpOnRequest, Result>
         _eventBus = eventBus;
     }
 
-    public async Task<Result> HandleAsync(PumpOnRequest request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(PumpRequests.PumpOnRequest request, CancellationToken cancellationToken)
     {
-        Result<IPump> pump = await _systemManager.GetValidComponentAsync<IPump>(request.Id, cancellationToken);
+        Result<IPump> pump = await _systemManager.GetComponentByIdAsync<IPump>(request.Id, cancellationToken);
         if (pump.IsFailure)
         {
             return Result.Failure(pump.Error);
@@ -37,7 +37,11 @@ internal sealed class PumpOnHandler : IRequestHandler<PumpOnRequest, Result>
         }
 
         MeasurementEvent newVolumeFlowEvent = new(request.Id, request.VolumeFlow.Value);
-        await _eventBus.PublishAsync(newVolumeFlowEvent, cancellationToken);
+        Result resEvent = await _eventBus.PublishAsync(newVolumeFlowEvent, cancellationToken);
+        if (resEvent.IsFailure)
+        {
+            return Result.Failure(resEvent.Error);
+        }
 
         return Result.Success();
     }

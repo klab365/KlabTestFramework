@@ -6,33 +6,16 @@ using Klab.Toolkit.Results;
 
 namespace KlabTestFramework.System.Abstractions;
 
+/// <summary>
+/// Interface for managing system components.
+/// </summary>
 public interface ISystemManager : IAsyncDisposable
 {
-    IEnumerable<IComponent> Components { get; }
-
     Task<Result> InitializeAsync(string path, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Gets a component by its id.
-    /// </summary>
-    /// <typeparam name="TComponent"></typeparam>
-    /// <param name="id"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<Result<TComponent>> GetValidComponentAsync<TComponent>(string id, CancellationToken cancellationToken = default) where TComponent : IComponent;
+    Task<Result<TComponent>> GetComponentByIdAsync<TComponent>(string id, CancellationToken cancellationToken = default) where TComponent : IComponent;
 
-    /// <summary>
-    /// Gets all components of the specified type.
-    /// </summary>
-    /// <typeparam name="TComponent"></typeparam>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task<Result<IEnumerable<TComponent>>> GetAllComponentsAsync<TComponent>(CancellationToken cancellationToken = default) where TComponent : IComponent;
+    Task<Result<IEnumerable<TComponent>>> GetAllComponentsOfTypeAsync<TComponent>(CancellationToken cancellationToken = default) where TComponent : IComponent;
 
-    /// <summary>
-    /// Gets all components.
-    /// </summary>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
     Task<Result<IEnumerable<IComponent>>> GetAllComponentsAsync(CancellationToken cancellationToken = default);
 }

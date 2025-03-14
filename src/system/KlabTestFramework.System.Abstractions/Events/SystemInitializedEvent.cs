@@ -4,15 +4,11 @@ using Klab.Toolkit.Event;
 namespace KlabTestFramework.System.Abstractions.Events;
 
 /// <summary>
-/// Represents a measurement event.
+/// Represents a system initialized event.
 /// </summary>
-public record MeasurementEvent(string ComponentId, double Value) : IEvent
+public record SystemInitializedEvent() : IEvent
 {
-    /// <summary>
-    /// Unique identifier for the event. Not for the component
-    /// </summary>
     public Guid Id { get; } = Guid.NewGuid();
 
     public DateTimeOffset CreatedAt { get; } = DateTimeOffset.Now;
 }
-

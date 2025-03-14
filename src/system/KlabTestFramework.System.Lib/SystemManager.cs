@@ -88,7 +88,7 @@ internal sealed class SystemManager : ISystemManager
         }
     }
 
-    public Task<Result<TComponent>> GetValidComponentAsync<TComponent>(string id, CancellationToken cancellationToken = default) where TComponent : IComponent
+    public Task<Result<TComponent>> GetComponentByIdAsync<TComponent>(string id, CancellationToken cancellationToken = default) where TComponent : IComponent
     {
         IComponent? component = FlattenComponents.FirstOrDefault(c => c.GetConfig().Id == id);
         if (component == null)
@@ -119,7 +119,7 @@ internal sealed class SystemManager : ISystemManager
         return Task.FromResult(Result.Success(tComponent));
     }
 
-    public Task<Result<IEnumerable<TComponent>>> GetAllComponentsAsync<TComponent>(CancellationToken cancellationToken = default) where TComponent : IComponent
+    public Task<Result<IEnumerable<TComponent>>> GetAllComponentsOfTypeAsync<TComponent>(CancellationToken cancellationToken = default) where TComponent : IComponent
     {
         IEnumerable<TComponent> components = FlattenComponents.OfType<TComponent>();
         return Task.FromResult(Result.Success(components));

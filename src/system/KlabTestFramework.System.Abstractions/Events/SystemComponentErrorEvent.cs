@@ -1,16 +1,14 @@
 ﻿using System;
 using Klab.Toolkit.Event;
+using Klab.Toolkit.Results;
 
 namespace KlabTestFramework.System.Abstractions.Events;
 
 /// <summary>
-/// Represents a measurement event.
+/// Represents a system component error event.
 /// </summary>
-public record MeasurementEvent(string ComponentId, double Value) : IEvent
+public record SystemComponentErrorEvent(string ComponentId, Error Error) : IEvent
 {
-    /// <summary>
-    /// Unique identifier for the event. Not for the component
-    /// </summary>
     public Guid Id { get; } = Guid.NewGuid();
 
     public DateTimeOffset CreatedAt { get; } = DateTimeOffset.Now;

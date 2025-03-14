@@ -42,7 +42,11 @@ internal sealed class Program
             return;
         }
 
-        Print(0, systemManager.Components);
+        Result<IEnumerable<IComponent>> components = await systemManager.GetAllComponentsAsync();
+        if (components.IsSuccess)
+        {
+            Print(0, components.Value);
+        }
 
         await systemManager.DisposeAsync();
     }
