@@ -5,7 +5,6 @@ using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Shared.Parameters.Types;
 using KlabTestFramework.System.Abstractions;
 using KlabTestFramework.System.Lib.Specifications;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace KlabTestFramework.System.Types.Dummy;
 
@@ -53,13 +52,4 @@ public class DummyComponentConfig : IComponentConfig
     public IEnumerable<IParameterType> Parameters => [Ip];
 
     public IEnumerable<IComponentConfig> Children => [Child1Config];
-}
-
-public static class DummyModule
-{
-    public static void UseDummyComponents(this IServiceCollection services)
-    {
-        services.RegisterComponent(ComponentSpecification.Create<DummyComponentConfig, DummyComponent>());
-        services.RegisterComponent(ComponentSpecification.Create<DummyChildComponentConfig, DummyChildComponent>());
-    }
 }

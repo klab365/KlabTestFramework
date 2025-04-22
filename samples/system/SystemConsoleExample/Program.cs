@@ -25,9 +25,11 @@ internal sealed class Program
         IHostBuilder builder = Host.CreateDefaultBuilder(args);
         builder.ConfigureServices(services =>
         {
-            services.UseSystemLib();
-            services.UseDummyComponents();
             services.UseParameters();
+            services.UseSystemLib(config =>
+            {
+                config.ComponentConfigurations.Add(DummyModule.UseDummyComponents);
+            });
         });
         IHost host = builder.Build();
 
@@ -42,6 +44,18 @@ internal sealed class Program
             return;
         }
 
+        // print available component specifications
+        Console.WriteLine("Available component specifications:");
+        IEnumerable<ComponentSpecification> specifications = host.Services.GetRequiredService<IEnumerable<ComponentSpecification>>();
+        foreach (ComponentSpecification specification in specifications)
+        {
+            Console.WriteLine($"Component: {specification.ComponentType.Name}");
+            Console.WriteLine($"  TypeKey: {specification.TypeKey}");
+            Console.WriteLine($"  ConfigType: {specification.ConfigType.Name}");
+        }
+        Console.WriteLine();
+
+        Console.WriteLine("Components:");
         Result<IEnumerable<IComponent>> components = await systemManager.GetAllComponentsAsync();
         if (components.IsSuccess)
         {

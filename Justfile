@@ -1,4 +1,5 @@
 set quiet
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 # add projects to solution
 slnadd:

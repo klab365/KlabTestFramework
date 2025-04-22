@@ -26,7 +26,7 @@
             "request": "launch",
             "preLaunchTask": "build_systemconsoleexample",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/samples/system/SystemConsoleExample/bin/Debug/net8.0/SystemConsoleExample.dll",
+            "program": "${workspaceFolder}/samples/system/SystemConsoleExample/bin/Debug/net9.0/SystemConsoleExample.dll",
             "args": [],
             "cwd": "${workspaceFolder}/samples/system/SystemConsoleExample",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
