@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
@@ -29,7 +29,7 @@ internal sealed class GetFirmwareVersionRequestHandler : IRequestHandler<GetFirm
         {
             return Result.Failure<GetFirmwareRequests.GetFirmwareVersionResponse>(resReadFirmwareVersion.Error);
         }
-        
+
         GetFirmwareRequests.GetFirmwareVersionResponse response = new(request.ComponentId, resReadFirmwareVersion.Value);
         return Result.Success(response);
     }

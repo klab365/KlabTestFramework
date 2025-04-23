@@ -1,4 +1,4 @@
-using KlabTestFramework.System.Abstractions;
+﻿using KlabTestFramework.System.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace KlabTestFramework.System.Types.Dummy;
