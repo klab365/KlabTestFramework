@@ -4,20 +4,22 @@ namespace KlabTestFramework.Workflow.Abstractions;
 
 public static class WorkflowModuleErrors
 {
-    public static Error WorkflowHasErrors => Error.Create("Workflow", "Workflow has errors");
+    private const string Code = "Workflow";
 
-    public static Error ErrorWhileHandlingStep => Error.Create("Workflow", "Error while handling step");
-    public static Error WorkflowIsNotValid => Error.Create("Workflow", "Workflow is not valid");
+    public static Error WorkflowHasErrors => Error.Create(Code, "Workflow has errors");
 
-    public static Error StepNotFound => Error.Create("Workflow", "Step not found");
+    public static Error ErrorWhileHandlingStep => Error.Create(Code, "Error while handling step");
+    public static Error WorkflowIsNotValid => Error.Create(Code, "Workflow is not valid");
 
-    public static Error StepIsAtFirstPosition => Error.Create("Workflow", "Step is at first position");
+    public static Error StepNotFound => Error.Create(Code, "Step not found");
 
-    public static Error StepIsAtEndPosition => Error.Create("Workflow", "Step is at last position");
+    public static Error StepIsAtFirstPosition => Error.Create(Code, "Step is at first position");
 
-    public static Error WorkflowValidationFailed => Error.Create("Workflow", "Workflow validation failed");
+    public static Error StepIsAtEndPosition => Error.Create(Code, "Step is at last position");
 
-    public static Error SubworkflowNotFound(string wfName) => Error.Create("Workflow", $"Subworkflow {wfName} not found");
+    public static Error WorkflowValidationFailed => Error.Create(Code, "Workflow validation failed");
 
-    public static Error WorkflowNotFound(string filePath) => Error.Create("Workflow", $"Workflow not found at {filePath}");
+    public static Error SubworkflowNotFound(string wfName) => Error.Create(Code, $"Subworkflow {wfName} not found");
+
+    public static Error WorkflowNotFound(string filePath) => Error.Create(Code, $"Workflow not found at {filePath}");
 }
