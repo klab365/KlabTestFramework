@@ -4,7 +4,7 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 internal static class WorkflowExtensions
 {
-    public static WorkflowData ToData(this Workflow workflow)
+    public static WorkflowData ToData(this Abstractions.Specifications.Workflow workflow)
     {
         WorkflowData data = new();
 

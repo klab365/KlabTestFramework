@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.Features.Common;
 using KlabTestFramework.Workflow.Lib.Features.Editor;
-using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Features.Runner;
 
@@ -21,12 +21,12 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
 
     public async Task<WorkflowResult> HandleAsync(RunWorkflowRequest request, CancellationToken cancellationToken)
     {
-        Result<Specifications.Workflow> resClonedWorkflow = await _eventBus.SendAsync(new CloneWorkflowRequest(request.Workflow), cancellationToken);
+        Result<Abstractions.Specifications.Workflow> resClonedWorkflow = await _eventBus.SendAsync(new CloneWorkflowRequest(request.Workflow), cancellationToken);
         if (resClonedWorkflow.IsFailure)
         {
             return new WorkflowResult(Array.Empty<StepResult>());
         }
-        Specifications.Workflow workflow = resClonedWorkflow.Value;
+        Abstractions.Specifications.Workflow workflow = resClonedWorkflow.Value;
 
 
         Result resReplaceVariable = await _eventBus.SendAsync(new ReplaceWorkflowWithVariablesRequest(workflow), cancellationToken);
@@ -45,7 +45,7 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
         return wflResult;
     }
 
-    private async Task<WorkflowResult> HandleWorkflowAsync(Specifications.Workflow workflow, WorkflowContext context, CancellationToken cancellationToken)
+    private async Task<WorkflowResult> HandleWorkflowAsync(Abstractions.Specifications.Workflow workflow, WorkflowContext context, CancellationToken cancellationToken)
     {
         List<StepResult> stepResults = new();
         foreach (IStep step in workflow.Steps)
@@ -58,7 +58,7 @@ internal class RunWorkflowRequestHandler : IRequestHandler<RunWorkflowRequest, W
     }
 }
 
-public record RunWorkflowRequest(Specifications.Workflow Workflow, WorkflowContext Context) : IRequest<WorkflowResult>;
+public record RunWorkflowRequest(Abstractions.Specifications.Workflow Workflow, WorkflowContext Context) : IRequest<WorkflowResult>;
 
 public record WorkflowResult(StepResult[] Results)
 {

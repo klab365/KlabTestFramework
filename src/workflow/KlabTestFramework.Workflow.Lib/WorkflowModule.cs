@@ -1,13 +1,14 @@
 ﻿using System;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Abstractions.Features.Validator;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
 using KlabTestFramework.Workflow.Lib.BuiltIn.Validator;
 using KlabTestFramework.Workflow.Lib.Editor.Adapter;
 using KlabTestFramework.Workflow.Lib.Features.Common;
 using KlabTestFramework.Workflow.Lib.Features.Editor;
 using KlabTestFramework.Workflow.Lib.Features.Runner;
-using KlabTestFramework.Workflow.Lib.Features.Validator;
 using KlabTestFramework.Workflow.Lib.Ports;
 using KlabTestFramework.Workflow.Lib.Specifications;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,9 +44,9 @@ public static class WorkflowModule
 
     private static void RegisterFeatures(this IServiceCollection services)
     {
-        services.AddRequestResponseHandler<QueryWorkflowRequest, Result<Specifications.Workflow>, QueryWorkflowHandler>();
-        services.AddRequestResponseHandler<QueryWorkflowRequestByData, Result<Specifications.Workflow>, QueryWorkflowHandler>();
-        services.AddRequestResponseHandler<CloneWorkflowRequest, Result<Specifications.Workflow>, QueryWorkflowHandler>();
+        services.AddRequestResponseHandler<QueryWorkflowRequest, Result<Abstractions.Specifications.Workflow>, QueryWorkflowHandler>();
+        services.AddRequestResponseHandler<QueryWorkflowRequestByData, Result<Abstractions.Specifications.Workflow>, QueryWorkflowHandler>();
+        services.AddRequestResponseHandler<CloneWorkflowRequest, Result<Abstractions.Specifications.Workflow>, QueryWorkflowHandler>();
         services.AddRequestResponseHandler<SaveWorkflowRequest, Result, SaveWorkflowRequestHandler>();
         services.AddRequestResponseHandler<RunWorkflowRequest, WorkflowResult, RunWorkflowRequestHandler>();
         services.AddRequestResponseHandler<RunSingleStepRequest, StepResult, RunSingleStepRequestHandler>();

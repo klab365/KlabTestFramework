@@ -24,4 +24,4 @@ internal sealed class SaveWorkflowRequestHandler : IRequestHandler<SaveWorkflowR
     }
 }
 
-public record SaveWorkflowRequest(string FilePath, Specifications.Workflow Workflow) : IRequest<Result>;
+public record SaveWorkflowRequest(string FilePath, Abstractions.Specifications.Workflow Workflow) : IRequest<Result>;

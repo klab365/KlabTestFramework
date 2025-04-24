@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -22,12 +23,13 @@ public class QueryWorkflowHandlerTests
     [Fact]
     public async Task HandleAsync_ShouldReturnCorrectWorkflowFile()
     {
-        var req = new QueryWorkflowRequest("assets/workflow.json");
+        string assetsFilePath = Path.Combine(AppContext.BaseDirectory, "assets", "workflow.yaml");
+        var req = new QueryWorkflowRequest(assetsFilePath);
 
-        Result<Specifications.Workflow> result = await _sut.HandleAsync(req, CancellationToken.None);
+        Result<Abstractions.Specifications.Workflow> result = await _sut.HandleAsync(req, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        Specifications.Workflow workflow = result.Value;
+        Abstractions.Specifications.Workflow workflow = result.Value;
         workflow.Steps.Should().HaveCount(2);
         workflow.Subworkflows.Should().HaveCount(1);
         workflow.Variables.Should().HaveCount(0);

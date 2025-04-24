@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 

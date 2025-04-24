@@ -1,4 +1,6 @@
 ﻿
+using KlabTestFramework.Workflow.Abstractions.Specifications;
+
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 public static class VariableExtensions

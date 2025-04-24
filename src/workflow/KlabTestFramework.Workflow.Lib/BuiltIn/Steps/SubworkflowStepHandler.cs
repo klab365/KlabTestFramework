@@ -3,8 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.Features.Runner;
-using KlabTestFramework.Workflow.Lib.Specifications;
 
 
 namespace KlabTestFramework.Workflow.Lib.BuiltIn;
@@ -16,6 +16,11 @@ internal class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
     public SubworkflowStepHandler(IEventBus eventBus)
     {
         _eventBus = eventBus;
+    }
+
+    public Task<StepResult> CleanupAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
+    {
+        throw new System.NotImplementedException();
     }
 
     public async Task<StepResult> HandleAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
@@ -38,5 +43,10 @@ internal class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
         }
 
         return StepResult.Collect(step, stepResults.ToArray());
+    }
+
+    public Task<StepResult> SetupAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
+    {
+        throw new System.NotImplementedException();
     }
 }

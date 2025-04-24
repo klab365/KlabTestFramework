@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications;
+namespace KlabTestFramework.Workflow.Abstractions.Specifications;
 
 public record StepId
 {

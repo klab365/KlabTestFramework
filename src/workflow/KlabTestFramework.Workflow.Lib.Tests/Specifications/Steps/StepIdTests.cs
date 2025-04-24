@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications.Tests;
 

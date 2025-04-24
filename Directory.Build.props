@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <KlabToolkitVersion>2.5.1</KlabToolkitVersion>
+    <KlabToolkitVersion>2.8.0</KlabToolkitVersion>
     <MicrosoftPackageVersion>9.0.2</MicrosoftPackageVersion>
   </PropertyGroup>
 

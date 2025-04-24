@@ -37,7 +37,7 @@ internal sealed class GetAllAnalogInputsRequestHandler : IRequestHandler<AnalogI
             Result resTrigger = await analogInput.TriggerAsync(cancellationToken);
             if (resTrigger.IsFailure)
             {
-                await _eventBus.PublishAsync(new SystemComponentErrorEvent(analogInput.GetConfig().Id, (Error)resTrigger.Error));
+                await _eventBus.PublishAsync(new SystemComponentErrorEvent(analogInput.GetConfig().Id, resTrigger.Error));
             }
 
             lock (_lock)

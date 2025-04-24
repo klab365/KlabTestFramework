@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications;
+namespace KlabTestFramework.Workflow.Abstractions.Specifications;
 
 /// <summary>
 /// Represents a workflow that consists of multiple steps.

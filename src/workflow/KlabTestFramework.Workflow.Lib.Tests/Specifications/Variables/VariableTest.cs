@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Shared.Parameters.Types;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;

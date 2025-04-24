@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 
-namespace KlabTestFramework.Workflow.Lib.Features.Validator;
+namespace KlabTestFramework.Workflow.Abstractions.Features.Validator;
 
 /// <summary>
 /// Represents a handler for validating workflow steps.

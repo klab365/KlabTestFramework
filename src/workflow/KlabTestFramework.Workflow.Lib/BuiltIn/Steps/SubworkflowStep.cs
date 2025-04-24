@@ -6,6 +6,8 @@ using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Shared.Parameters.Types;
+using KlabTestFramework.Workflow.Abstractions;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.Features.Editor;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -24,7 +26,7 @@ internal class SubworkflowStep : ISubworkflowStep
     private readonly List<IParameter> _arguments = new();
     public IEnumerable<IParameter> Arguments => _arguments;
 
-    public Specifications.Workflow Subworkflow { get; private set; } = new();
+    public Abstractions.Specifications.Workflow Subworkflow { get; private set; } = new();
 
     public IEnumerable<IStep> Steps => Subworkflow.Steps;
 
@@ -58,7 +60,7 @@ internal class SubworkflowStep : ISubworkflowStep
         SelectedSubworkflow.Content.SelectOption(parameter);
     }
 
-    public async Task<IResult> UpdateSubworkflowAsync(string wfName, CancellationToken cancellationToken = default)
+    public async Task<Result> UpdateSubworkflowAsync(string wfName, CancellationToken cancellationToken = default)
     {
         WorkflowData? wfData = WorkflowData.GetValueOrDefault(wfName);
         if (wfData is null)
@@ -67,7 +69,7 @@ internal class SubworkflowStep : ISubworkflowStep
         }
 
         QueryWorkflowRequestByData req = new(wfData);
-        Result<Specifications.Workflow> res = await _eventBus.SendAsync(req, cancellationToken);
+        Result<Abstractions.Specifications.Workflow> res = await _eventBus.SendAsync(req, cancellationToken);
         if (res.IsFailure)
         {
             return res;

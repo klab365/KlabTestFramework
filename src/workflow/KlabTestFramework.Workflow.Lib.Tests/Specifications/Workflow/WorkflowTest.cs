@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using Moq;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications.Tests;
@@ -22,7 +23,7 @@ public class WorkflowTests
         ];
 
         // Act
-        Workflow workflow = new();
+        Abstractions.Specifications.Workflow workflow = new();
         workflow.Steps.AddRange(steps);
         workflow.Variables.AddRange(variables);
 
@@ -36,7 +37,7 @@ public class WorkflowTests
     {
         // Arrange
         // Act
-        Workflow workflow = new();
+        Abstractions.Specifications.Workflow workflow = new();
 
         // Assert
         workflow.Steps.Should().BeEmpty();

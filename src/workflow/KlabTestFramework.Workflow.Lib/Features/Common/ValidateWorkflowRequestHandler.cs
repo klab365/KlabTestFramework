@@ -2,8 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
-using KlabTestFramework.Workflow.Lib.Features.Validator;
-using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Abstractions.Features.Validator;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 
 
 namespace KlabTestFramework.Workflow.Lib.Features.Common;
@@ -57,7 +57,7 @@ internal class ValidateWorkflowRequestHandler : IRequestHandler<ValidateWorkflow
     }
 }
 
-public record ValidateWorkflowRequest(Specifications.Workflow Workflow) : IRequest<WorkflowValidatorResult>;
+public record ValidateWorkflowRequest(Abstractions.Specifications.Workflow Workflow) : IRequest<WorkflowValidatorResult>;
 
 /// <summary>
 /// Represents the result of a workflow validation.

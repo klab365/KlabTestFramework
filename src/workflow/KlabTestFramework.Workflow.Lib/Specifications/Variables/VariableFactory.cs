@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using KlabTestFramework.Shared.Parameters;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;

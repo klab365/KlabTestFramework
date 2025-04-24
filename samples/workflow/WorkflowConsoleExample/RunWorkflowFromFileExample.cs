@@ -5,9 +5,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.Features.Editor;
 using KlabTestFramework.Workflow.Lib.Features.Runner;
-using KlabTestFramework.Workflow.Lib.Specifications;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace WorkflowConsoleExample;
@@ -25,7 +25,7 @@ public class RunWorkflowFromFileExample : IRunExample
         // run workflow.json
         Stopwatch watch = Stopwatch.StartNew();
         watch.Restart();
-        IResult<Workflow> resultReadWorkflow = await eventBus.SendAsync(new QueryWorkflowRequest(workflowPath));
+        Result<Workflow> resultReadWorkflow = await eventBus.SendAsync(new QueryWorkflowRequest(workflowPath));
         if (resultReadWorkflow.IsFailure)
         {
             Console.Error.WriteLine(resultReadWorkflow.Error.Message);

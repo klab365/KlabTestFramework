@@ -1,6 +1,6 @@
 ﻿using KlabTestFramework.Shared.Parameters;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications;
+namespace KlabTestFramework.Workflow.Abstractions.Specifications;
 
 
 /// <summary>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using KlabTestFramework.Shared.Parameters;
-using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib;
 

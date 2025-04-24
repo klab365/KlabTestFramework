@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using KlabTestFramework.Shared.Parameters;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using Moq;
 using NSubstitute;
 

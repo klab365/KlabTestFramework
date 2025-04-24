@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications;
+namespace KlabTestFramework.Workflow.Abstractions.Specifications;
 
 /// <summary>
 /// Interface to replace variable value of a parameter

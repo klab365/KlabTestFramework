@@ -1,4 +1,6 @@
-﻿namespace KlabTestFramework.Workflow.Lib.Specifications;
+﻿using KlabTestFramework.Workflow.Abstractions.Specifications;
+
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Data representation of a variable

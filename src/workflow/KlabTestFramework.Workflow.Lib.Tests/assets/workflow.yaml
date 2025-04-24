@@ -1,0 +1,32 @@
+steps:
+  - id: subworkflowStep1
+    type: SubworkflowStep
+    parameters:
+      - name: Subworkflow
+        type: value
+        value: sub1
+      - name: myVariable
+        type: value
+        value: '00:00:10'
+  - type: SubworkflowStep
+    parameters:
+      - name: Subworkflow
+        type: value
+        value: sub1
+      - name: myVariable
+        type: value
+        value: '00:00:06'
+subworkflows:
+  sub1:
+    variables:
+      - name: myVariable
+        unit: sec
+        variableType: argument
+        dataType: TimeParameter
+        value: '00:00:03'
+    steps:
+      - type: WaitStep
+        parameters:
+          - name: Time
+            type: variable
+            value: myVariable

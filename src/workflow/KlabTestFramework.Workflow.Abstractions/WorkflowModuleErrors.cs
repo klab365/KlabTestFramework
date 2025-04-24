@@ -1,6 +1,6 @@
 ﻿using Klab.Toolkit.Results;
 
-namespace KlabTestFramework.Workflow.Lib;
+namespace KlabTestFramework.Workflow.Abstractions;
 
 public static class WorkflowModuleErrors
 {

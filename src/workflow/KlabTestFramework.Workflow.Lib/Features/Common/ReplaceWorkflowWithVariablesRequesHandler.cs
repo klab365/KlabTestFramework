@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Features.Common;
@@ -20,7 +21,7 @@ internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandle
 
     public async Task<Result> HandleAsync(ReplaceWorkflowWithVariablesRequest request, CancellationToken cancellationToken)
     {
-        Specifications.Workflow workflow = request.Workflow;
+        Abstractions.Specifications.Workflow workflow = request.Workflow;
         await ReplaceStepsWithVariables(workflow.Steps, workflow.Variables);
         return Result.Success();
     }
@@ -54,7 +55,7 @@ internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandle
 
     private static void ReplaceSubworkflowVariableWithTheArgumentsOfSubworkflowStep(ISubworkflowStep subworkflowStep)
     {
-        Specifications.Workflow subworkflow = subworkflowStep.Subworkflow;
+        Abstractions.Specifications.Workflow subworkflow = subworkflowStep.Subworkflow;
         foreach (IParameter parameter in subworkflowStep.Arguments)
         {
             IVariable subworkflowVariable = subworkflow.Variables.Single(v => v.VariableType == VariableType.Argument && v.Name == parameter.Name);
@@ -82,4 +83,4 @@ internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandle
     }
 }
 
-public record ReplaceWorkflowWithVariablesRequest(Specifications.Workflow Workflow) : IRequest<Result>;
+public record ReplaceWorkflowWithVariablesRequest(Abstractions.Specifications.Workflow Workflow) : IRequest<Result>;

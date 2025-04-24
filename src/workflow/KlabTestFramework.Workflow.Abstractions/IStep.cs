@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Parameters.Types;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications;
+namespace KlabTestFramework.Workflow.Abstractions.Specifications;
 
 /// <summary>
 /// Represents a step in a workflow.
@@ -57,7 +57,7 @@ public interface ISubworkflowStep : IStep
     /// <param name="wfName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<IResult> UpdateSubworkflowAsync(string wfName, CancellationToken cancellationToken = default);
+    Task<Result> UpdateSubworkflowAsync(string wfName, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// simple wrapper

@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Abstractions;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
 using KlabTestFramework.Workflow.Lib.Ports;
 using KlabTestFramework.Workflow.Lib.Specifications;
@@ -16,9 +18,9 @@ namespace KlabTestFramework.Workflow.Lib.Features.Editor;
 /// Handler for querying a workflow.
 /// </summary>
 internal sealed class QueryWorkflowHandler :
-    IRequestHandler<QueryWorkflowRequest, Result<Specifications.Workflow>>,
-    IRequestHandler<QueryWorkflowRequestByData, Result<Specifications.Workflow>>,
-    IRequestHandler<CloneWorkflowRequest, Result<Specifications.Workflow>>
+    IRequestHandler<QueryWorkflowRequest, Result<Abstractions.Specifications.Workflow>>,
+    IRequestHandler<QueryWorkflowRequestByData, Result<Abstractions.Specifications.Workflow>>,
+    IRequestHandler<CloneWorkflowRequest, Result<Abstractions.Specifications.Workflow>>
 {
     private readonly IWorkflowRepository _workflowRepository;
     private readonly StepFactory _stepFactory;
@@ -37,22 +39,22 @@ internal sealed class QueryWorkflowHandler :
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<Result<Specifications.Workflow>> HandleAsync(QueryWorkflowRequest request, CancellationToken cancellationToken)
+    public async Task<Result<Abstractions.Specifications.Workflow>> HandleAsync(QueryWorkflowRequest request, CancellationToken cancellationToken)
     {
         if (!Path.Exists(request.FilePath))
         {
-            return Result.Failure<Specifications.Workflow>(WorkflowModuleErrors.WorkflowNotFound(request.FilePath));
+            return Result.Failure<Abstractions.Specifications.Workflow>(WorkflowModuleErrors.WorkflowNotFound(request.FilePath));
         }
 
         try
         {
             WorkflowData data = await _workflowRepository.GetWorkflowAsync(request.FilePath, cancellationToken);
-            Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(data, cancellationToken);
+            Abstractions.Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(data, cancellationToken);
             return Result.Success(workflow);
         }
         catch (Exception ex)
         {
-            return Result.Failure<Specifications.Workflow>(Error.FromException("Workflow", ErrorType.Error, ex));
+            return Result.Failure<Abstractions.Specifications.Workflow>(Error.FromException("Workflow", ErrorType.Error, ex));
         }
     }
 
@@ -62,31 +64,31 @@ internal sealed class QueryWorkflowHandler :
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<Result<Specifications.Workflow>> HandleAsync(QueryWorkflowRequestByData request, CancellationToken cancellationToken)
+    public async Task<Result<Abstractions.Specifications.Workflow>> HandleAsync(QueryWorkflowRequestByData request, CancellationToken cancellationToken)
     {
         // clone the data to avoid modifying the original data
         WorkflowData copy = await _workflowRepository.CopyAsync(request.Data, cancellationToken);
-        Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(copy, cancellationToken);
+        Abstractions.Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(copy, cancellationToken);
         return Result.Success(workflow);
     }
 
-    public async Task<Result<Specifications.Workflow>> HandleAsync(CloneWorkflowRequest request, CancellationToken cancellationToken)
+    public async Task<Result<Abstractions.Specifications.Workflow>> HandleAsync(CloneWorkflowRequest request, CancellationToken cancellationToken)
     {
         WorkflowData copy = await _workflowRepository.CopyAsync(request.Workflow.ToData(), cancellationToken);
-        Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(copy, cancellationToken);
+        Abstractions.Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(copy, cancellationToken);
         return Result.Success(workflow);
     }
 
-    private async Task<Specifications.Workflow> CreateWorkflowFromDataAsync(WorkflowData data, CancellationToken cancellationToken)
+    private async Task<Abstractions.Specifications.Workflow> CreateWorkflowFromDataAsync(WorkflowData data, CancellationToken cancellationToken)
     {
-        Dictionary<string, Specifications.Workflow> subworkflows = await LoadSubworkflowsAsync(data, cancellationToken);
+        Dictionary<string, Abstractions.Specifications.Workflow> subworkflows = await LoadSubworkflowsAsync(data, cancellationToken);
         IVariable[] variables = LoadVariables(data);
         IStep[] steps = await LoadStepsAsync(data.Steps, data.Subworkflows ?? [], cancellationToken);
 
-        Specifications.Workflow workflow = new();
+        Abstractions.Specifications.Workflow workflow = new();
         workflow.Variables.AddRange(variables);
         workflow.Steps.AddRange(steps);
-        foreach (KeyValuePair<string, Specifications.Workflow> subworkflow in subworkflows)
+        foreach (KeyValuePair<string, Abstractions.Specifications.Workflow> subworkflow in subworkflows)
         {
             workflow.Subworkflows.Add(subworkflow.Key, subworkflow.Value);
         }
@@ -161,13 +163,13 @@ internal sealed class QueryWorkflowHandler :
         }
     }
 
-    private async Task<Dictionary<string, Specifications.Workflow>> LoadSubworkflowsAsync(WorkflowData wfData, CancellationToken cancellationToken)
+    private async Task<Dictionary<string, Abstractions.Specifications.Workflow>> LoadSubworkflowsAsync(WorkflowData wfData, CancellationToken cancellationToken)
     {
-        Dictionary<string, Specifications.Workflow> subworkflows = [];
+        Dictionary<string, Abstractions.Specifications.Workflow> subworkflows = [];
 
         foreach (KeyValuePair<string, WorkflowData> subworkflow in wfData.Subworkflows ?? [])
         {
-            Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(subworkflow.Value, cancellationToken);
+            Abstractions.Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(subworkflow.Value, cancellationToken);
             subworkflows.Add(subworkflow.Key, workflow);
         }
 
@@ -175,8 +177,8 @@ internal sealed class QueryWorkflowHandler :
     }
 }
 
-public record QueryWorkflowRequest(string FilePath) : IRequest<Result<Specifications.Workflow>>;
+public record QueryWorkflowRequest(string FilePath) : IRequest<Result<Abstractions.Specifications.Workflow>>;
 
-public record QueryWorkflowRequestByData(WorkflowData Data) : IRequest<Result<Specifications.Workflow>>;
+public record QueryWorkflowRequestByData(WorkflowData Data) : IRequest<Result<Abstractions.Specifications.Workflow>>;
 
-public record CloneWorkflowRequest(Specifications.Workflow Workflow) : IRequest<Result<Specifications.Workflow>>;
+public record CloneWorkflowRequest(Abstractions.Specifications.Workflow Workflow) : IRequest<Result<Abstractions.Specifications.Workflow>>;

@@ -1,7 +1,7 @@
 ﻿using System;
 using KlabTestFramework.Shared.Parameters;
 
-namespace KlabTestFramework.Workflow.Lib.Specifications;
+namespace KlabTestFramework.Workflow.Abstractions.Specifications;
 
 /// <summary>
 /// Represents a parameter in the workflow specification.
