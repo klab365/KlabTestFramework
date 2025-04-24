@@ -7,7 +7,7 @@ using KlabTestFramework.System.Abstractions.TypeInterfaces;
 
 namespace KlabTestFramework.System.Lib.Features.AnalogIO;
 
-internal sealed class SetAnalogOutputCommandRequestHandler : IRequestHandler<AnalogOutputRequests.SetAnalogOutputCommandRequest, Result>
+internal sealed class SetAnalogOutputCommandRequestHandler : IRequestHandler<SetAnalogOutputCommandRequest, Result>
 {
     private readonly ISystemManager _systemManager;
 
@@ -16,7 +16,7 @@ internal sealed class SetAnalogOutputCommandRequestHandler : IRequestHandler<Ana
         _systemManager = systemManager;
     }
 
-    public async Task<Result> HandleAsync(AnalogOutputRequests.SetAnalogOutputCommandRequest request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(SetAnalogOutputCommandRequest request, CancellationToken cancellationToken)
     {
         Result<IAnalogOutput> analogOutput = await _systemManager.GetComponentByIdAsync<IAnalogOutput>(request.Id, cancellationToken);
         if (analogOutput.IsFailure)

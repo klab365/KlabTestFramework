@@ -7,7 +7,7 @@ using KlabTestFramework.System.Abstractions.TypeInterfaces;
 
 namespace KlabTestFramework.System.Lib.Features.Pump;
 
-internal sealed class PumpVolumeRequestHandler : IRequestHandler<PumpRequests.PumpVolumeRequest, Result>
+internal sealed class PumpVolumeRequestHandler : IRequestHandler<PumpVolumeRequest, Result>
 {
     private readonly IEventBus _eventBus;
 
@@ -16,10 +16,10 @@ internal sealed class PumpVolumeRequestHandler : IRequestHandler<PumpRequests.Pu
         _eventBus = eventBus;
     }
 
-    public async Task<Result> HandleAsync(PumpRequests.PumpVolumeRequest request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(PumpVolumeRequest request, CancellationToken cancellationToken)
     {
         // on
-        Result resOn = await _eventBus.SendAsync(new PumpRequests.PumpOnRequest(request.Id, request.VolumeFlow), cancellationToken);
+        Result resOn = await _eventBus.SendAsync(new PumpOnRequest(request.Id, request.VolumeFlow), cancellationToken);
         if (resOn.IsFailure)
         {
             return Result.Failure(resOn.Error);
@@ -30,7 +30,7 @@ internal sealed class PumpVolumeRequestHandler : IRequestHandler<PumpRequests.Pu
         await Task.Delay(calculatedDuration, cancellationToken);
 
         // stop
-        Result resOff = await _eventBus.SendAsync(new PumpRequests.PumpOffRequest(request.Id), cancellationToken);
+        Result resOff = await _eventBus.SendAsync(new PumpOffRequest(request.Id), cancellationToken);
         if (resOff.IsFailure)
         {
             return Result.Failure(resOff.Error);

@@ -23,14 +23,11 @@ public interface IAnalogInput : IComponent
 }
 
 
-public static class AnalogInputRequests
-{
-    /// <summary>
-    /// Query request to get the value of an analog input.
-    /// </summary>
-    public record GetAnalogInputRequest(string Id) : IRequest<Result<double>>;
+/// <summary>
+/// Query request to get the value of an analog input.
+/// </summary>
+public record GetAnalogInputRequest(string Id) : IRequest<Result<double>>;
 
-    public record GetAllAnalogInputsRequest(string Alorithm) : IRequest<Result<GetAllAnalogInputsResponse[]>>;
+public record GetAllAnalogInputsRequest(string Alorithm) : IRequest<Result<GetAllAnalogInputsResponse[]>>;
 
-    public record GetAllAnalogInputsResponse(string ComponentId, double Value);
-}
+public record GetAllAnalogInputsResponse(string ComponentId, double Value);

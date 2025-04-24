@@ -11,7 +11,7 @@ namespace KlabTestFramework.System.Lib.Features.Pump;
 /// <summary>
 /// Handler for the <see cref="PumpOnRequest"/>.
 /// </summary>
-internal sealed class PumpOnHandler : IRequestHandler<PumpRequests.PumpOnRequest, Result>
+internal sealed class PumpOnHandler : IRequestHandler<PumpOnRequest, Result>
 {
     private readonly ISystemManager _systemManager;
     private readonly IEventBus _eventBus;
@@ -22,7 +22,7 @@ internal sealed class PumpOnHandler : IRequestHandler<PumpRequests.PumpOnRequest
         _eventBus = eventBus;
     }
 
-    public async Task<Result> HandleAsync(PumpRequests.PumpOnRequest request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(PumpOnRequest request, CancellationToken cancellationToken)
     {
         Result<IPump> pump = await _systemManager.GetComponentByIdAsync<IPump>(request.Id, cancellationToken);
         if (pump.IsFailure)

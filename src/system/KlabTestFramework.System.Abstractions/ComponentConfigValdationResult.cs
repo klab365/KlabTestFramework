@@ -1,4 +1,4 @@
-namespace KlabTestFramework.System.Abstractions;
+﻿namespace KlabTestFramework.System.Abstractions;
 
 public record ComponentConfigValdationResult
 {

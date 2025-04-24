@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace KlabTestFramework.Shared.Parameters;
 
@@ -65,4 +64,4 @@ public interface IParameterType<TValue> : IParameterType
     event Action<TValue>? ValueChanged;
 }
 
-public record ParameterValidationItem<TValue>(Func<TValue, bool> Validation, Func<IParameterType,string> Message);
+public record ParameterValidationItem<TValue>(Func<TValue, bool> Validation, Func<IParameterType, string> Message);

@@ -9,7 +9,7 @@ using KlabTestFramework.System.Abstractions.TypeInterfaces;
 
 namespace KlabTestFramework.System.Lib.Features.AnalogIO;
 
-internal sealed class GetAllAnalogInputsRequestHandler : IRequestHandler<AnalogInputRequests.GetAllAnalogInputsRequest, Result<AnalogInputRequests.GetAllAnalogInputsResponse[]>>
+internal sealed class GetAllAnalogInputsRequestHandler : IRequestHandler<GetAllAnalogInputsRequest, Result<GetAllAnalogInputsResponse[]>>
 {
     private readonly ISystemManager _systemManager;
     private readonly IEventBus _eventBus;
@@ -21,12 +21,12 @@ internal sealed class GetAllAnalogInputsRequestHandler : IRequestHandler<AnalogI
         _eventBus = eventBus;
     }
 
-    public async Task<Result<AnalogInputRequests.GetAllAnalogInputsResponse[]>> HandleAsync(AnalogInputRequests.GetAllAnalogInputsRequest request, CancellationToken cancellationToken)
+    public async Task<Result<GetAllAnalogInputsResponse[]>> HandleAsync(GetAllAnalogInputsRequest request, CancellationToken cancellationToken)
     {
         Result<IEnumerable<IAnalogInput>> analogInputs = await _systemManager.GetAllComponentsOfTypeAsync<IAnalogInput>(cancellationToken);
         if (analogInputs.IsFailure)
         {
-            return Result.Failure<AnalogInputRequests.GetAllAnalogInputsResponse[]>(analogInputs.Error);
+            return Result.Failure<GetAllAnalogInputsResponse[]>(analogInputs.Error);
         }
 
         // first trigger all analog inputs
@@ -47,7 +47,7 @@ internal sealed class GetAllAnalogInputsRequestHandler : IRequestHandler<AnalogI
         });
 
         // get the values in parallel
-        List<AnalogInputRequests.GetAllAnalogInputsResponse> responses = new();
+        List<GetAllAnalogInputsResponse> responses = new();
         Parallel.ForEach(analogInputs.Value, async analogInput =>
         {
             string id = analogInput.GetConfig().Id;
@@ -61,7 +61,7 @@ internal sealed class GetAllAnalogInputsRequestHandler : IRequestHandler<AnalogI
             {
                 lock (_lock)
                 {
-                    responses.Add(new AnalogInputRequests.GetAllAnalogInputsResponse(id, value.Value));
+                    responses.Add(new GetAllAnalogInputsResponse(id, value.Value));
                 }
             }
         });

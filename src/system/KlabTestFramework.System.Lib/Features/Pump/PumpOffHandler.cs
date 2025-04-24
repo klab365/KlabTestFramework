@@ -9,7 +9,7 @@ using UnitsNet;
 
 namespace KlabTestFramework.System.Lib.Features.Pump;
 
-internal sealed class PumpOffHandler : IRequestHandler<PumpRequests.PumpOffRequest, Result>
+internal sealed class PumpOffHandler : IRequestHandler<PumpOffRequest, Result>
 {
     private readonly ISystemManager _systemManager;
     private readonly IEventBus _eventBus;
@@ -20,7 +20,7 @@ internal sealed class PumpOffHandler : IRequestHandler<PumpRequests.PumpOffReque
         _eventBus = eventBus;
     }
 
-    public async Task<Result> HandleAsync(PumpRequests.PumpOffRequest request, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(PumpOffRequest request, CancellationToken cancellationToken)
     {
         Result<IPump> pump = await _systemManager.GetComponentByIdAsync<IPump>(request.Id, cancellationToken);
         if (pump.IsFailure)

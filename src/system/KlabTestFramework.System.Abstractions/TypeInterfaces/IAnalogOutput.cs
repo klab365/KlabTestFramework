@@ -18,8 +18,10 @@ public interface IAnalogOutput : IAnalogInput
 /// </summary>
 public static class AnalogOutputRequests
 {
-    /// <summary>
-    /// Command request to set the value of an analog output.
-    /// </summary>
-    public record SetAnalogOutputCommandRequest(string Id, double Value) : IRequest<Result>;
+
 }
+
+/// <summary>
+/// Command request to set the value of an analog output.
+/// </summary>
+public record SetAnalogOutputCommandRequest(string Id, double Value) : IRequest<Result>;
