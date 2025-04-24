@@ -51,12 +51,6 @@ public interface IStepParameter
     string ContentAsString();
 
     /// <summary>
-    /// Checks if the parameter is valid.
-    /// </summary>
-    /// <returns>True if the parameter is valid; otherwise, false.</returns>
-    bool IsValid();
-
-    /// <summary>
     /// Indicates if the parameter is a variable.
     /// </summary>
     bool IsVariable();

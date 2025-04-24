@@ -42,16 +42,6 @@ public class WaitStepHandler : IStepHandler<WaitStep>
         return StepResult.Success(step);
     }
 
-    public Task<StepResult> SetupAsync(WaitStep step, WorkflowContext context, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(StepResult.Success(step));
-    }
-
-    public Task<StepResult> CleanupAsync(WaitStep step, WorkflowContext context, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(StepResult.Success(step));
-    }
-
     private async Task PublishRemainingTimeAsync(WaitStep step, int remainingTimeSec)
     {
         Console.WriteLine($"Remaining time: {remainingTimeSec} seconds.");

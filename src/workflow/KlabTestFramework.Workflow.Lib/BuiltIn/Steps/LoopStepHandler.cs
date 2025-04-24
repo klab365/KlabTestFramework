@@ -17,11 +17,6 @@ internal class LoopStepHandler : IStepHandler<LoopStep>
         _eventBus = eventBus;
     }
 
-    public Task<StepResult> CleanupAsync(LoopStep step, WorkflowContext context, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(StepResult.Success(step));
-    }
-
     public async Task<StepResult> HandleAsync(LoopStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
         List<StepResult> resChildren = new();
@@ -35,10 +30,5 @@ internal class LoopStepHandler : IStepHandler<LoopStep>
         }
 
         return StepResult.Collect(step, resChildren.ToArray());
-    }
-
-    public Task<StepResult> SetupAsync(LoopStep step, WorkflowContext context, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(StepResult.Success(step));
     }
 }

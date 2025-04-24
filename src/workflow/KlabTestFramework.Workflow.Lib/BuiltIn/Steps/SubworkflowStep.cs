@@ -7,6 +7,7 @@ using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Shared.Parameters.Types;
 using KlabTestFramework.Workflow.Abstractions;
+using KlabTestFramework.Workflow.Abstractions.Features.Validator;
 using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.Features.Editor;
 using KlabTestFramework.Workflow.Lib.Specifications;
@@ -99,5 +100,16 @@ internal class SubworkflowStep : ISubworkflowStep
             IStepParameter parameter = new StepParameter<IParameterType>(variable.Name, variable.Unit, parameterType);
             _arguments.Add(parameter);
         }
+    }
+
+    public Task<WorkflowStepErrorValidation[]> ValidateAsync(CancellationToken cancellationToken = default)
+    {
+        var errors = new List<WorkflowStepErrorValidation>();
+        if (SelectedSubworkflow.Content.Options.Exists(o => o.AsString() == NoneSelected.AsString()))
+        {
+            errors.Add(new WorkflowStepErrorValidation(this, "Subworkflow must be selected."));
+        }
+
+        return Task.FromResult(errors.ToArray());
     }
 }

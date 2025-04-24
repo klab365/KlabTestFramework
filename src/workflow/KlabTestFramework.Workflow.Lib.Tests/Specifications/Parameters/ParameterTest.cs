@@ -91,36 +91,6 @@ public class ParameterTests
     }
 
     [Fact]
-    public void IsValidShouldReturnTrueWhenContentIsValid()
-    {
-        // Arrange
-        Mock<IParameterType> content = new();
-        content.Setup(c => c.IsValid()).Returns(true);
-        StepParameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", content.Object);
-
-        // Act
-        bool isValid = parameter.IsValid();
-
-        // Assert
-        isValid.Should().BeTrue();
-    }
-
-    [Fact]
-    public void IsValidShouldReturnFalseWhenContentIsInvalid()
-    {
-        // Arrange
-        Mock<IParameterType> content = new();
-        content.Setup(c => c.IsValid()).Returns(false);
-        StepParameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", content.Object);
-
-        // Act
-        bool isValid = parameter.IsValid();
-
-        // Assert
-        isValid.Should().BeFalse();
-    }
-
-    [Fact]
     public void ToDataShouldReturnParameterDataWithCorrectValues()
     {
         // Arrange

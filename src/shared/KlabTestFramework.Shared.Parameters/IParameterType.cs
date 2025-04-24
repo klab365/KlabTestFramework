@@ -24,11 +24,6 @@ public interface IParameterType
     string Unit { get; set; }
 
     /// <summary>
-    /// Gets a value indicating whether the parameter is valid.
-    /// </summary>
-    bool IsValid();
-
-    /// <summary>
     /// Gets the string representation of the parameter.
     /// </summary>
     /// <returns></returns>
@@ -54,17 +49,6 @@ public interface IParameterType<TValue> : IParameterType
     TValue Value { get; }
 
     /// <summary>
-    /// Gets the list of validation callbacks for the parameter type.
-    /// </summary>
-    IEnumerable<Func<TValue, bool>> ValidaCallbacks { get; }
-
-    /// <summary>
-    /// Adds a validation callback for the parameter type.
-    /// </summary>
-    /// <param name="value">The validation callback to add.</param>
-    void AddValidation(Func<TValue, bool> value);
-
-    /// <summary>
     /// Gets the type of the parameter value.
     /// </summary>
     Type ValueType => typeof(TValue);
@@ -80,3 +64,5 @@ public interface IParameterType<TValue> : IParameterType
     /// </summary>
     event Action<TValue>? ValueChanged;
 }
+
+public record ParameterValidationItem<TValue>(Func<TValue, bool> Validation, Func<IParameterType,string> Message);

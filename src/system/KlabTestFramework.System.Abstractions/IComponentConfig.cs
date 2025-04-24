@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using KlabTestFramework.Shared.Parameters;
 
 namespace KlabTestFramework.System.Abstractions;
@@ -20,10 +21,5 @@ public interface IComponentConfig
 
     IEnumerable<IComponentConfig> Children { get; }
 
-    bool IsValid()
-    {
-        bool areParametersValid = Parameters.All(p => p.IsValid());
-        bool areChildrenValid = Children.All(c => c.IsValid());
-        return areParametersValid && areChildrenValid;
-    }
+    Task<ComponentConfigValdationResult> ValidateComponentAsync(CancellationToken cancellationToken = default);
 }

@@ -18,11 +18,6 @@ internal class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
         _eventBus = eventBus;
     }
 
-    public Task<StepResult> CleanupAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(StepResult.Success(step));
-    }
-
     public async Task<StepResult> HandleAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
         if (step.SelectedSubworkflow.Content.Value == SubworkflowStep.NoneSelected)
@@ -43,10 +38,5 @@ internal class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
         }
 
         return StepResult.Collect(step, stepResults.ToArray());
-    }
-
-    public Task<StepResult> SetupAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(StepResult.Success(step));
     }
 }

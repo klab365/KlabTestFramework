@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using KlabTestFramework.Workflow.Abstractions.Specifications;
 
@@ -14,7 +15,7 @@ public interface IStepValidatorHandler
     /// </summary>
     /// <param name="step">The step to validate.</param>
     /// <returns>A collection of validation results for the step.</returns>
-    Task<IEnumerable<WorkflowStepErrorValidation>> ValidateAsync(IStep step);
+    Task<IEnumerable<WorkflowStepErrorValidation>> ValidateAsync(IStep step, CancellationToken cancellationToken = default);
 }
 
 /// <summary>

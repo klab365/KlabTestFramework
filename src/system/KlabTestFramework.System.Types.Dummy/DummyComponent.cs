@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Parameters;
@@ -52,4 +53,9 @@ public class DummyComponentConfig : IComponentConfig
     public IEnumerable<IParameterType> Parameters => [Ip];
 
     public IEnumerable<IComponentConfig> Children => [Child1Config];
+
+    public Task<ComponentConfigValdationResult> ValidateComponentAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(ComponentConfigValdationResult.Success());
+    }
 }

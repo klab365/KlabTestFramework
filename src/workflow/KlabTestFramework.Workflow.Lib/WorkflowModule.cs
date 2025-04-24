@@ -36,7 +36,7 @@ public static class WorkflowModule
 
         services.AddWorkflowspecification(configuration);
         services.AddWorkflowRepository();
-        services.AddWorkflowValidator();
+        services.AddWorkflowValidator(configuration);
         services.RegisterFeatures();
 
         return services;
@@ -54,9 +54,15 @@ public static class WorkflowModule
         services.AddRequestResponseHandler<ReplaceWorkflowWithVariablesRequest, Result, ReplaceWorkflowWithVariablesRequesHandler>();
     }
 
-    private static void AddWorkflowValidator(this IServiceCollection services)
+    private static void AddWorkflowValidator(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
-        services.AddTransient<IStepValidatorHandler, ParameterValidator>();
+        services.AddTransient<IStepValidatorHandler, StepValidator>();
+        foreach (StepValidatorType stepValidatorType in configuration.StepValidatorTypes)
+        {
+            Type validatorHandlerType = stepValidatorType.ValidatorHandlerType;
+            ServiceLifetime lifetime = stepValidatorType.Lifetime;
+            services.Add(new ServiceDescriptor(typeof(IStepValidatorHandler), validatorHandlerType, lifetime));
+        }
     }
 
     private static void AddWorkflowRepository(this IServiceCollection services)

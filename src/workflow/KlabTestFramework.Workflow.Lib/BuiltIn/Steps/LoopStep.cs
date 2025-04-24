@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Shared.Parameters.Types;
+using KlabTestFramework.Workflow.Abstractions.Features.Validator;
 using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -20,14 +23,24 @@ internal class LoopStep : IStepWithChildren
         IterationCount = parameterFactory.CreateParameter<IntParameter>
         (
             "IterationCount",
-            "",
-            p => p.SetValue(1),
-            p => p.AddValidation(v => v > 0)
+            string.Empty,
+            p => p.SetValue(1)
         );
     }
 
     public IEnumerable<IStepParameter> GetParameters()
     {
         yield return IterationCount;
+    }
+
+    public Task<WorkflowStepErrorValidation[]> ValidateAsync(CancellationToken cancellationToken = default)
+    {
+        var errors = new List<WorkflowStepErrorValidation>();
+        if (IterationCount.Content.Value < 1)
+        {
+            errors.Add(new WorkflowStepErrorValidation(this, "Iteration count must be greater than 0."));
+        }
+
+        return Task.FromResult(errors.ToArray());
     }
 }

@@ -69,12 +69,6 @@ public class StepParameter<TParameterType> : IStepParameter where TParameterType
         return value;
     }
 
-    /// <inheritdoc/>
-    public bool IsValid()
-    {
-        return Content.IsValid();
-    }
-
     public bool IsVariable()
     {
         return ParameterType == StepParameterValueType.Variable;

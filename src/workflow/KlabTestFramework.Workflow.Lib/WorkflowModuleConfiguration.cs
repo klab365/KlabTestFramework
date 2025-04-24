@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using KlabTestFramework.Shared.Parameters;
+using KlabTestFramework.Workflow.Abstractions.Features.Validator;
 using KlabTestFramework.Workflow.Abstractions.Specifications;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace KlabTestFramework.Workflow.Lib;
 
@@ -12,6 +14,7 @@ public class WorkflowModuleConfiguration
 {
     private readonly List<StepType> _stepTypes = new();
     private readonly List<VariableReplaceHandlerType> _variableHandlerTypes = new();
+    private readonly List<StepValidatorType> _stepValidatorTypes = new();
 
     /// <summary>
     /// Gets or sets a value indicating whether to register default steps.
@@ -29,6 +32,11 @@ public class WorkflowModuleConfiguration
     public IEnumerable<VariableReplaceHandlerType> VariableHandlerTypes => _variableHandlerTypes;
 
     /// <summary>
+    /// List of step validator types to register.
+    /// </summary>
+    public IEnumerable<StepValidatorType> StepValidatorTypes => _stepValidatorTypes;
+
+    /// <summary>
     /// Add step type
     /// </summary>
     /// <typeparam name="TStep"></typeparam>
@@ -43,6 +51,12 @@ public class WorkflowModuleConfiguration
     {
         VariableReplaceHandlerType variableHandlerType = new(typeof(TParameter), typeof(TVariableHandler));
         _variableHandlerTypes.Add(variableHandlerType);
+    }
+
+    public void AddStepValidatorType<TValidatorHandler>(ServiceLifetime lifetime = ServiceLifetime.Transient) where TValidatorHandler : IStepValidatorHandler
+    {
+        StepValidatorType stepValidatorType = new(typeof(TValidatorHandler), lifetime);
+        _stepValidatorTypes.Add(stepValidatorType);
     }
 }
 
@@ -60,3 +74,10 @@ public record StepType(Type Step, Type Handler);
 /// <param name="Parameter"></param>
 /// <param name="VariableHandler"></param>
 public record VariableReplaceHandlerType(Type Parameter, Type VariableHandler);
+
+/// <summary>
+/// Represents a step validator type in the workflow module configuration.
+/// </summary>
+/// <param name="ValidatorHandlerType"></param>
+/// <param name="Lifetime"></param>
+public record StepValidatorType(Type ValidatorHandlerType, ServiceLifetime Lifetime = ServiceLifetime.Transient);

@@ -18,7 +18,6 @@ public class SelectableParameter<TParameterType> : BaseParameterType<TParameterT
 
     public SelectableParameter(ParameterFactory parameterFactory)
     {
-        AddValidation(o => Options.Exists(oo => o.AsString() == oo.AsString()));
         _parameterFactory = parameterFactory;
     }
 

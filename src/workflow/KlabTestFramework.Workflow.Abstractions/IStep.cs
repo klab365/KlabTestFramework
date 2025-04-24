@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Parameters.Types;
+using KlabTestFramework.Workflow.Abstractions.Features.Validator;
 
 namespace KlabTestFramework.Workflow.Abstractions.Specifications;
 
@@ -14,6 +15,8 @@ public interface IStep
     StepId Id { get; set; }
 
     IEnumerable<IStepParameter> GetParameters();
+
+    Task<WorkflowStepErrorValidation[]> ValidateAsync(CancellationToken cancellationToken = default);
 
     string GetStepKey()
     {

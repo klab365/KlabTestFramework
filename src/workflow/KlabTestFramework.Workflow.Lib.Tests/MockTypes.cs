@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Shared.Parameters.Types;
+using KlabTestFramework.Workflow.Abstractions.Features.Validator;
 using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
@@ -20,14 +21,18 @@ public class MockStep : IStep
         (
             "Counter",
             "",
-            p => p.SetValue(0),
-            p => p.AddValidation(v => v >= 0)
+            p => p.SetValue(0)
         );
     }
 
     public IEnumerable<IStepParameter> GetParameters()
     {
         yield return Counter;
+    }
+
+    public Task<WorkflowStepErrorValidation[]> ValidateAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(System.Array.Empty<WorkflowStepErrorValidation>());
     }
 }
 
