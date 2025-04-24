@@ -20,11 +20,30 @@ public static class SystemModule
         services.AddTransient<IComponentFactory, ComponentFactory>(r => r.GetRequiredService<ComponentFactory>());
 
         // register components
-        foreach (Func<IServiceCollection, IServiceCollection> componentConfiguration in configuration.ComponentConfigurations)
+        foreach (ComponentSpecification specification in configuration.ComponentSpecifications)
         {
-            services = componentConfiguration(services);
+            services.RegisterComponent(specification);
         }
 
         return services;
+    }
+
+    private static void RegisterComponent(this IServiceCollection services, ComponentSpecification specification)
+    {
+        switch (specification.Lifetime)
+        {
+            case ServiceLifetime.Singleton:
+                services.AddSingleton(specification.ComponentType);
+                break;
+            case ServiceLifetime.Scoped:
+                services.AddScoped(specification.ComponentType);
+                break;
+            case ServiceLifetime.Transient:
+                services.AddTransient(specification.ComponentType);
+                break;
+        }
+
+        services.AddTransient(specification.ConfigType);
+        services.AddTransient(_ => specification);
     }
 }

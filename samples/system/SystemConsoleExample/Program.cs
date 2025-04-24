@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.System.Abstractions;
@@ -26,9 +27,12 @@ internal sealed class Program
         builder.ConfigureServices(services =>
         {
             services.UseParameters();
+            services.UseEventModule();
             services.UseSystemLib(config =>
             {
-                config.ComponentConfigurations.Add(DummyModule.UseDummyComponents);
+                config
+                    .RegisterComponent(ComponentSpecification.Create<DummyComponentConfig, DummyComponent>())
+                    .RegisterComponent(ComponentSpecification.Create<DummyChildComponentConfig, DummyChildComponent>());
             });
         });
         IHost host = builder.Build();
