@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Klab.Toolkit.Results;
+using Klab.Toolkit.Event;
 using KlabTestFramework.Shared.Services;
-using KlabTestFramework.Workflow.Lib.Runner;
-using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Abstractions.Events;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 
 
 namespace KlabTestFramework.Workflow.Lib.BuiltIn;
@@ -14,33 +15,46 @@ namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 public class WaitStepHandler : IStepHandler<WaitStep>
 {
     private readonly IThreadProvider _threadProvider;
+    private readonly IEventBus _eventBus;
 
-    public WaitStepHandler(IThreadProvider threadProvider)
+    public WaitStepHandler(IThreadProvider threadProvider, IEventBus eventBus)
     {
         _threadProvider = threadProvider;
+        _eventBus = eventBus;
     }
 
     /// <inheritdoc/>
-    public async Task<Result> HandleAsync(WaitStep step, IWorkflowContext context)
+    public async Task<StepResult> HandleAsync(WaitStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
-        TimeSpan remainingTime = step.Time.Content.Value;
-        while (!context.CancellationToken.IsCancellationRequested)
+        int remainingTimeSec = step.Time.Content.Value;
+        while (!cancellationToken.IsCancellationRequested)
         {
-            PublishRemainingTime(step, context, remainingTime);
-            await _threadProvider.DelayAsync(TimeSpan.FromSeconds(1), context.CancellationToken);
-            remainingTime -= TimeSpan.FromSeconds(1);
-            if (remainingTime <= TimeSpan.Zero)
+            await PublishRemainingTimeAsync(step, remainingTimeSec);
+            await _threadProvider.DelayAsync(TimeSpan.FromSeconds(1), cancellationToken);
+            remainingTimeSec -= 1;
+            if (remainingTimeSec <= 0)
             {
                 break;
             }
         }
 
-        PublishRemainingTime(step, context, TimeSpan.Zero);
-        return Result.Success();
+        await PublishRemainingTimeAsync(step, 0);
+        return StepResult.Success(step);
     }
 
-    private static void PublishRemainingTime(WaitStep step, IWorkflowContext context, TimeSpan remainingTime)
+    public Task<StepResult> SetupAsync(WaitStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
-        context.PublishMessage(step, $"{remainingTime.TotalSeconds} sec");
+        return Task.FromResult(StepResult.Success(step));
+    }
+
+    public Task<StepResult> CleanupAsync(WaitStep step, WorkflowContext context, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(StepResult.Success(step));
+    }
+
+    private async Task PublishRemainingTimeAsync(WaitStep step, int remainingTimeSec)
+    {
+        Console.WriteLine($"Remaining time: {remainingTimeSec} seconds.");
+        await _eventBus.PublishAsync(new StepPublishedInformationEvent(step.Id, $"Remaining time: {remainingTimeSec} seconds."));
     }
 }

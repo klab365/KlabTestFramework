@@ -1,0 +1,33 @@
+﻿using System.Collections.Generic;
+using KlabTestFramework.Shared.Parameters;
+using KlabTestFramework.Shared.Parameters.Types;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
+using KlabTestFramework.Workflow.Lib.Specifications;
+
+
+namespace KlabTestFramework.Workflow.Lib.BuiltIn;
+
+internal class LoopStep : IStepWithChildren
+{
+    public List<IStep> Children { get; } = new();
+
+    public StepId Id { get; set; } = StepId.Empty;
+
+    public StepParameter<IntParameter> IterationCount { get; }
+
+    public LoopStep(ParameterFactory parameterFactory)
+    {
+        IterationCount = parameterFactory.CreateParameter<IntParameter>
+        (
+            "IterationCount",
+            "",
+            p => p.SetValue(1),
+            p => p.AddValidation(v => v > 0)
+        );
+    }
+
+    public IEnumerable<IStepParameter> GetParameters()
+    {
+        yield return IterationCount;
+    }
+}

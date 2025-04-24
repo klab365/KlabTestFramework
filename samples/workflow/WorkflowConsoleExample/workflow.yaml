@@ -1,50 +1,39 @@
-Description: My first workflow from a file
-Variables: 
-Steps:
-- Id: /subworkflowstep1
-  Type: SubworkflowStep
-  Parameters:
-  - Name: Subworkflow
-    Type: Value
-    Value: KlabTestFramework.Shared.Parameters.Types.StringParameter
-  - Name: myVariable
-    Type: Value
-    Value: 00:00:10
+steps:
+- type: SubworkflowStep
+  parameters:
+  - name: Subworkflow
+    type: Value
+    value: "sub1"
+  - name: myVariable
+    type: Value
+    value: 2
 
-- Id: /SubworkflowStep_611ab2eb-2bfc-4237-ba87-4db0e80e2bde
-  Type: SubworkflowStep
-  Parameters:
-  - Name: Subworkflow
-    Type: Value
-    Value: KlabTestFramework.Shared.Parameters.Types.StringParameter
-  - Name: myVariable
-    Type: Value
-    Value: 00:00:06
+- type: LoopStep
+  parameters:
+  - name: IterationCount
+    type: Value
+    value: 2
+  children:
+  - type: SubworkflowStep
+    parameters:
+    - name: Subworkflow
+      type: Value
+      value: "sub1"
+    - name: myVariable
+      type: Value
+      value: 2
 
-- Id: /SubworkflowStep_13ec8695-1fdb-4789-9bad-9de15cfb9639
-  Type: SubworkflowStep
-  Parameters:
-  - Name: Subworkflow
-    Type: Value
-    Value: KlabTestFramework.Shared.Parameters.Types.StringParameter
-  - Name: myVariable
-    Type: Value
-    Value: 00:00:03
-
-Subworkflows:
+subworkflows:
   sub1:
-    Description: My first subworkflow
-    Variables:
-    - Name: myVariable
-      Unit: sec
-      VariableType: Argument
-      DataType: TimeParameter
-      Value: 00:00:03
-    Steps:
-    - Id: /WaitStep_7714f40c-b4bb-4e8e-9d63-0cf36dbfbe3f
-      Type: WaitStep
-      Parameters:
-      - Name: Time
-        Type: Variable
-        Value: myVariable
-    Subworkflows: 
+    variables:
+    - name: myVariable
+      unit: sec
+      variableType: Argument
+      dataType: IntParameter
+      value: 2
+    steps:
+    - type: WaitStep
+      parameters:
+      - name: Time
+        type: Variable
+        value: myVariable

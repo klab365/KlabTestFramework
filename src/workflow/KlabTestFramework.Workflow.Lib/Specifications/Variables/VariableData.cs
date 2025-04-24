@@ -1,4 +1,6 @@
-﻿namespace KlabTestFramework.Workflow.Lib.Specifications;
+﻿using KlabTestFramework.Workflow.Abstractions.Specifications;
+
+namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Data representation of a variable
@@ -16,8 +18,4 @@ public class VariableData
     public string Value { get; set; } = string.Empty;
 }
 
-public enum VariableType
-{
-    Constant,
-    Argument,
-}
+

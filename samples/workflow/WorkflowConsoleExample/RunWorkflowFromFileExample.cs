@@ -3,10 +3,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
-using KlabTestFramework.Workflow.Lib.Editor;
-using KlabTestFramework.Workflow.Lib.Runner;
-using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
+using KlabTestFramework.Workflow.Lib.Features.Editor;
+using KlabTestFramework.Workflow.Lib.Features.Runner;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace WorkflowConsoleExample;
@@ -15,27 +16,26 @@ public class RunWorkflowFromFileExample : IRunExample
 {
     public async Task Run(IServiceProvider services)
     {
-        const string workflowName = "workflow.json";
+        const string workflowName = "workflow.yaml";
         string workflowPath = Assembly.GetExecutingAssembly().Location;
         workflowPath = Path.Join(Path.GetDirectoryName(workflowPath)!, workflowName);
         Console.WriteLine($"Running workflow from {workflowName} in {workflowPath}");
-        IWorkflowEditor workflowEditor = services.GetRequiredService<IWorkflowEditor>();
+        IEventBus eventBus = services.GetRequiredService<IEventBus>();
 
         // run workflow.json
         Stopwatch watch = Stopwatch.StartNew();
         watch.Restart();
-        Result resultReadWorkflow = await workflowEditor.LoadWorkflowFromFileAsync(workflowPath);
+        Result<Workflow> resultReadWorkflow = await eventBus.SendAsync(new QueryWorkflowRequest(workflowPath));
         if (resultReadWorkflow.IsFailure)
         {
-            Console.WriteLine($"Failed to load workflow from {workflowName}");
+            Console.Error.WriteLine(resultReadWorkflow.Error.Message);
             return;
         }
 
-        IWorkflowRunner runner = services.GetRequiredService<IWorkflowRunner>();
-        IWorkflowContext context = services.GetRequiredService<IWorkflowContext>();
-        Result<IWorkflow> workflow = await workflowEditor.BuildWorkflowAsync();
-        await runner.RunAsync(workflow.Value!, context);
+        WorkflowResult resWorkflowRun = await eventBus.SendAsync(new RunWorkflowRequest(resultReadWorkflow.Value, new WorkflowContext()));
+
         watch.Stop();
         Console.WriteLine($"Workflow executed in {watch.Elapsed.TotalMilliseconds}ms");
+        Console.WriteLine($"Workflow result: {resWorkflowRun}");
     }
 }

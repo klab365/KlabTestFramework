@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
-public static class StepExtensions
+internal static class StepExtensions
 {
     public static void FromData(this IStep step, StepData stepData)
     {
@@ -17,17 +20,22 @@ public static class StepExtensions
         }
         step.Id = StepId.Create(stepData.Id);
 
-        foreach (IParameter parameter in step.GetParameters())
+        foreach (StepParameterData parameterData in stepData.Parameters)
         {
-            ParameterData parameterData = stepData.Parameters.FoundParameterDataByName(parameter.Name);
+            IStepParameter? parameter = step.GetParameters().FirstOrDefault(p => p.Name == parameterData.Name);
+            if (parameter is null)
+            {
+                throw new InvalidOperationException($"Parameter {parameterData.Name} not found in step {step.GetType().Name}");
+            }
+
             parameter.FromData(parameterData);
         }
     }
 
     public static StepData ToData(this IStep step)
     {
-        List<ParameterData> parameters = new();
-        foreach (IParameter parameter in step.GetParameters())
+        List<StepParameterData> parameters = new();
+        foreach (IStepParameter parameter in step.GetParameters())
         {
             parameters.Add(parameter.ToData());
         }
@@ -38,6 +46,11 @@ public static class StepExtensions
             Type = step.GetType().Name,
             Parameters = parameters,
         };
+
+        if (step is IStepWithChildren stepWithChildren)
+        {
+            data.Children = stepWithChildren.Children.Select(c => c.ToData()).ToList();
+        }
 
         return data;
     }

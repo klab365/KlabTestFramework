@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
-using KlabTestFramework.Shared.Parameters;
-using KlabTestFramework.Workflow.Lib.Specifications;
+﻿using System;
+using System.Threading.Tasks;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 
@@ -9,12 +9,18 @@ namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 /// This handler will replace the parameter with the variable content
 /// </summary>
 /// <typeparam name="TParameterType"></typeparam>
-public class DefaultVariableParameterReplace<TParameterType> : IVariableParameterReplaceHandler<TParameterType> where TParameterType : IParameterType
+public class DefaultVariableParameterReplace : IVariableParameterReplaceHandler
 {
-    public Task Replace(Variable<TParameterType> variable, Parameter<TParameterType> parameter)
+    public Task ReplaceAsync(IVariable variable, IStepParameter parameter)
     {
-        string value = variable.Parameter.AsString();
-        parameter.Content.FromString(value);
+        bool isVariableTypeEqual = variable.GetParameterType().TypeKey == parameter.GetParameterType().TypeKey;
+        if (!isVariableTypeEqual)
+        {
+            throw new ArgumentException($"Variable type {variable.GetParameterType().TypeKey} is not equal to parameter type {parameter.GetParameterType().TypeKey}");
+        }
+
+        string value = variable.GetParameterType().AsString();
+        parameter.GetParameterType().FromString(value);
         return Task.CompletedTask;
     }
 }

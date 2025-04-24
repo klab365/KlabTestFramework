@@ -1,0 +1,31 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using KlabTestFramework.Workflow.Abstractions.Features.Validator;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
+
+namespace KlabTestFramework.Workflow.Lib.BuiltIn.Validator;
+
+/// <summary>
+/// Validate if the parameters of a step are valid
+/// </summary>
+public class ParameterValidator : IStepValidatorHandler
+{
+    /// <inheritdoc/>
+    public Task<IEnumerable<WorkflowStepErrorValidation>> ValidateAsync(IStep step)
+    {
+        List<WorkflowStepErrorValidation> results = new();
+        IEnumerable<IStepParameter> paramters = step.GetParameters();
+        foreach (IStepParameter parameter in paramters)
+        {
+            if (!parameter.IsValid())
+            {
+                results.Add(new(step, $"Parameter {parameter.Name} is not valid"));
+            }
+        }
+
+        return Task.FromResult(results.AsEnumerable());
+    }
+}
+
+

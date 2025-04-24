@@ -1,64 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Klab.Toolkit.Event;
+using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Shared.Parameters.Types;
+using KlabTestFramework.Workflow.Abstractions;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
+using KlabTestFramework.Workflow.Lib.Features.Editor;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 
 namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 
-public class SubworkflowStep : ISubworkflowStep
+internal class SubworkflowStep : ISubworkflowStep
 {
     public static readonly StringParameter NoneSelected = new() { Name = "none" };
-    private readonly StepFactory _stepFactory;
+    private readonly IEventBus _eventBus;
+
     public StepId Id { get; set; } = StepId.Empty;
 
-    public Parameter<SelectableParameter<StringParameter>> SelectedSubworkflow { get; }
+    public StepParameter<SelectableParameter<StringParameter>> SelectedSubworkflow { get; }
 
-    public List<IStep> Children { get; private set; } = new();
+    private readonly List<IStepParameter> _arguments = new();
+    public IEnumerable<IStepParameter> Arguments => _arguments;
 
-    public List<IParameter> Arguments { get; private set; } = new();
+    public Abstractions.Specifications.Workflow Subworkflow { get; private set; } = new();
 
-    private IWorkflow? _subworkflow;
-    public IWorkflow? Subworkflow
+    public IEnumerable<IStep> Steps => Subworkflow.Steps;
+
+    public Dictionary<string, WorkflowData> WorkflowData { get; internal set; } = new();
+
+    public SubworkflowStep(ParameterFactory parameterFactory, IEventBus eventBus)
     {
-        get => _subworkflow;
-        set
-        {
-            _subworkflow = value;
-            InitInternalStructure();
-        }
-    }
-
-    public event Action<string>? SubworkflowSelected;
-
-    public SubworkflowStep(StepFactory stepFactory, ParameterFactory parameterFactory)
-    {
-        _stepFactory = stepFactory;
         SelectedSubworkflow = parameterFactory.CreateParameter<SelectableParameter<StringParameter>>
         (
             "Subworkflow",
             string.Empty,
             p => p.SetValue(NoneSelected)
         );
-
-        SelectedSubworkflow.Content.ValueChanged += OnSelectedSubworkflowChanged;
+        _eventBus = eventBus;
     }
 
-    public IEnumerable<IParameter> GetParameters()
+    public IEnumerable<IStepParameter> GetParameters()
     {
         yield return SelectedSubworkflow;
-        foreach (IParameter argument in Arguments)
-        {
-            yield return argument;
-        }
-    }
 
-    public void ReplaceArgumentValue(string argumentName, string value)
-    {
-        IParameter argument = Arguments.Single(a => a.Name == argumentName);
-        argument.GetParameterType().FromString(value);
+        foreach (IStepParameter args in Arguments)
+        {
+            yield return args;
+        }
     }
 
     public void SelectSubworkflow(string subWorkflow)
@@ -68,52 +60,44 @@ public class SubworkflowStep : ISubworkflowStep
         SelectedSubworkflow.Content.SelectOption(parameter);
     }
 
-    private void OnSelectedSubworkflowChanged(StringParameter parameter)
+    public async Task<Result> UpdateSubworkflowAsync(string wfName, CancellationToken cancellationToken = default)
     {
-        SubworkflowSelected?.Invoke(parameter.Value);
+        WorkflowData? wfData = WorkflowData.GetValueOrDefault(wfName);
+        if (wfData is null)
+        {
+            return Result.Failure(WorkflowModuleErrors.SubworkflowNotFound(wfName));
+        }
+
+        QueryWorkflowRequestByData req = new(wfData);
+        Result<Abstractions.Specifications.Workflow> res = await _eventBus.SendAsync(req, cancellationToken);
+        if (res.IsFailure)
+        {
+            return res;
+        }
+
+        Subworkflow = res.Value;
+        UpdateArguments();
+        return Result.Success();
     }
 
-    private List<IStep> GetChildrenOfSelectedSubworkflow()
+    public void AddSubworkflowOptions(params string[] subworkflows)
     {
-        List<IStep> steps = new();
-        if (Subworkflow == null)
-        {
-            return steps;
-        }
-
-        foreach (IStep step in Subworkflow.Steps)
-        {
-            StepData data = step.ToData();
-            IStep clonedStep = _stepFactory.CreateStep(data);
-            clonedStep.FromData(data);
-            steps.Add(clonedStep);
-        }
-
-        return steps;
+        SelectedSubworkflow.Content.AddOptions(subworkflows);
     }
 
-    private List<IParameter> GetArgumentsOfSelectedSubworkflow()
+    public void RemoveSubworkflowOptions(params string[] subworkflows)
     {
-        List<IParameter> arguments = new();
-        if (Subworkflow == null)
-        {
-            return arguments;
-        }
-
-        IEnumerable<IVariable> argumentVariables = Subworkflow.Variables.Where(v => v.IsArgument);
-        foreach (IVariable variable in argumentVariables)
-        {
-            IParameterType parameterType = variable.GetParameterType().Clone();
-            IParameter parameter = new Parameter<IParameterType>(variable.Name, variable.Unit, parameterType);
-            arguments.Add(parameter);
-        }
-
-        return arguments;
+        SelectedSubworkflow.Content.RemoveOptions(subworkflows);
     }
 
-    private void InitInternalStructure()
+    private void UpdateArguments()
     {
-        Arguments = GetArgumentsOfSelectedSubworkflow();
-        Children = GetChildrenOfSelectedSubworkflow();
+        _arguments.Clear();
+        foreach (IVariable variable in Subworkflow.Variables.Where(v => v.IsArgument))
+        {
+            IParameterType parameterType = variable.GetParameterType();
+            IStepParameter parameter = new StepParameter<IParameterType>(variable.Name, variable.Unit, parameterType);
+            _arguments.Add(parameter);
+        }
     }
 }

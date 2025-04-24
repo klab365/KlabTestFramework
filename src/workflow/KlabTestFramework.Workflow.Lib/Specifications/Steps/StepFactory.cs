@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
 
 /// <summary>
 /// Implementation of <see cref="IStepFactory"/>
 /// </summary>
-public class StepFactory
+internal class StepFactory
 {
     private readonly IEnumerable<StepSpecification> _stepSpecifications;
 

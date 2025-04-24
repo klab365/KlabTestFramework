@@ -6,33 +6,31 @@ using KlabTestFramework.Shared.Parameters.Types;
 
 namespace KlabTestFramework.System.Abstractions.TypeInterfaces;
 
+/// <summary>
+/// Interface for analog input components.
+/// </summary>
 public interface IAnalogInput : IComponent
 {
-    /// <summary>
-    /// Gets the gain of the analog input.
-    /// </summary>
     DoubleParameter Gain { get; }
 
-    /// <summary>
-    /// Gets the offset of the analog input.
-    /// </summary>
     DoubleParameter Offset { get; }
 
-    /// <summary>
-    /// Gets the unit of the analog input.
-    /// </summary>
     StringParameter Unit { get; }
 
-    /// <summary>
-    /// Gets the current value of the analog input.
-    /// </summary>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
     Task<Result<double>> GetValueAsync(CancellationToken cancellationToken = default);
+
+    Task<Result> TriggerAsync(CancellationToken cancellationToken);
 }
 
-/// <summary>
-/// Query request to get the value of an analog input.
-/// </summary>
-/// <param name="Id"></param>
-public record QueryAnalogInputRequest(string Id) : IRequest;
+
+public static class AnalogInputRequests
+{
+    /// <summary>
+    /// Query request to get the value of an analog input.
+    /// </summary>
+    public record GetAnalogInputRequest(string Id) : IRequest<Result<double>>;
+
+    public record GetAllAnalogInputsRequest(string Alorithm) : IRequest<Result<GetAllAnalogInputsResponse[]>>;
+
+    public record GetAllAnalogInputsResponse(string ComponentId, double Value);
+}

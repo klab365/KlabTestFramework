@@ -1,9 +1,16 @@
 ﻿using System;
+using Klab.Toolkit.Event;
+using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Abstractions.Features.Validator;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
-using KlabTestFramework.Workflow.Lib.Editor;
-using KlabTestFramework.Workflow.Lib.Runner;
+using KlabTestFramework.Workflow.Lib.BuiltIn.Validator;
+using KlabTestFramework.Workflow.Lib.Editor.Adapter;
+using KlabTestFramework.Workflow.Lib.Features.Common;
+using KlabTestFramework.Workflow.Lib.Features.Editor;
+using KlabTestFramework.Workflow.Lib.Features.Runner;
+using KlabTestFramework.Workflow.Lib.Ports;
 using KlabTestFramework.Workflow.Lib.Specifications;
-using KlabTestFramework.Workflow.Lib.Validator;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace KlabTestFramework.Workflow.Lib;
@@ -28,28 +35,33 @@ public static class WorkflowModule
         configurationCallback?.Invoke(configuration); // apply configuration if provided ;)
 
         services.AddWorkflowspecification(configuration);
-        services.AddWorkflowEditor(configuration);
-        services.AddWorkflowRunner(configuration);
+        services.AddWorkflowRepository();
         services.AddWorkflowValidator();
+        services.RegisterFeatures();
+
         return services;
+    }
+
+    private static void RegisterFeatures(this IServiceCollection services)
+    {
+        services.AddRequestResponseHandler<QueryWorkflowRequest, Result<Abstractions.Specifications.Workflow>, QueryWorkflowHandler>();
+        services.AddRequestResponseHandler<QueryWorkflowRequestByData, Result<Abstractions.Specifications.Workflow>, QueryWorkflowHandler>();
+        services.AddRequestResponseHandler<CloneWorkflowRequest, Result<Abstractions.Specifications.Workflow>, QueryWorkflowHandler>();
+        services.AddRequestResponseHandler<SaveWorkflowRequest, Result, SaveWorkflowRequestHandler>();
+        services.AddRequestResponseHandler<RunWorkflowRequest, WorkflowResult, RunWorkflowRequestHandler>();
+        services.AddRequestResponseHandler<RunSingleStepRequest, StepResult, RunSingleStepRequestHandler>();
+        services.AddRequestResponseHandler<ValidateWorkflowRequest, WorkflowValidatorResult, ValidateWorkflowRequestHandler>();
+        services.AddRequestResponseHandler<ReplaceWorkflowWithVariablesRequest, Result, ReplaceWorkflowWithVariablesRequesHandler>();
     }
 
     private static void AddWorkflowValidator(this IServiceCollection services)
     {
-        services.AddTransient<IWorkflowValidator, WorkflowValidator>();
         services.AddTransient<IStepValidatorHandler, ParameterValidator>();
     }
 
-    private static void AddWorkflowEditor(this IServiceCollection services, WorkflowModuleConfiguration configuration)
+    private static void AddWorkflowRepository(this IServiceCollection services)
     {
-        services.AddTransient(typeof(IWorkflowRepository), _ => configuration.DefaultWorkflowRepositoryFactory());
-        services.AddTransient<IWorkflowEditor, WorkflowEditor>();
-    }
-
-    private static void AddWorkflowRunner(this IServiceCollection services, WorkflowModuleConfiguration configuration)
-    {
-        services.AddTransient(typeof(IWorkflowContext), configuration.WorkflowContextType);
-        services.AddTransient<IWorkflowRunner, WorkflowRunner>();
+        services.AddTransient<IWorkflowRepository, WorkflowYamlRepository>();
     }
 
     private static void AddWorkflowspecification(this IServiceCollection services, WorkflowModuleConfiguration configuration)
@@ -70,6 +82,7 @@ public static class WorkflowModule
         {
             configuration.AddStepType<WaitStep, WaitStepHandler>();
             configuration.AddStepType<SubworkflowStep, SubworkflowStepHandler>();
+            configuration.AddStepType<LoopStep, LoopStepHandler>();
         }
 
         foreach (StepType stepType in configuration.StepTypes)
@@ -97,8 +110,7 @@ public static class WorkflowModule
     private static void AddVariables(this IServiceCollection services, WorkflowModuleConfiguration configuration)
     {
         services.AddTransient<VariableFactory>();
-        services.AddTransient(typeof(DefaultVariableParameterReplace<>));
-        services.AddTransient<IVariableReplacer, VariableReplacer>();
+        services.AddTransient<DefaultVariableParameterReplace>();
 
         foreach (VariableReplaceHandlerType item in configuration.VariableHandlerTypes)
         {
@@ -108,9 +120,9 @@ public static class WorkflowModule
 
     private static void RegisterVariableReplaceHandler(this IServiceCollection services, Type parameterType, Type variableHandlerType)
     {
-        Type genericVariableHandlerType = typeof(IVariableParameterReplaceHandler<>).MakeGenericType(parameterType);
+        Type genericVariableHandlerType = typeof(IVariableParameterReplaceHandler);
         Type variableType = typeof(Variable<>).MakeGenericType(parameterType);
-        services.AddTransient(genericVariableHandlerType, variableHandlerType);
+        services.AddTransient(typeof(IVariableParameterReplaceHandler), variableHandlerType);
         services.AddTransient(variableType);
 
         services.AddTransient(provider =>

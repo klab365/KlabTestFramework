@@ -1,0 +1,184 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Klab.Toolkit.Event;
+using Klab.Toolkit.Results;
+using KlabTestFramework.Workflow.Abstractions;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
+using KlabTestFramework.Workflow.Lib.BuiltIn;
+using KlabTestFramework.Workflow.Lib.Ports;
+using KlabTestFramework.Workflow.Lib.Specifications;
+
+namespace KlabTestFramework.Workflow.Lib.Features.Editor;
+
+/// <summary>
+/// Handler for querying a workflow.
+/// </summary>
+internal sealed class QueryWorkflowHandler :
+    IRequestHandler<QueryWorkflowRequest, Result<Abstractions.Specifications.Workflow>>,
+    IRequestHandler<QueryWorkflowRequestByData, Result<Abstractions.Specifications.Workflow>>,
+    IRequestHandler<CloneWorkflowRequest, Result<Abstractions.Specifications.Workflow>>
+{
+    private readonly IWorkflowRepository _workflowRepository;
+    private readonly StepFactory _stepFactory;
+    private readonly VariableFactory _variableFactory;
+
+    public QueryWorkflowHandler(IWorkflowRepository workflowRepository, StepFactory stepFactory, VariableFactory variableFactory)
+    {
+        _workflowRepository = workflowRepository;
+        _stepFactory = stepFactory;
+        _variableFactory = variableFactory;
+    }
+
+    /// <summary>
+    /// Handle the request to query a workflow with a file path as input
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<Result<Abstractions.Specifications.Workflow>> HandleAsync(QueryWorkflowRequest request, CancellationToken cancellationToken)
+    {
+        if (!Path.Exists(request.FilePath))
+        {
+            return Result.Failure<Abstractions.Specifications.Workflow>(WorkflowModuleErrors.WorkflowNotFound(request.FilePath));
+        }
+
+        try
+        {
+            WorkflowData data = await _workflowRepository.GetWorkflowAsync(request.FilePath, cancellationToken);
+            Abstractions.Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(data, cancellationToken);
+            return Result.Success(workflow);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<Abstractions.Specifications.Workflow>(Error.FromException("Workflow", ErrorType.Error, ex));
+        }
+    }
+
+    /// <summary>
+    /// Handle the request to query a workflow with data as input
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task<Result<Abstractions.Specifications.Workflow>> HandleAsync(QueryWorkflowRequestByData request, CancellationToken cancellationToken)
+    {
+        // clone the data to avoid modifying the original data
+        WorkflowData copy = await _workflowRepository.CopyAsync(request.Data, cancellationToken);
+        Abstractions.Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(copy, cancellationToken);
+        return Result.Success(workflow);
+    }
+
+    public async Task<Result<Abstractions.Specifications.Workflow>> HandleAsync(CloneWorkflowRequest request, CancellationToken cancellationToken)
+    {
+        WorkflowData copy = await _workflowRepository.CopyAsync(request.Workflow.ToData(), cancellationToken);
+        Abstractions.Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(copy, cancellationToken);
+        return Result.Success(workflow);
+    }
+
+    private async Task<Abstractions.Specifications.Workflow> CreateWorkflowFromDataAsync(WorkflowData data, CancellationToken cancellationToken)
+    {
+        Dictionary<string, Abstractions.Specifications.Workflow> subworkflows = await LoadSubworkflowsAsync(data, cancellationToken);
+        IVariable[] variables = LoadVariables(data);
+        IStep[] steps = await LoadStepsAsync(data.Steps, data.Subworkflows ?? [], cancellationToken);
+
+        Abstractions.Specifications.Workflow workflow = new();
+        workflow.Variables.AddRange(variables);
+        workflow.Steps.AddRange(steps);
+        foreach (KeyValuePair<string, Abstractions.Specifications.Workflow> subworkflow in subworkflows)
+        {
+            workflow.Subworkflows.Add(subworkflow.Key, subworkflow.Value);
+        }
+
+        return workflow;
+    }
+
+    private IVariable[] LoadVariables(WorkflowData wfData)
+    {
+        return wfData.Variables?
+            .Select(v => _variableFactory.CreateVariableFromData(v))
+            .ToArray() ?? [];
+    }
+
+    private async Task<IStep[]> LoadStepsAsync(IEnumerable<StepData> stepDatas, Dictionary<string, WorkflowData> subworkflows, CancellationToken cancellationToken)
+    {
+        List<IStep> steps = new();
+        foreach (StepData stepData in stepDatas)
+        {
+            IStep step = _stepFactory.CreateStep(stepData);
+
+            if (step is IStepWithChildren stepWithChildren)
+            {
+                stepWithChildren.Children.AddRange(await LoadStepsAsync(stepData.Children ?? [], subworkflows ?? [], cancellationToken)); // recursive call
+            }
+
+            // handle subworkflow step
+            if (step is SubworkflowStep subworkflowStep)
+            {
+                subworkflowStep.WorkflowData = subworkflows ?? [];
+                string subworkflowName = stepData.Parameters?.Find(p => p.Name == "Subworkflow")?.Value ?? string.Empty;
+                subworkflowStep.SelectedSubworkflow.Content.AddOptions(subworkflows?.Keys.ToArray() ?? []);
+                WorkflowData? subworkflowData = subworkflows?.GetValueOrDefault(subworkflowName);
+                if (subworkflowData is null)
+                {
+                    continue;
+                }
+
+                subworkflowStep.AddSubworkflowOptions(subworkflows?.Keys.ToArray() ?? []);
+                await subworkflowStep.UpdateSubworkflowAsync(subworkflowName, cancellationToken);
+            }
+
+            AssignDataToStep(step, stepData);
+
+            steps.Add(step);
+        }
+
+        return steps.ToArray();
+    }
+
+    private static void AssignDataToStep(IStep step, StepData stepData)
+    {
+        step.FromData(stepData);
+
+        if (step is IStepWithChildren stepWithChildren)
+        {
+            if (stepData.Children?.Count != stepWithChildren.Children.Count)
+            {
+                throw new InvalidOperationException($"Mismatch between step data and step children for step {step.Id}");
+            }
+
+            for (int i = 0; i < stepWithChildren.Children.Count; i++)
+            {
+                StepData? data = stepData.Children?[i];
+                if (data is null)
+                {
+                    continue;
+                }
+
+                AssignDataToStep(stepWithChildren.Children[i], data);
+            }
+        }
+    }
+
+    private async Task<Dictionary<string, Abstractions.Specifications.Workflow>> LoadSubworkflowsAsync(WorkflowData wfData, CancellationToken cancellationToken)
+    {
+        Dictionary<string, Abstractions.Specifications.Workflow> subworkflows = [];
+
+        foreach (KeyValuePair<string, WorkflowData> subworkflow in wfData.Subworkflows ?? [])
+        {
+            Abstractions.Specifications.Workflow workflow = await CreateWorkflowFromDataAsync(subworkflow.Value, cancellationToken);
+            subworkflows.Add(subworkflow.Key, workflow);
+        }
+
+        return subworkflows;
+    }
+}
+
+public record QueryWorkflowRequest(string FilePath) : IRequest<Result<Abstractions.Specifications.Workflow>>;
+
+public record QueryWorkflowRequestByData(WorkflowData Data) : IRequest<Result<Abstractions.Specifications.Workflow>>;
+
+public record CloneWorkflowRequest(Abstractions.Specifications.Workflow Workflow) : IRequest<Result<Abstractions.Specifications.Workflow>>;

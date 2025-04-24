@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Shared.Parameters.Types;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.BuiltIn;
@@ -16,20 +16,20 @@ public class WaitStep : IStep
     /// <summary>
     /// Gets or sets the time to wait.
     /// </summary>
-    public Parameter<TimeParameter> Time { get; }
+    public StepParameter<IntParameter> Time { get; }
 
     public WaitStep(ParameterFactory parameterFactory)
     {
-        Time = parameterFactory.CreateParameter<TimeParameter>
+        Time = parameterFactory.CreateParameter<IntParameter>
         (
             "Time",
             "sec",
-            p => p.SetValue(TimeSpan.Zero),
-            p => p.AddValidation(v => v >= TimeSpan.Zero)
+            p => p.SetValue(0),
+            p => p.AddValidation(v => v > 0)
         );
     }
 
-    public IEnumerable<IParameter> GetParameters()
+    public IEnumerable<IStepParameter> GetParameters()
     {
         yield return Time;
     }

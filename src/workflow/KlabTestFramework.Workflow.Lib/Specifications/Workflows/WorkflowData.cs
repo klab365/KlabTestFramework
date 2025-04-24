@@ -7,10 +7,6 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 /// </summary>
 public class WorkflowData
 {
-    /// <summary>
-    /// Description of the workflow
-    /// </summary>
-    /// <value></value>
     public string? Description { get; set; }
 
     /// <summary>

@@ -1,33 +1,52 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
-using KlabTestFramework.Workflow.Lib.Runner;
-using KlabTestFramework.Workflow.Lib.Specifications;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
+using KlabTestFramework.Workflow.Lib.Features.Runner;
 
 
 namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 
-public class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
+internal class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
 {
-    private readonly IWorkflowRunner _workflowRunner;
+    private readonly IEventBus _eventBus;
 
-    public SubworkflowStepHandler(IWorkflowRunner workflowRunner)
+    public SubworkflowStepHandler(IEventBus eventBus)
     {
-        _workflowRunner = workflowRunner;
+        _eventBus = eventBus;
     }
 
-    public async Task<Result> HandleAsync(SubworkflowStep step, IWorkflowContext context)
+    public Task<StepResult> CleanupAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(StepResult.Success(step));
+    }
+
+    public async Task<StepResult> HandleAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
         if (step.SelectedSubworkflow.Content.Value == SubworkflowStep.NoneSelected)
         {
-            return Result.Failure(new InformativeError(string.Empty, string.Empty));
+            return StepResult.Failure(step, Error.Create(string.Empty, string.Empty));
         }
 
         if (step.Subworkflow == null)
         {
-            return Result.Failure(new InformativeError(string.Empty, string.Empty));
+            return StepResult.Failure(step, Error.Create(string.Empty, string.Empty));
         }
 
-        await _workflowRunner.RunSubworkflowAsync(step, context);
-        return Result.Success();
+        List<StepResult> stepResults = new();
+        foreach (IStep child in step.Subworkflow.Steps)
+        {
+            StepResult res = await _eventBus.SendAsync(new RunSingleStepRequest(child, context), cancellationToken);
+            stepResults.Add(res);
+        }
+
+        return StepResult.Collect(step, stepResults.ToArray());
+    }
+
+    public Task<StepResult> SetupAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(StepResult.Success(step));
     }
 }

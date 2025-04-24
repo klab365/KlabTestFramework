@@ -5,20 +5,21 @@ using Klab.Toolkit.Results;
 
 namespace KlabTestFramework.System.Abstractions.TypeInterfaces;
 
+/// <summary>
+/// Interface for analog output components.
+/// </summary>
 public interface IAnalogOutput : IAnalogInput
 {
-    /// <summary>
-    /// Sets the value of the analog output.
-    /// </summary>
-    /// <param name="value"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
     Task<Result> SetValueAsync(double value, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
-/// Command request to set the value of an analog output.
+/// Requests for analog output components.
 /// </summary>
-/// <param name="Id"></param>
-/// <param name="Value"></param>
-public record SetAnalogOutputCommandRequest(string Id, double Value) : IRequest;
+public static class AnalogOutputRequests
+{
+    /// <summary>
+    /// Command request to set the value of an analog output.
+    /// </summary>
+    public record SetAnalogOutputCommandRequest(string Id, double Value) : IRequest<Result>;
+}

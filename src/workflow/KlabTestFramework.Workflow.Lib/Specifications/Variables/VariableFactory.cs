@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using KlabTestFramework.Shared.Parameters;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.BuiltIn;
 
 namespace KlabTestFramework.Workflow.Lib.Specifications;
@@ -10,11 +11,16 @@ public class VariableFactory
 {
     private readonly ParameterFactory _parameterFactory;
     private readonly IEnumerable<VariableDependenySpecification> _variableSpecifications;
+    private readonly DefaultVariableParameterReplace _defaultVariableReplaceHandler;
 
-    public VariableFactory(ParameterFactory parameterFactory, IEnumerable<VariableDependenySpecification> variableSpecifications)
+    public VariableFactory(
+        ParameterFactory parameterFactory,
+        IEnumerable<VariableDependenySpecification> variableSpecifications,
+        DefaultVariableParameterReplace defaultVariableReplaceHandler)
     {
         _parameterFactory = parameterFactory;
         _variableSpecifications = variableSpecifications;
+        _defaultVariableReplaceHandler = defaultVariableReplaceHandler;
     }
 
     /// <inheritdoc/>
@@ -48,12 +54,7 @@ public class VariableFactory
             return variableParameterReplaceHandler;
         }
 
-        object? createdDefaultVariableReplaceHandler = Activator.CreateInstance(typeof(DefaultVariableParameterReplace<>).MakeGenericType(parameterType));
-        if (createdDefaultVariableReplaceHandler is not IVariableParameterReplaceHandler defaultVariableReplaceHandler)
-        {
-            throw new InvalidOperationException($"Failed to create variable replace handler for type {parameterType.Name}");
-        }
-        return defaultVariableReplaceHandler;
+        return _defaultVariableReplaceHandler;
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using KlabTestFramework.Shared.Parameters;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using Moq;
 using NSubstitute;
 
@@ -18,28 +19,28 @@ public class ParameterTests
         content.Unit.Returns(unit);
 
         // Act
-        Parameter<IParameterType> parameter = new(name, unit, content);
+        StepParameter<IParameterType> parameter = new(name, unit, content);
 
         // Assert
         parameter.Name.Should().Be(name);
         parameter.Unit.Should().Be(unit);
         parameter.Content.Should().Be(content);
         parameter.VariableName.Should().BeEmpty();
-        parameter.ParameterType.Should().Be(ParameterValueType.Value);
+        parameter.ParameterType.Should().Be(StepParameterValueType.Value);
     }
 
     [Fact]
     public void ChangetToVariableShouldSetParameterTypeAndVariableName()
     {
         // Arrange
-        Parameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", new Mock<IParameterType>().Object);
+        StepParameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", new Mock<IParameterType>().Object);
         string variableName = "VariableName";
 
         // Act
         parameter.ChangetToVariable(variableName);
 
         // Assert
-        parameter.ParameterType.Should().Be(ParameterValueType.Variable);
+        parameter.ParameterType.Should().Be(StepParameterValueType.Variable);
         parameter.VariableName.Should().Be(variableName);
     }
 
@@ -47,14 +48,14 @@ public class ParameterTests
     public void ChangeToValueShouldSetParameterTypeAndClearVariableName()
     {
         // Arrange
-        Parameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", new Mock<IParameterType>().Object);
+        StepParameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", new Mock<IParameterType>().Object);
         parameter.ChangetToVariable("VariableName");
 
         // Act
         parameter.ChangeToValue();
 
         // Assert
-        parameter.ParameterType.Should().Be(ParameterValueType.Value);
+        parameter.ParameterType.Should().Be(StepParameterValueType.Value);
         parameter.VariableName.Should().BeEmpty();
     }
 
@@ -63,7 +64,7 @@ public class ParameterTests
     {
         // Arrange
         string variableName = "VariableName";
-        Parameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", new Mock<IParameterType>().Object);
+        StepParameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", new Mock<IParameterType>().Object);
         parameter.ChangetToVariable(variableName);
 
         // Act
@@ -80,7 +81,7 @@ public class ParameterTests
         string contentAsString = "ContentAsString";
         Mock<IParameterType> content = new();
         content.Setup(c => c.AsString()).Returns(contentAsString);
-        Parameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", content.Object);
+        StepParameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", content.Object);
 
         // Act
         string result = parameter.ContentAsString();
@@ -95,7 +96,7 @@ public class ParameterTests
         // Arrange
         Mock<IParameterType> content = new();
         content.Setup(c => c.IsValid()).Returns(true);
-        Parameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", content.Object);
+        StepParameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", content.Object);
 
         // Act
         bool isValid = parameter.IsValid();
@@ -110,7 +111,7 @@ public class ParameterTests
         // Arrange
         Mock<IParameterType> content = new();
         content.Setup(c => c.IsValid()).Returns(false);
-        Parameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", content.Object);
+        StepParameter<IParameterType> parameter = new("ParameterName", "ParameterUnit", content.Object);
 
         // Act
         bool isValid = parameter.IsValid();
@@ -130,14 +131,14 @@ public class ParameterTests
         content.Name.Returns(name);
         content.Unit.Returns(unit);
         content.AsString().Returns(contentAsString);
-        Parameter<IParameterType> parameter = new(name, unit, content);
+        StepParameter<IParameterType> parameter = new(name, unit, content);
 
         // Act
-        ParameterData data = parameter.ToData();
+        StepParameterData data = parameter.ToData();
 
         // Assert
         data.Name.Should().Be(name);
-        data.Type.Should().Be(ParameterValueType.Value);
+        data.Type.Should().Be(StepParameterValueType.Value);
         data.Value.Should().Be(contentAsString);
     }
 }

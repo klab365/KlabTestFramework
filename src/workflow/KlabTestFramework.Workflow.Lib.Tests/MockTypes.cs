@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using Klab.Toolkit.Results;
 using KlabTestFramework.Shared.Parameters;
 using KlabTestFramework.Shared.Parameters.Types;
-using KlabTestFramework.Workflow.Lib.Runner;
+using KlabTestFramework.Workflow.Abstractions.Specifications;
 using KlabTestFramework.Workflow.Lib.Specifications;
 
 namespace KlabTestFramework.Workflow.Lib.Tests;
@@ -12,7 +12,7 @@ public class MockStep : IStep
 {
     public StepId Id { get; set; } = StepId.Empty;
 
-    public Parameter<IntParameter> Counter { get; }
+    public StepParameter<IntParameter> Counter { get; }
 
     public MockStep(ParameterFactory parameterFactory)
     {
@@ -25,7 +25,7 @@ public class MockStep : IStep
         );
     }
 
-    public IEnumerable<IParameter> GetParameters()
+    public IEnumerable<IStepParameter> GetParameters()
     {
         yield return Counter;
     }
@@ -33,9 +33,19 @@ public class MockStep : IStep
 
 public class MockStepHandler : IStepHandler<MockStep>
 {
-    public Task<Result> HandleAsync(MockStep step, IWorkflowContext context)
+    public Task<StepResult> CleanupAsync(MockStep step, WorkflowContext context, CancellationToken cancellationToken = default)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public Task<StepResult> HandleAsync(MockStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
         step.Counter.Content.SetValue(step.Counter.Content.Value + 1);
-        return Task.FromResult(Result.Success());
+        return Task.FromResult(StepResult.Success(step));
+    }
+
+    public Task<StepResult> SetupAsync(MockStep step, WorkflowContext context, CancellationToken cancellationToken = default)
+    {
+        throw new System.NotImplementedException();
     }
 }
