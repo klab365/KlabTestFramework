@@ -6,7 +6,7 @@ namespace KlabTestFramework.Workflow.Abstractions.Specifications;
 /// <summary>
 /// Represents a parameter in the workflow specification. A parameter can be inside a step or in the variables
 /// </summary>
-public class Parameter<TParameter> : IParameter where TParameter : IParameterType
+public class StepParameter<TParameterType> : IStepParameter where TParameterType : IParameterType
 {
     /// <inheritdoc/>
     public string Name { get; set; }
@@ -18,12 +18,12 @@ public class Parameter<TParameter> : IParameter where TParameter : IParameterTyp
     public string VariableName { get; set; } = string.Empty;
 
     /// <inheritdoc/>
-    public ParameterValueType ParameterType { get; set; }
+    public StepParameterValueType ParameterType { get; set; }
 
     /// <summary>
     /// Content of the parameter.
     /// </summary>
-    public TParameter Content { get; }
+    public TParameterType Content { get; }
 
     public Type ParameterContentType
     {
@@ -34,11 +34,11 @@ public class Parameter<TParameter> : IParameter where TParameter : IParameterTyp
                 throw new InvalidOperationException($"Parameter content must implement {nameof(IParameterType)}");
             }
 
-            return typeof(TParameter);
+            return typeof(TParameterType);
         }
     }
 
-    public Parameter(string name, string unit, TParameter content)
+    public StepParameter(string name, string unit, TParameterType content)
     {
         Content = content;
         Name = name;
@@ -48,14 +48,14 @@ public class Parameter<TParameter> : IParameter where TParameter : IParameterTyp
     /// <inheritdoc/>
     public void ChangetToVariable(string variableName)
     {
-        ParameterType = ParameterValueType.Variable;
+        ParameterType = StepParameterValueType.Variable;
         VariableName = variableName;
     }
 
     /// <inheritdoc/>
     public void ChangeToValue()
     {
-        ParameterType = ParameterValueType.Value;
+        ParameterType = StepParameterValueType.Value;
         VariableName = string.Empty;
     }
 
@@ -77,7 +77,7 @@ public class Parameter<TParameter> : IParameter where TParameter : IParameterTyp
 
     public bool IsVariable()
     {
-        return ParameterType == ParameterValueType.Variable;
+        return ParameterType == StepParameterValueType.Variable;
     }
 
     public IParameterType GetParameterType()

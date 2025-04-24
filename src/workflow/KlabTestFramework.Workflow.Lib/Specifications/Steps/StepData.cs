@@ -21,7 +21,7 @@ public class StepData
     /// <summary>
     /// Parameters of the step, if any
     /// </summary>
-    public List<ParameterData> Parameters { get; set; } = [];
+    public List<StepParameterData> Parameters { get; set; } = [];
 
     /// <summary>
     /// Children of the step, if any

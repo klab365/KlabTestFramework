@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build_workflowconsoleexample",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/samples/workflow/WorkflowConsoleExample/bin/Debug/net8.0/WorkflowConsoleExample.dll",
+            "program": "${workspaceFolder}/samples/workflow/WorkflowConsoleExample/bin/Debug/net9.0/WorkflowConsoleExample.dll",
             "args": [],
             "cwd": "${workspaceFolder}/samples/workflow/WorkflowConsoleExample",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

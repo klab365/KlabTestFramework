@@ -30,7 +30,7 @@ internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandle
     {
         foreach (IStep step in steps)
         {
-            foreach (IParameter parameter in step.GetParameters())
+            foreach (IStepParameter parameter in step.GetParameters())
             {
                 if (parameter.IsValue())
                 {
@@ -56,14 +56,14 @@ internal sealed class ReplaceWorkflowWithVariablesRequesHandler : IRequestHandle
     private static void ReplaceSubworkflowVariableWithTheArgumentsOfSubworkflowStep(ISubworkflowStep subworkflowStep)
     {
         Abstractions.Specifications.Workflow subworkflow = subworkflowStep.Subworkflow;
-        foreach (IParameter parameter in subworkflowStep.Arguments)
+        foreach (IStepParameter parameter in subworkflowStep.Arguments)
         {
             IVariable subworkflowVariable = subworkflow.Variables.Single(v => v.VariableType == VariableType.Argument && v.Name == parameter.Name);
             subworkflowVariable.UpdateValue(parameter.ContentAsString());
         }
     }
 
-    private async Task ReplaceVariablesAsync(IParameter parameter, IEnumerable<IVariable> variables)
+    private async Task ReplaceVariablesAsync(IStepParameter parameter, IEnumerable<IVariable> variables)
     {
         string variableName = parameter.VariableName;
         if (!ContainVariable(variables, variableName))

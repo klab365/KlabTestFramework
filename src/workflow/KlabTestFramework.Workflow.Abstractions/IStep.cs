@@ -13,7 +13,7 @@ public interface IStep
 {
     StepId Id { get; set; }
 
-    IEnumerable<IParameter> GetParameters();
+    IEnumerable<IStepParameter> GetParameters();
 
     string GetStepKey()
     {
@@ -34,7 +34,7 @@ public interface ISubworkflowStep : IStep
     /// <summary>
     /// Gets the selected subworkflow.
     /// </summary>
-    Parameter<SelectableParameter<StringParameter>> SelectedSubworkflow { get; }
+    StepParameter<SelectableParameter<StringParameter>> SelectedSubworkflow { get; }
 
     /// <summary>
     /// Gets the subworkflow.
@@ -44,7 +44,7 @@ public interface ISubworkflowStep : IStep
     /// <summary>
     /// Gets the arguments of the subworkflow.
     /// </summary>
-    IEnumerable<IParameter> Arguments { get; }
+    IEnumerable<IStepParameter> Arguments { get; }
 
     /// <summary>
     /// Gets the steps of the subworkflow.

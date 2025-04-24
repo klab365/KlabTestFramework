@@ -12,7 +12,7 @@ public class MockStep : IStep
 {
     public StepId Id { get; set; } = StepId.Empty;
 
-    public Parameter<IntParameter> Counter { get; }
+    public StepParameter<IntParameter> Counter { get; }
 
     public MockStep(ParameterFactory parameterFactory)
     {
@@ -25,7 +25,7 @@ public class MockStep : IStep
         );
     }
 
-    public IEnumerable<IParameter> GetParameters()
+    public IEnumerable<IStepParameter> GetParameters()
     {
         yield return Counter;
     }

@@ -1,4 +1,4 @@
-using Klab.Toolkit.Event;
+﻿using Klab.Toolkit.Event;
 using KlabTestFramework.Workflow.Abstractions.Specifications;
 
 namespace KlabTestFramework.Workflow.Abstractions.Events;

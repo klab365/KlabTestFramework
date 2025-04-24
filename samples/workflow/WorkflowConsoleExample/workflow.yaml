@@ -6,7 +6,7 @@ steps:
     value: "sub1"
   - name: myVariable
     type: Value
-    value: 00:00:02
+    value: 2
 
 - type: LoopStep
   parameters:
@@ -21,7 +21,7 @@ steps:
       value: "sub1"
     - name: myVariable
       type: Value
-      value: 00:00:01
+      value: 2
 
 subworkflows:
   sub1:
@@ -29,8 +29,8 @@ subworkflows:
     - name: myVariable
       unit: sec
       variableType: Argument
-      dataType: TimeParameter
-      value: 00:00:03
+      dataType: IntParameter
+      value: 2
     steps:
     - type: WaitStep
       parameters:

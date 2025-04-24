@@ -21,10 +21,10 @@ internal class SubworkflowStep : ISubworkflowStep
 
     public StepId Id { get; set; } = StepId.Empty;
 
-    public Parameter<SelectableParameter<StringParameter>> SelectedSubworkflow { get; }
+    public StepParameter<SelectableParameter<StringParameter>> SelectedSubworkflow { get; }
 
-    private readonly List<IParameter> _arguments = new();
-    public IEnumerable<IParameter> Arguments => _arguments;
+    private readonly List<IStepParameter> _arguments = new();
+    public IEnumerable<IStepParameter> Arguments => _arguments;
 
     public Abstractions.Specifications.Workflow Subworkflow { get; private set; } = new();
 
@@ -43,11 +43,11 @@ internal class SubworkflowStep : ISubworkflowStep
         _eventBus = eventBus;
     }
 
-    public IEnumerable<IParameter> GetParameters()
+    public IEnumerable<IStepParameter> GetParameters()
     {
         yield return SelectedSubworkflow;
 
-        foreach (IParameter args in Arguments)
+        foreach (IStepParameter args in Arguments)
         {
             yield return args;
         }
@@ -96,7 +96,7 @@ internal class SubworkflowStep : ISubworkflowStep
         foreach (IVariable variable in Subworkflow.Variables.Where(v => v.IsArgument))
         {
             IParameterType parameterType = variable.GetParameterType();
-            IParameter parameter = new Parameter<IParameterType>(variable.Name, variable.Unit, parameterType);
+            IStepParameter parameter = new StepParameter<IParameterType>(variable.Name, variable.Unit, parameterType);
             _arguments.Add(parameter);
         }
     }

@@ -15,8 +15,8 @@ public class ParameterValidator : IStepValidatorHandler
     public Task<IEnumerable<WorkflowStepErrorValidation>> ValidateAsync(IStep step)
     {
         List<WorkflowStepErrorValidation> results = new();
-        IEnumerable<IParameter> paramters = step.GetParameters();
-        foreach (IParameter parameter in paramters)
+        IEnumerable<IStepParameter> paramters = step.GetParameters();
+        foreach (IStepParameter parameter in paramters)
         {
             if (!parameter.IsValid())
             {

@@ -26,19 +26,19 @@ public class WaitStepHandler : IStepHandler<WaitStep>
     /// <inheritdoc/>
     public async Task<StepResult> HandleAsync(WaitStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
-        TimeSpan remainingTime = step.Time.Content.Value;
+        int remainingTimeSec = step.Time.Content.Value;
         while (!cancellationToken.IsCancellationRequested)
         {
-            await PublishRemainingTimeAsync(step, remainingTime);
+            await PublishRemainingTimeAsync(step, remainingTimeSec);
             await _threadProvider.DelayAsync(TimeSpan.FromSeconds(1), cancellationToken);
-            remainingTime -= TimeSpan.FromSeconds(1);
-            if (remainingTime <= TimeSpan.Zero)
+            remainingTimeSec -= 1;
+            if (remainingTimeSec <= 0)
             {
                 break;
             }
         }
 
-        await PublishRemainingTimeAsync(step, TimeSpan.Zero);
+        await PublishRemainingTimeAsync(step, 0);
         return StepResult.Success(step);
     }
 
@@ -52,8 +52,9 @@ public class WaitStepHandler : IStepHandler<WaitStep>
         return Task.FromResult(StepResult.Success(step));
     }
 
-    private async Task PublishRemainingTimeAsync(WaitStep step, TimeSpan remainingTime)
+    private async Task PublishRemainingTimeAsync(WaitStep step, int remainingTimeSec)
     {
-        await _eventBus.PublishAsync(new StepPublishedInformationEvent(step.Id, $"Remaining time: {remainingTime}"));
+        Console.WriteLine($"Remaining time: {remainingTimeSec} seconds.");
+        await _eventBus.PublishAsync(new StepPublishedInformationEvent(step.Id, $"Remaining time: {remainingTimeSec} seconds."));
     }
 }

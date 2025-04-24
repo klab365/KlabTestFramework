@@ -6,7 +6,7 @@ namespace KlabTestFramework.Workflow.Abstractions.Specifications;
 /// <summary>
 /// Represents a parameter in the workflow specification.
 /// </summary>
-public interface IParameter
+public interface IStepParameter
 {
     /// <summary>
     /// Gets the name of the parameter.
@@ -25,7 +25,7 @@ public interface IParameter
 
     /// <summary>
     /// Gets a value indicating what type of parameter it is.
-    ParameterValueType ParameterType { get; set; }
+    StepParameterValueType ParameterType { get; set; }
 
     /// <summary>
     /// Parameter content type
@@ -77,7 +77,7 @@ public interface IParameter
 /// <summary>
 /// Represents the type of a parameter value.
 /// </summary>
-public enum ParameterValueType
+public enum StepParameterValueType
 {
     /// <summary>
     /// Represents a parameter with a specific value.

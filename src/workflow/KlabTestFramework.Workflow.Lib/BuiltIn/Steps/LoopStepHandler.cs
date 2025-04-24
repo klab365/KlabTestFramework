@@ -19,7 +19,7 @@ internal class LoopStepHandler : IStepHandler<LoopStep>
 
     public Task<StepResult> CleanupAsync(LoopStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
-        throw new System.NotImplementedException();
+        return Task.FromResult(StepResult.Success(step));
     }
 
     public async Task<StepResult> HandleAsync(LoopStep step, WorkflowContext context, CancellationToken cancellationToken = default)
@@ -39,6 +39,6 @@ internal class LoopStepHandler : IStepHandler<LoopStep>
 
     public Task<StepResult> SetupAsync(LoopStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
-        throw new System.NotImplementedException();
+        return Task.FromResult(StepResult.Success(step));
     }
 }

@@ -14,5 +14,5 @@ public interface IVariableParameterReplaceHandler
     /// <param name="variable"></param>
     /// <param name="parameter"></param>
     /// <returns></returns>
-    Task ReplaceAsync(IVariable variable, IParameter parameter);
+    Task ReplaceAsync(IVariable variable, IStepParameter parameter);
 }

@@ -20,7 +20,7 @@ internal class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
 
     public Task<StepResult> CleanupAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
-        throw new System.NotImplementedException();
+        return Task.FromResult(StepResult.Success(step));
     }
 
     public async Task<StepResult> HandleAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
@@ -47,6 +47,6 @@ internal class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
 
     public Task<StepResult> SetupAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
-        throw new System.NotImplementedException();
+        return Task.FromResult(StepResult.Success(step));
     }
 }

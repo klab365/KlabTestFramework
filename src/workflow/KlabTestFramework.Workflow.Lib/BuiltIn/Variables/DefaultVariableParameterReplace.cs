@@ -11,7 +11,7 @@ namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 /// <typeparam name="TParameterType"></typeparam>
 public class DefaultVariableParameterReplace : IVariableParameterReplaceHandler
 {
-    public Task ReplaceAsync(IVariable variable, IParameter parameter)
+    public Task ReplaceAsync(IVariable variable, IStepParameter parameter)
     {
         bool isVariableTypeEqual = variable.GetParameterType().TypeKey == parameter.GetParameterType().TypeKey;
         if (!isVariableTypeEqual)

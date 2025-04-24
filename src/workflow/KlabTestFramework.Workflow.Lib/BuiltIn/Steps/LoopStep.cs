@@ -13,7 +13,7 @@ internal class LoopStep : IStepWithChildren
 
     public StepId Id { get; set; } = StepId.Empty;
 
-    public Parameter<IntParameter> IterationCount { get; }
+    public StepParameter<IntParameter> IterationCount { get; }
 
     public LoopStep(ParameterFactory parameterFactory)
     {
@@ -26,7 +26,7 @@ internal class LoopStep : IStepWithChildren
         );
     }
 
-    public IEnumerable<IParameter> GetParameters()
+    public IEnumerable<IStepParameter> GetParameters()
     {
         yield return IterationCount;
     }

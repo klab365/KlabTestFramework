@@ -5,7 +5,7 @@ namespace KlabTestFramework.Workflow.Lib.Specifications;
 /// <summary>
 /// Data class for a parameter
 /// </summary>
-public class ParameterData
+public class StepParameterData
 {
     /// <summary>
     /// Name of the parameter
@@ -15,7 +15,7 @@ public class ParameterData
     /// <summary>
     /// Tyoe of the parameter (will be used to determine how to parse the value)
     /// </summary>
-    public ParameterValueType Type { get; set; } = ParameterValueType.Value;
+    public StepParameterValueType Type { get; set; } = StepParameterValueType.Value;
 
     /// <summary>
     /// Value in string format
