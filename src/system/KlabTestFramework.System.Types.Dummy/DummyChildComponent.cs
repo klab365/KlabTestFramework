@@ -34,7 +34,6 @@ public class DummyChildComponentConfig : IComponentConfig
 {
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = "Dummy Child Component";
-    public string ImagePath { get; set; } = string.Empty;
 
     public bool IsEnabled { get; set; } = true;
     public bool HasError { get; set; }

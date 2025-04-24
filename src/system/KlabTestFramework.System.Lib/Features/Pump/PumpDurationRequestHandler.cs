@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
-using KlabTestFramework.System.Abstractions.TypeInterfaces;
+using KlabTestFramework.System.Abstractions.Features;
 
 namespace KlabTestFramework.System.Lib.Features.Pump;
 

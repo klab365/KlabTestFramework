@@ -42,7 +42,6 @@ public class DummyComponentConfig : IComponentConfig
 {
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public string ImagePath { get; set; } = string.Empty;
     public bool IsEnabled { get; set; } = true;
     public bool HasError { get; set; }
 

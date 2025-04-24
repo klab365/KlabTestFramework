@@ -19,7 +19,6 @@ internal static class ComponentConfigExtensions
             Id = config.Id,
             IsEnabled = config.IsEnabled,
             Name = config.Name,
-            ImagePath = config.ImagePath,
             Type = config.GetType().Name,
         };
 
@@ -42,7 +41,6 @@ internal static class ComponentConfigExtensions
         config.Id = data.Id;
         config.IsEnabled = data.IsEnabled;
         config.Name = data.Name;
-        config.ImagePath = data.ImagePath;
 
         // handle parameters
         foreach (IParameterType parameter in config.Parameters)

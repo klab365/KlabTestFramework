@@ -15,8 +15,6 @@ public interface IComponentConfig
 
     string Name { get; set; }
 
-    string ImagePath { get; set; }
-
     IEnumerable<IParameterType> Parameters { get; }
 
     IEnumerable<IComponentConfig> Children { get; }

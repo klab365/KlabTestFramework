@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
 using KlabTestFramework.System.Abstractions;
+using KlabTestFramework.System.Abstractions.Features;
 using KlabTestFramework.System.Abstractions.TypeInterfaces;
 using UnitsNet;
 

@@ -5,6 +5,7 @@ using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
 using KlabTestFramework.System.Abstractions;
 using KlabTestFramework.System.Abstractions.Events;
+using KlabTestFramework.System.Abstractions.Features;
 using KlabTestFramework.System.Abstractions.TypeInterfaces;
 
 namespace KlabTestFramework.System.Lib.Features.AnalogIO;
