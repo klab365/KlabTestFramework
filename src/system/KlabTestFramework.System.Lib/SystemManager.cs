@@ -2,8 +2,10 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Klab.Toolkit.Event;
 using Klab.Toolkit.Results;
 using KlabTestFramework.System.Abstractions;
+using KlabTestFramework.System.Abstractions.Events;
 using KlabTestFramework.System.Lib.Specifications;
 
 namespace KlabTestFramework.System.Lib;
@@ -12,6 +14,7 @@ internal sealed class SystemManager : ISystemManager
 {
     private readonly IComponentRepository _repository;
     private readonly ComponentFactory _componentFactory;
+    private readonly IEventBus _eventBus;
     private readonly List<IComponent> _components = new();
 
     public IEnumerable<IComponent> Components => _components;
@@ -20,10 +23,12 @@ internal sealed class SystemManager : ISystemManager
 
     public SystemManager(
         IComponentRepository repository,
-        ComponentFactory componentFactory)
+        ComponentFactory componentFactory,
+        IEventBus eventBus)
     {
         _repository = repository;
         _componentFactory = componentFactory;
+        _eventBus = eventBus;
     }
 
     public async Task<Result> InitializeAsync(string path, CancellationToken cancellationToken = default)
@@ -77,7 +82,7 @@ internal sealed class SystemManager : ISystemManager
             }
         }
 
-        return Result.Success();
+        return await _eventBus.PublishAsync(new SystemInitializedEvent(), cancellationToken);
     }
 
     public async ValueTask DisposeAsync()

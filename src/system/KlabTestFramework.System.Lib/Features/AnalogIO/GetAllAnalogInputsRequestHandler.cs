@@ -35,11 +35,9 @@ internal sealed class GetAllAnalogInputsRequestHandler : IRequestHandler<GetAllA
         Parallel.ForEach(analogInputs.Value, async analogInput =>
         {
             string id = analogInput.GetConfig().Id;
-            Result resTrigger = await analogInput.TriggerAsync(cancellationToken);
-            if (resTrigger.IsFailure)
-            {
-                await _eventBus.PublishAsync(new SystemComponentErrorEvent(analogInput.GetConfig().Id, resTrigger.Error));
-            }
+            Result resTrigger = await analogInput
+                .TriggerAsync(cancellationToken)
+                .OnFailureAsync(err => _eventBus.PublishAsync(new SystemComponentErrorEvent(id, err)));
 
             lock (_lock)
             {
