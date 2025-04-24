@@ -2,13 +2,20 @@
 
 namespace KlabTestFramework.System.Abstractions;
 
+
 public static class SystemErrors
 {
-    public static Error ComponentTypeNotFound => Error.Create("System", "Component type not found");
-
-    public static Error ParameterNotFound => Error.Create("System", "Parameter not found", "Check the parameter name and value");
-
-    public static Error NoComponentSpecifications => Error.Create("System", "No component specifications found");
-
-    public static Error ChildrenNotMatch(string id) => Error.Create("System", "Children count does not match", $"Check the children count of the parent configuration '{id}'");
+    private const string Code = "System";
+    public static readonly Error PathIsRequired = Error.Create(Code, "Path is required.", "Check the path and try again.");
+    public static Error ComponentNotFound(string id) => Error.Create(Code, $"Component {id} not found.", "Check the component and try again.");
+    public static Error ComponentNotEnabled(string id) => Error.Create(Code, $"Component {id} is not enabled.", "Check the component and try again.");
+    public static Error ComponentHasError(string id) => Error.Create(Code, $"Component {id} has an error.", "Check the component and try again.");
+    public static Error DuplicateComponentId(string id) => Error.Create(Code, $"Duplicate component id {id}.", "Check the component id and try again.");
+    public static Error ChildrenNotMatch(string id) => Error.Create(Code, $"Children of component {id} do not match.", "Check the children and try again.");
+    public static readonly Error ComponentTypeMismatch = Error.Create(Code, "Component type mismatch.", "Check the component type and try again.");
+    public static readonly Error Cancled = Error.Create(Code, "Operation was canceled.", "Check the operation and try again.");
+    public static readonly Error ParameterNotFound = Error.Create(Code, "Parameter not found.", "Check the parameter and try again.");
+    public static Error CommunicationClosed => Error.Create(Code, "Communication closed", "Check the communication channel");
+    public static Error ComponentTypeNotFound => Error.Create(Code, "Component type not found");
+    public static Error NoComponentSpecifications => Error.Create(Code, "No component specifications found");
 }
