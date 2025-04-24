@@ -17,7 +17,7 @@ namespace KlabTestFramework.Workflow.Lib.BuiltIn;
 
 internal class SubworkflowStep : ISubworkflowStep
 {
-    public static readonly StringParameter NoneSelected = new() { Name = "none" };
+    private readonly StringParameter _noneSelected;
     private readonly IEventBus _eventBus;
 
     public StepId Id { get; set; } = StepId.Empty;
@@ -35,11 +35,15 @@ internal class SubworkflowStep : ISubworkflowStep
 
     public SubworkflowStep(ParameterFactory parameterFactory, IEventBus eventBus)
     {
+        _noneSelected = new();
+        _noneSelected.Name = "none";
+        _noneSelected.SetValue(string.Empty);
+
         SelectedSubworkflow = parameterFactory.CreateParameter<SelectableParameter<StringParameter>>
         (
             "Subworkflow",
             string.Empty,
-            p => p.SetValue(NoneSelected)
+            p => p.SetValue(_noneSelected)
         );
         _eventBus = eventBus;
     }
@@ -105,7 +109,7 @@ internal class SubworkflowStep : ISubworkflowStep
     public Task<WorkflowStepErrorValidation[]> ValidateAsync(CancellationToken cancellationToken = default)
     {
         var errors = new List<WorkflowStepErrorValidation>();
-        if (SelectedSubworkflow.Content.Options.Exists(o => o.AsString() == NoneSelected.AsString()))
+        if (SelectedSubworkflow.Content.AsString() == _noneSelected.AsString())
         {
             errors.Add(new WorkflowStepErrorValidation(this, "Subworkflow must be selected."));
         }

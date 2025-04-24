@@ -20,11 +20,6 @@ internal class SubworkflowStepHandler : IStepHandler<SubworkflowStep>
 
     public async Task<StepResult> HandleAsync(SubworkflowStep step, WorkflowContext context, CancellationToken cancellationToken = default)
     {
-        if (step.SelectedSubworkflow.Content.Value == SubworkflowStep.NoneSelected)
-        {
-            return StepResult.Failure(step, Error.Create(string.Empty, string.Empty));
-        }
-
         if (step.Subworkflow == null)
         {
             return StepResult.Failure(step, Error.Create(string.Empty, string.Empty));

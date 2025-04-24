@@ -12,9 +12,7 @@ public record StepResult
     public IStep Step { get; }
     public StepResult[] Children { get; }
     public Error Error { get; }
-
     public bool IsSuccess { get; }
-
     public bool IsFailure => !IsSuccess;
 
     public static StepResult Success(IStep step, params StepResult[] children)
