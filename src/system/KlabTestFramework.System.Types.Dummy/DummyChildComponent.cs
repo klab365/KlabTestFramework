@@ -19,12 +19,12 @@ public sealed class DummyChildComponent : IComponent<DummyChildComponentConfig>
         return ValueTask.CompletedTask;
     }
 
-    public Task<Result> InitializeAsync()
+    public Task<Result> InitializeAsync(CancellationToken cancellationToken = default)
     {
         return Task.FromResult(Result.Success());
     }
 
-    public Task<Result> ResetAsync()
+    public Task<Result> ResetAsync(CancellationToken cancellationToken = default)
     {
         return Task.FromResult(Result.Success());
     }

@@ -10,19 +10,51 @@ namespace KlabTestFramework.System.Lib.Specifications;
 internal sealed class ComponentFactory : IComponentFactory
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly List<ComponentSpecification> _specifications;
+    private readonly List<ComponentSpecification> _componentSpecifications;
+    private readonly List<CommunicatorSpecification> _communicatorSpecifications;
 
-    public ComponentFactory(IServiceProvider serviceProvider, IEnumerable<ComponentSpecification> specifications)
+    public ComponentFactory(IServiceProvider serviceProvider, IEnumerable<ComponentSpecification> componentSpecs, IEnumerable<CommunicatorSpecification> communicatorSpecs)
     {
         _serviceProvider = serviceProvider;
-        _specifications = specifications.ToList();
+        _componentSpecifications = componentSpecs.ToList();
+        _communicatorSpecifications = communicatorSpecs.ToList();
+    }
+
+    public TCommunicator CreateCommunicator<TCommunicator, TConfig>(TConfig config)
+        where TCommunicator : ICommunicator<TConfig>
+        where TConfig : notnull
+    {
+        TCommunicator communicator = CreateCommunicator<TCommunicator>();
+        if (communicator is ICommunicator<TConfig> typedCommunicator)
+        {
+            Result res = typedCommunicator.InitializeAsync(config).GetAwaiter().GetResult();
+            if (res.IsFailure)
+            {
+                throw new InvalidOperationException($"Failed to initialize communicator: {res.Error}");
+            }
+        }
+
+        return communicator;
+    }
+
+    public TCommunicator CreateCommunicator<TCommunicator>() where TCommunicator : ICommunicator
+    {
+        Type communicatorType = typeof(TCommunicator);
+        CommunicatorSpecification? specification = _communicatorSpecifications.Find(s => s.CommunicatorType == communicatorType);
+        if (specification is null)
+        {
+            throw new InvalidOperationException($"Communicator type '{communicatorType}' not found");
+        }
+
+        TCommunicator communicator = _serviceProvider.GetRequiredService<TCommunicator>();
+        return communicator;
     }
 
     public TComponent CreateComponent<TComponent>() where TComponent : IComponent
     {
         Type componentType = typeof(TComponent);
 
-        ComponentSpecification? specification = _specifications.Find(s => s.ComponentType == componentType);
+        ComponentSpecification? specification = _componentSpecifications.Find(s => s.ComponentType == componentType);
         if (specification is null)
         {
             throw new InvalidOperationException($"Component type '{componentType}' not found");
@@ -33,7 +65,7 @@ internal sealed class ComponentFactory : IComponentFactory
 
     public Result<IComponent> CreateComponent(ComponentData componentData)
     {
-        ComponentSpecification? specification = _specifications.Find(s => s.TypeKey == componentData.Type);
+        ComponentSpecification? specification = _componentSpecifications.Find(s => s.TypeKey == componentData.Type);
         if (specification is null)
         {
             return Result.Failure<IComponent>(SystemErrors.ComponentNotFound(componentData.Id));
@@ -70,8 +102,7 @@ internal sealed class ComponentFactory : IComponentFactory
         }
 
         IComponent component = (IComponent)_serviceProvider.GetRequiredService(specification.ComponentType);
-        component.SetConfig(config);
-
+        component.GetConfig().FromData(componentData);
         return Result.Success(component);
     }
 }

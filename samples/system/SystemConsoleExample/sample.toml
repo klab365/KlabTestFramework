@@ -11,5 +11,5 @@ id = "test-children1"
 name = "Children Component"
 type = "DummyChildComponent"
 parameters = [
-  { DummyParameter="127.0.0.2" }
+  { DummyParameter="127.0.0.4" }
 ]

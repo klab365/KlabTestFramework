@@ -11,14 +11,19 @@ namespace KlabTestFramework.System.Types.Dummy;
 
 public sealed class DummyComponent : IComponent<DummyComponentConfig>
 {
+    private DummyCommunicator? _communicator;
+    private readonly IComponentFactory _componentFactory;
+
     public IEnumerable<IComponent> Children => [Child1];
 
-    public DummyComponentConfig Config { get; set; } = new();
+    public DummyComponentConfig Config { get; }
 
     public DummyChildComponent Child1 { get; }
 
-    public DummyComponent(IComponentFactory componentFactory)
+    public DummyComponent(DummyComponentConfig config, IComponentFactory componentFactory)
     {
+        Config = config;
+        _componentFactory = componentFactory;
         Child1 = componentFactory.CreateComponent<DummyChildComponent>();
     }
 
@@ -27,14 +32,21 @@ public sealed class DummyComponent : IComponent<DummyComponentConfig>
         return ValueTask.CompletedTask;
     }
 
-    public Task<Result> InitializeAsync()
+    public async Task<Result> InitializeAsync(CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(Result.Success());
+        _communicator = _componentFactory.CreateCommunicator<DummyCommunicator>();
+        await _communicator.OpenAsync(cancellationToken);
+        return Result.Success();
     }
 
-    public Task<Result> ResetAsync()
+    public async Task<Result> ResetAsync(CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(Result.Success());
+        if (_communicator is not null)
+        {
+            return await _communicator.ResetAsync(cancellationToken);
+        }
+
+        return Result.Success();
     }
 }
 
@@ -45,6 +57,8 @@ public class DummyComponentConfig : IComponentConfig
     public bool IsEnabled { get; set; } = true;
     public bool HasError { get; set; }
 
+    public SelectableParameter<StringParameter> CommunicatorType { get; }
+
     public StringParameter Ip { get; } = new() { Name = "Ip" };
 
     public DummyChildComponentConfig Child1Config { get; } = new();
@@ -52,6 +66,13 @@ public class DummyComponentConfig : IComponentConfig
     public IEnumerable<IParameterType> Parameters => [Ip];
 
     public IEnumerable<IComponentConfig> Children => [Child1Config];
+
+    public DummyComponentConfig(ParameterFactory parameterFactory)
+    {
+        CommunicatorType = parameterFactory.CreateParameterType<SelectableParameter<StringParameter>>();
+        CommunicatorType.Name = "CommunicatorType";
+        CommunicatorType.AddOptions("DummyCommunicator", "DummyCommunicator");
+    }
 
     public Task<ComponentConfigValdationResult> ValidateComponentAsync(CancellationToken cancellationToken = default)
     {

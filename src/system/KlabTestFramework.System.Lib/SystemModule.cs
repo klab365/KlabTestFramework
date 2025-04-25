@@ -25,6 +25,12 @@ public static class SystemModule
             services.RegisterComponent(specification);
         }
 
+        // register communicators
+        foreach (CommunicatorSpecification communicatorSpecification in configuration.CommunicatorSpecifications)
+        {
+            services.RegisterCommunicator(communicatorSpecification);
+        }
+
         return services;
     }
 
@@ -44,6 +50,24 @@ public static class SystemModule
         }
 
         services.AddTransient(specification.ConfigType);
+        services.AddTransient(_ => specification);
+    }
+
+    private static void RegisterCommunicator(this IServiceCollection services, CommunicatorSpecification specification)
+    {
+        switch (specification.Lifetime)
+        {
+            case ServiceLifetime.Singleton:
+                services.AddSingleton(specification.CommunicatorType);
+                break;
+            case ServiceLifetime.Scoped:
+                services.AddScoped(specification.CommunicatorType);
+                break;
+            case ServiceLifetime.Transient:
+                services.AddTransient(specification.CommunicatorType);
+                break;
+        }
+
         services.AddTransient(_ => specification);
     }
 }

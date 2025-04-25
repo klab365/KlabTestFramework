@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 
-namespace KlabTestFramework.System.Abstractions.TypeInterfaces;
+namespace KlabTestFramework.System.Abstractions;
 
 /// <summary>
 /// Interface for a communicator.
@@ -20,4 +20,11 @@ public interface ICommunicator
     Task<Result> WriteAsync(byte[] request, CancellationToken cancellationToken = default);
 
     Task<Result<byte[]>> ReadAsync(int responseLength, CancellationToken cancellationToken = default);
+}
+
+public interface ICommunicator<TConfig> : ICommunicator where TConfig : notnull
+{
+    TConfig Config { get; }
+
+    Task<Result> InitializeAsync(TConfig config, CancellationToken cancellationToken = default);
 }

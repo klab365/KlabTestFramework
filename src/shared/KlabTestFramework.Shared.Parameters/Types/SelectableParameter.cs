@@ -38,7 +38,7 @@ public class SelectableParameter<TParameterType> : BaseParameterType<TParameterT
         Options.Add(option);
     }
 
-    public void AddOptions(string[] options)
+    public void AddOptions(params string[] options)
     {
         foreach (string option in options)
         {

@@ -66,7 +66,7 @@ internal sealed class SystemManager : ISystemManager
         // initialization of components (first parent, then children)
         foreach (IComponent component in _components)
         {
-            Result res = await component.InitializeAsync();
+            Result res = await component.InitializeAsync(cancellationToken);
             if (res.IsFailure)
             {
                 return res;
@@ -74,7 +74,7 @@ internal sealed class SystemManager : ISystemManager
 
             foreach (IComponent child in component.Children)
             {
-                res = await child.InitializeAsync();
+                res = await child.InitializeAsync(cancellationToken);
                 if (res.IsFailure)
                 {
                     return res;

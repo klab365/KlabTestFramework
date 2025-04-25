@@ -33,6 +33,8 @@ internal sealed class Program
                 config
                     .RegisterComponent(ComponentSpecification.Create<DummyComponentConfig, DummyComponent>())
                     .RegisterComponent(ComponentSpecification.Create<DummyChildComponentConfig, DummyChildComponent>());
+
+                config.RegisterCommunicator(CommunicatorSpecification.Create<DummyCommunicator>());
             });
         });
         IHost host = builder.Build();

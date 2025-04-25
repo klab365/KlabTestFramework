@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
-using KlabTestFramework.System.Abstractions.TypeInterfaces;
 
 namespace KlabTestFramework.System.Abstractions.Extensions;
 

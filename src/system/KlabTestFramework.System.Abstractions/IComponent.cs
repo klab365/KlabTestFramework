@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Klab.Toolkit.Results;
 
@@ -11,19 +12,17 @@ public interface IComponent : IAsyncDisposable
 
     IComponentConfig GetConfig();
 
-    void SetConfig(object config);
+    Task<Result> ResetAsync(CancellationToken cancellationToken = default);
 
-    Task<Result> ResetAsync();
-
-    Task<Result> InitializeAsync();
+    Task<Result> InitializeAsync(CancellationToken cancellationToken = default);
 }
 
-public interface IComponent<TConfig> : IComponent where TConfig : IComponentConfig
+public interface IComponent<out TConfig> : IComponent where TConfig : IComponentConfig
 {
     /// <summary>
     /// Generic Configuration of the component.
     /// </summary>
-    TConfig Config { get; set; }
+    TConfig Config { get; }
 
     /// <summary>
     /// Basic Function to get the configuration of the component without to implement on each class.
@@ -32,15 +31,5 @@ public interface IComponent<TConfig> : IComponent where TConfig : IComponentConf
     IComponentConfig IComponent.GetConfig()
     {
         return Config;
-    }
-
-    void IComponent.SetConfig(object config)
-    {
-        if (config is not TConfig typedConfig)
-        {
-            throw new ArgumentException($"Invalid config type. Expected {typeof(TConfig).Name} but received {config.GetType().Name}");
-        }
-
-        Config = typedConfig;
     }
 }
